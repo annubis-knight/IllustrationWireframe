@@ -43,18 +43,18 @@
 /* Effets */
 .pl-outer { stroke-width: .9; }
 .pl-mid { stroke-width: .8; fill: currentColor; fill-opacity: .18; }
-.pl-core { stroke: none; fill: #fff; opacity: .9; }
-.pl-diamonds { stroke: #fff; stroke-width: .8; opacity: .8; }
+.pl-core { stroke: none; fill: var(--hot, #fff); opacity: .9; }
+.pl-diamonds { stroke: var(--hot, #fff); stroke-width: .8; opacity: .8; }
 .vapor { stroke-width: .6; stroke-dasharray: 2 2.5; opacity: .5; }
 .ignite { opacity: 0; }
-.beacon { fill: #ffb547; stroke: none; }
-.beacon-halo { stroke: #ffb547; stroke-width: .8; opacity: .5; }
-.satellite circle { fill: #fff; stroke: currentColor; stroke-width: 1; }
+.beacon { fill: var(--amber, #ffb547); stroke: none; }
+.beacon-halo { stroke: var(--amber, #ffb547); stroke-width: .8; opacity: .5; }
+.satellite circle { fill: var(--hot, #fff); stroke: currentColor; stroke-width: 1; }
 .satellite path { stroke-width: 1.2; }
 .star { fill: currentColor; stroke: none; opacity: .55; }
 .streak { stroke-width: .8; opacity: .5; }
 .streak.s2 { stroke-width: 1.2; opacity: .35; }
-.streak.s3 { stroke: #fff; stroke-width: .6; opacity: .45; }
+.streak.s3 { stroke: var(--hot, #fff); stroke-width: .6; opacity: .45; }
 
 /* Annotations techniques */
 .c-dot { fill: currentColor; stroke: none; }
@@ -73,3 +73,22 @@
 .ret-h, .ret-v { stroke-width: .5; stroke-dasharray: 2 4; opacity: .5; }
 .ret-mark { stroke-width: .9; }
 .ret-txt { font-size: 7.5px; letter-spacing: .1em; }
+
+/* ── Thème clair : plan technique à l'encre ──────────────────────────────────
+ * Le halo néon n'a plus de sens sur fond papier : on coupe les filtres et on
+ * renforce légèrement les traits cachés, comme sur un calque d'architecte.
+ * ─────────────────────────────────────────────────────────────────────────── */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .illu .glow,
+  :root:not([data-theme="dark"]) .illu .fx { filter: none; }
+  :root:not([data-theme="dark"]) .g-back { opacity: .5; }
+  :root:not([data-theme="dark"]) .g-front { stroke-width: .9; }
+  :root:not([data-theme="dark"]) .hud-back { opacity: .55; }
+  :root:not([data-theme="dark"]) .pl-core { opacity: .75; }
+}
+:root[data-theme="light"] .illu .glow,
+:root[data-theme="light"] .illu .fx { filter: none; }
+:root[data-theme="light"] .g-back { opacity: .5; }
+:root[data-theme="light"] .g-front { stroke-width: .9; }
+:root[data-theme="light"] .hud-back { opacity: .55; }
+:root[data-theme="light"] .pl-core { opacity: .75; }

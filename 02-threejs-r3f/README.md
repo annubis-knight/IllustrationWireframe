@@ -33,6 +33,13 @@ Dans Nuxt, `wire.ts` et `scenes.ts` ne bougent pas ; seul `main.ts` devient un c
 - **Un seul contexte WebGL pour 3 cartes** : un canvas plein écran en `mix-blend-mode: screen`, et à chaque frame on dessine chaque scène dans le rectangle de sa carte (`viewport` + `scissor`). Résultat : **1 seul draw call par frame** côté composeur, et rien n'empêche d'en ajouter 6 autres.
 - **Au survol** : les bras de la tour pivotent (une rotation 3D, là où le SVG devait morpher un tracé), les panaches s'allongent, le lanceur avance dans son axe, le vaisseau vibre et les traînées accélèrent.
 
+## Thème clair / sombre
+
+C'est la démo qui a demandé le plus d'adaptation. En clair : le canvas passe de
+`mix-blend-mode: screen` à `multiply`, le fond et les occludeurs deviennent blancs, le bloom est
+coupé (il délaverait tout) et chaque matériau est reteinté selon son rôle (`accent`, `hot`,
+`plume`, `bg`) à partir des jetons CSS. Un rappel utile : en WebGL, rien ne suit la CSS tout seul.
+
 ## Poids et performances
 
 Mesures `npm run measure` : Chrome 153 headless (Playwright), iGPU AMD Radeon 660M (ANGLE D3D11), viewport 1440×1000, 3 relevés de 4 s par scénario, médiane retenue.

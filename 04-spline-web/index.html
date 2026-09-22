@@ -6,7 +6,7 @@
 <title>04 · Web Component — Offres Wireframe HUD</title>
 <meta name="description" content="Prototype 04 du lab IllustrationWireframe : la même section d'offres via un Web Component autonome <wire-rocket>, plus le chemin d'intégration Spline.">
 <link rel="icon" href="data:,">
-<script>document.documentElement.classList.add('js');</script>
+<script>var h=document.documentElement;h.classList.add('js');try{var t=localStorage.getItem('lab-theme');if(t)h.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -41,7 +41,7 @@
             <span class="offer__status"><i></i>Pas de tir · prêt</span>
           </header>
           <div class="offer__visual">
-            <wire-rocket tier="starter" color="#3ff0ff" label="SÉQUENCE" value="T-00:00:10" module="01 / 03" data-countdown-host></wire-rocket>
+            <wire-rocket tier="starter" label="SÉQUENCE" value="T-00:00:10" module="01 / 03" data-countdown-host></wire-rocket>
           </div>
           <div class="offer__body">
             <p class="offer__stage">Étage 1 — Base de lancement</p>
@@ -70,7 +70,7 @@
             <span class="offer__status"><i></i>En vol · nominal</span>
           </header>
           <div class="offer__visual">
-            <wire-rocket tier="booster" color="#9d8cff" label="VITESSE" value="7,66 KM/S" module="02 / 03" data-vel-host></wire-rocket>
+            <wire-rocket tier="booster" label="VITESSE" value="7,66 KM/S" module="02 / 03" data-vel-host></wire-rocket>
           </div>
           <div class="offer__body">
             <p class="offer__stage">Étage 2 — Mise en orbite</p>
@@ -98,7 +98,7 @@
             <span class="offer__status"><i></i>Hyper-vitesse</span>
           </header>
           <div class="offer__visual">
-            <wire-rocket tier="nitro" color="#ff4fd8" label="PROPULSION" value="NITRO 340 %" module="03 / 03" data-boost-host></wire-rocket>
+            <wire-rocket tier="nitro" label="PROPULSION" value="NITRO 340 %" module="03 / 03" data-boost-host></wire-rocket>
           </div>
           <div class="offer__body">
             <p class="offer__stage">Étage 3 — Vaisseau 2.0</p>
@@ -145,9 +145,9 @@
         <div class="sizes">
           <p class="sizes__title">Le même composant, trois tailles — il s'adapte à son conteneur</p>
           <div class="sizes__row">
-            <wire-rocket tier="starter" color="#3ff0ff" label="DÉMO" value="240 PX" module="S" style="width:240px"></wire-rocket>
-            <wire-rocket tier="booster" color="#9d8cff" label="DÉMO" value="170 PX" module="M" style="width:170px"></wire-rocket>
-            <wire-rocket tier="nitro" color="#ff4fd8" label="DÉMO" value="120 PX" module="L" style="width:120px"></wire-rocket>
+            <wire-rocket tier="starter" label="DÉMO" value="240 PX" module="S" style="width:240px;color:var(--c-starter)"></wire-rocket>
+            <wire-rocket tier="booster" label="DÉMO" value="170 PX" module="M" style="width:170px;color:var(--c-booster)"></wire-rocket>
+            <wire-rocket tier="nitro" label="DÉMO" value="120 PX" module="L" style="width:120px;color:var(--c-nitro)"></wire-rocket>
           </div>
         </div>
 
@@ -171,6 +171,7 @@
 
 <script src="dist/wire-rocket.js"></script>
 <script src="../_shared/perf-hud.js"></script>
+<script src="../_shared/theme.js"></script>
 <script src="js/demo.js"></script>
 </body>
 </html>

@@ -47,6 +47,30 @@ Les 4 démos partagent **le même habillage de cartes, le même contenu et les m
 
 Chaque démo a son `README.md` : rendu obtenu, poids / FPS, facilité d'animation et de personnalisation.
 
+## Thème clair / sombre
+
+Tout le lab (dashboard + 4 démos) bascule via le bouton de la barre du haut. Ce n'est pas une
+inversion : ce sont **deux identités graphiques**.
+
+| | Sombre | Clair |
+|---|---|---|
+| Intention | hologramme néon dans le noir | plan technique à l'encre sur papier |
+| Halo | filtres SVG / bloom WebGL / additif Canvas | supprimé — le trait porte seul |
+| Accents | cyan / violet / magenta fluo | teal, indigo et magenta encrés |
+
+Le thème suit le réglage du système, et le choix manuel est mémorisé (`localStorage`). Chaque
+technologie a dû s'adapter à sa manière — c'est en soi un point de comparaison :
+
+- **01 SVG** : rien à coder, tout est en `currentColor` et en jetons CSS. Seuls les filtres de
+  glow sont coupés en clair.
+- **02 Three.js** : le plus de travail. Le canvas passe de `mix-blend-mode: screen` à `multiply`,
+  la couleur de fond et celle des occludeurs changent, le bloom est désactivé, et chaque matériau
+  est reteinté selon son rôle (`accent`, `hot`, `plume`, `bg`).
+- **03 Canvas 2D** : le mélange additif (`lighter`) devient un tracé normal, et les traits sont
+  légèrement épaissis pour compenser l'absence de halo.
+- **04 Web Component** : il hérite simplement de la couleur de sa carte et écoute l'événement
+  `themechange` — même déposé dans une page tierce, il suit le thème de son hôte.
+
 ## Comparatif mesuré
 
 | | 01 SVG + GSAP | 02 Three.js | 03 Canvas 2D | 04 Web Component |

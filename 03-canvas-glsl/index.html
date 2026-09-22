@@ -6,7 +6,7 @@
 <title>03 · Canvas 2D — Offres Wireframe HUD</title>
 <meta name="description" content="Prototype 03 du lab IllustrationWireframe : section d'offres HUD sci-fi en projection 3D temps réel, Canvas 2D, zéro dépendance.">
 <link rel="icon" href="data:,">
-<script>document.documentElement.classList.add('js');</script>
+<script>var h=document.documentElement;h.classList.add('js');try{var t=localStorage.getItem('lab-theme');if(t)h.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -185,6 +185,7 @@
 <script src="js/engine.js"></script>
 <script src="js/scenes.js"></script>
 <script src="../_shared/perf-hud.js"></script>
+<script src="../_shared/theme.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

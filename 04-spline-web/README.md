@@ -48,6 +48,12 @@ La page contient les 3 cartes d'offre, puis une section « intégration » avec 
 
 Le rendu interne est le moteur Canvas 2D du prototype 03, assemblé par `tools/bundle.mjs` : moteur + scènes + élément, le tout dans une IIFE (aucune variable globale n'est exposée). L'intérêt n'est donc pas le rendu — déjà mesuré en 03 — mais **le mode de distribution**.
 
+## Thème clair / sombre
+
+Le composant n'impose pas ses couleurs : sans attribut `color`, il hérite de la couleur CSS de son
+hôte (la page gagne toujours sur `:host`) et écoute l'événement `themechange`. Déposé dans
+n'importe quelle page, il suit donc le thème de celle-ci, sans configuration.
+
 ## Poids et performances
 
 | Poste | Brut | gzip |

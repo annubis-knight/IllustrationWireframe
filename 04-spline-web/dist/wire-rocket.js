@@ -21,16 +21,16 @@
    */
   (() => {
     'use strict';
-
+  
     const TAU = Math.PI * 2;
     const rad = (d) => (d * Math.PI) / 180;
-
+  
     /* ── Construction des formes ─────────────────────────────────────────── */
     // Un objet = liste de traits. Un trait = { p: [x,y,z, …], n: [nx,ny,nz, …] | null, w, alpha, fx }
     // `n` porte la normale de surface au point : elle sert au tri vues / cachées, chaque frame.
-
+  
     const stroke = (p, n, opts = {}) => ({ p: Float32Array.from(p), n: n ? Float32Array.from(n) : null, w: opts.w ?? 1, alpha: opts.alpha ?? 1, fx: opts.fx ?? false, closed: !!opts.closed });
-
+  
     /** Surface de révolution autour de Y : anneaux + méridiens (avec normales). */
     function lathe(profile, { segments = 40, meridians = 12, rings, w = 1, alpha = 1 } = {}) {
       const out = [];
@@ -47,7 +47,7 @@
         p.push(r * c, y, r * s);
         n.push(c * dy, -dr, s * dy);
       };
-
+  
       for (const i of rings ?? profile.map((_, k) => k)) {
         if (profile[i][0] < 1e-3) continue;
         const p = [];
@@ -64,7 +64,7 @@
       }
       return out;
     }
-
+  
     /** Sphère filaire. */
     function sphere(radius, { lat = 7, lon = 12, segments = 48, w = 1, alpha = 1 } = {}) {
       const out = [];
@@ -91,7 +91,7 @@
       }
       return out;
     }
-
+  
     /** Cercle dans le plan XZ (orbite, anneau de réacteur). */
     function ring(radius, { segments = 64, y = 0, w = 1, alpha = 1, fx = false } = {}) {
       const p = [];
@@ -101,7 +101,7 @@
       }
       return [stroke(p, null, { w, alpha, fx })];
     }
-
+  
     /** Polyligne 3D libre. */
     function line(points, { w = 1, alpha = 1, fx = false, closed = false } = {}) {
       const p = [];
@@ -109,7 +109,7 @@
       if (closed && points.length > 2) p.push(points[0][0], points[0][1], points[0][2]);
       return [stroke(p, null, { w, alpha, fx })];
     }
-
+  
     /** Tour en treillis (montants, ceintures, croisillons). */
     function truss(width, height, levels, { w = 0.8, alpha = 1 } = {}) {
       const out = [];
@@ -130,7 +130,7 @@
       }
       return out;
     }
-
+  
     /** Grille circulaire au sol. */
     function grid(radius, step, { w = 0.5, alpha = 0.4 } = {}) {
       const out = [];
@@ -142,7 +142,7 @@
       }
       return out;
     }
-
+  
     /* ── Nœud : un groupe de traits avec sa transformation ───────────────── */
     class Node {
       constructor(strokes = [], { pos = [0, 0, 0], rot = [0, 0, 0], scale = 1 } = {}) {
@@ -153,12 +153,12 @@
         this.visible = true;
         this.children = [];
       }
-
+  
       add(node) {
         this.children.push(node);
         return node;
       }
-
+  
       /** Matrice 3×3 (rotation ZXY) + translation, recalculée à chaque frame. */
       matrix(out) {
         const [rx, ry, rz] = this.rot;
@@ -186,7 +186,7 @@
         return out;
       }
     }
-
+  
     /* ── Rendu ───────────────────────────────────────────────────────────── */
     class Renderer {
       constructor(canvas, { color = '#3ff0ff', fov = 30, dist = 44 } = {}) {
@@ -199,6 +199,7 @@
         this.pitch = rad(12);
         this.yaw = 0;
         this.glow = true;
+        this.light = false; // thème clair : encre sur papier, pas de néon additif
         this.alpha = 1; // pilotée par l'intro
         this.dpr = 1;
         this._m = new Float32Array(12);
@@ -206,7 +207,7 @@
         this._back = [];
         this._fx = [];
       }
-
+  
       resize() {
         const rect = this.canvas.getBoundingClientRect();
         const dpr = Math.min(devicePixelRatio || 1, 2);
@@ -222,7 +223,7 @@
         this.f = this.h / 2 / Math.tan(rad(this.fov) / 2); // focale en pixels
         return rect.width > 0;
       }
-
+  
       /** Monde → caméra → écran. La caméra vise `target`, orbite de `yaw` et plonge de `pitch`. */
       project(x, y, z, out) {
         const dx = x - this.target[0];
@@ -240,7 +241,7 @@
         out[2] = pz;
         return pz;
       }
-
+  
       /** Profondeur caméra seule (sert au tri vues / cachées, sans projeter). */
       camZ(x, y, z) {
         const dx = x - this.target[0];
@@ -249,7 +250,7 @@
         const pz0 = -dx * Math.sin(-this.yaw) + dz * Math.cos(-this.yaw);
         return dy * Math.sin(-this.pitch) + pz0 * Math.cos(-this.pitch) + this.dist;
       }
-
+  
       draw(root, { time = 0 } = {}) {
         if (!this.resize()) return;
         const ctx = this.ctx;
@@ -264,7 +265,7 @@
         this._paint(this._front, { alpha: this.alpha, glow: this.glow });
         void time;
       }
-
+  
       /** Parcourt l'arbre, projette, et trie chaque segment vu / caché. */
       _collect(node, parent) {
         if (!node.visible) return;
@@ -273,17 +274,17 @@
         const p0 = [0, 0, 0];
         const p1 = [0, 0, 0];
         const n0 = [0, 0, 0];
-
+  
         for (const s of node.strokes) {
           const pts = s.p;
           const nrm = s.n;
           let run = null;
-
+  
           for (let i = 0; i < pts.length; i += 3) {
             transform(w, pts[i], pts[i + 1], pts[i + 2], p1);
             this.project(p1[0], p1[1], p1[2], p0);
             const xy = [p0[0], p0[1]];
-
+  
             // Face tournée vers la caméra ? On compare la profondeur du point et celle du point
             // décalé le long de sa normale : plus proche = surface vue.
             let front = true;
@@ -291,7 +292,7 @@
               rotate(w, nrm[i], nrm[i + 1], nrm[i + 2], n0);
               front = this.camZ(p1[0] + n0[0], p1[1] + n0[1], p1[2] + n0[2]) < this.camZ(p1[0], p1[1], p1[2]);
             }
-
+  
             if (!run) {
               run = { front, pts: [xy] };
               continue;
@@ -306,14 +307,14 @@
         }
         for (const child of node.children) this._collect(child, w);
       }
-
+  
       /** Range un tronçon dans son calque : effets / lignes cachées / lignes vues. */
       _push(run, s, hasNormals) {
         if (run.pts.length < 2) return;
         const bucket = s.fx ? this._fx : hasNormals && !run.front ? this._back : this._front;
         bucket.push({ run: run.pts, w: s.w, alpha: s.alpha });
       }
-
+  
       _paint(list, { dash = null, alpha = 1, glow = false, additive = false }) {
         if (!list.length) return;
         const ctx = this.ctx;
@@ -322,8 +323,10 @@
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         if (dash) ctx.setLineDash(dash);
-        if (additive) ctx.globalCompositeOperation = 'lighter';
-
+        // En thème clair, le mélange additif éclaircirait l'encre : on reste en tracé normal
+        const blend = this.light ? 'source-over' : 'lighter';
+        if (additive) ctx.globalCompositeOperation = blend;
+  
         // Regroupement par (épaisseur, opacité) : un seul `stroke` par groupe au lieu d'un par trait.
         // C'est le principal levier de perf en Canvas 2D — chaque appel à stroke() coûte cher.
         const groups = new Map();
@@ -333,23 +336,24 @@
           if (!g) groups.set(key, (g = { w: item.w, a: item.alpha, runs: [] }));
           g.runs.push(item.run);
         }
-
+  
         // Halo : même tracé, épais et transparent, en mélange additif (le « glow » du canvas 2D)
         if (glow) {
-          ctx.globalCompositeOperation = 'lighter';
+          ctx.globalCompositeOperation = blend;
           for (const g of groups.values()) {
-            ctx.globalAlpha = 0.09 * alpha * g.a;
+            ctx.globalAlpha = (this.light ? 0.05 : 0.09) * alpha * g.a;
             ctx.lineWidth = g.w * 5;
             ctx.beginPath();
             for (const run of g.runs) trace(ctx, run);
             ctx.stroke();
           }
-          ctx.globalCompositeOperation = additive ? 'lighter' : 'source-over';
+          ctx.globalCompositeOperation = additive ? blend : 'source-over';
         }
-
+  
         for (const g of groups.values()) {
           ctx.globalAlpha = alpha * g.a;
-          ctx.lineWidth = g.w;
+          // Sur papier, sans halo pour épaissir le trait, on compense un peu
+          ctx.lineWidth = g.w * (this.light ? 1.25 : 1);
           ctx.beginPath();
           for (const run of g.runs) trace(ctx, run);
           ctx.stroke();
@@ -357,12 +361,12 @@
         ctx.restore();
       }
     }
-
+  
     function trace(ctx, run) {
       ctx.moveTo(run[0][0], run[0][1]);
       for (let i = 1; i < run.length; i++) ctx.lineTo(run[i][0], run[i][1]);
     }
-
+  
     /* Matrices « 3×3 + translation » stockées à plat (9 + 3) */
     function combine(a, b) {
       const o = new Float32Array(12);
@@ -376,19 +380,19 @@
       o[11] = a[2] * b[9] + a[5] * b[10] + a[8] * b[11] + a[11];
       return o;
     }
-
+  
     function transform(m, x, y, z, out) {
       out[0] = m[0] * x + m[3] * y + m[6] * z + m[9];
       out[1] = m[1] * x + m[4] * y + m[7] * z + m[10];
       out[2] = m[2] * x + m[5] * y + m[8] * z + m[11];
     }
-
+  
     function rotate(m, x, y, z, out) {
       out[0] = m[0] * x + m[3] * y + m[6] * z;
       out[1] = m[1] * x + m[4] * y + m[7] * z;
       out[2] = m[2] * x + m[5] * y + m[8] * z;
     }
-
+  
     scope.WIRE = { Node, Renderer, lathe, sphere, ring, line, truss, grid, rad, TAU };
   })();
 
@@ -642,10 +646,11 @@
    */
   (() => {
     'use strict';
-
+  
     const TEMPLATE = document.createElement('template');
     TEMPLATE.innerHTML = `
       <style>
+        /* La page peut surcharger cette couleur (elle gagne sur :host) → le composant suit le thème */
         :host { position: relative; display: block; aspect-ratio: 400 / 420; color: #3ff0ff; contain: content; }
         canvas, svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
         svg { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round;
@@ -672,12 +677,12 @@
         <text class="v" x="382" y="45" text-anchor="end" data-module></text>
         <path class="corners" d="M10 30V10H30M370 10H390V30M390 390V410H370M30 410H10V390"/>
       </svg>`;
-
+  
     const lerp = (a, b, k) => a + (b - a) * k;
-
+  
     class WireRocket extends HTMLElement {
       static observedAttributes = ['tier', 'color', 'label', 'value', 'module', 'glow', 'boost', 'paused'];
-
+  
       #raf = 0;
       #hover = 0;
       #target = 0;
@@ -685,38 +690,48 @@
       #t = 0;
       #last = 0;
       #visible = true;
-
+      #mq = null;
+  
       constructor() {
         super();
         this.attachShadow({ mode: 'open' }).append(TEMPLATE.content.cloneNode(true));
         this.canvas = this.shadowRoot.querySelector('canvas');
         this.reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
       }
-
+  
       connectedCallback() {
         const tier = this.getAttribute('tier') || 'starter';
-        const color = this.getAttribute('color') || getComputedStyle(this).color || '#3ff0ff';
-        this.style.color = color;
+        // Sans attribut `color`, on hérite de la couleur de la page → le composant suit son thème
+        const color = this.#resolveColor();
+        if (this.getAttribute('color')) this.style.color = color;
         this.renderer = new scope.WIRE.Renderer(this.canvas, { color });
         this.scene = scope.SCENES[tier](this.renderer);
         this.basePitch = this.renderer.pitch;
         this.#intro = this.reduced ? 1 : 0;
         this.#syncText();
-
+  
         this.addEventListener('pointerenter', () => (this.boost = true));
         this.addEventListener('pointerleave', () => (this.boost = false));
-
+  
         this.observer = new IntersectionObserver(([e]) => (this.#visible = e.isIntersecting));
         this.observer.observe(this);
+  
+        // Thème clair / sombre : piloté par la page (événement) ou par le système
+        this.#mq = matchMedia('(prefers-color-scheme: light)');
+        this.#mq.addEventListener('change', this.#applyTheme);
+        addEventListener('themechange', this.#applyTheme);
+        this.#applyTheme();
         this.#last = performance.now();
         this.#loop(this.#last);
       }
-
+  
       disconnectedCallback() {
         cancelAnimationFrame(this.#raf);
         this.observer?.disconnect();
+        this.#mq?.removeEventListener('change', this.#applyTheme);
+        removeEventListener('themechange', this.#applyTheme);
       }
-
+  
       attributeChangedCallback(name, _old, value) {
         if (!this.renderer) return;
         if (name === 'color') {
@@ -730,29 +745,40 @@
           this.#syncText();
         }
       }
-
+  
+      #resolveColor() {
+        return this.getAttribute('color') || getComputedStyle(this).color || '#3ff0ff';
+      }
+  
+      #applyTheme = () => {
+        if (!this.renderer) return;
+        const t = document.documentElement.dataset.theme;
+        this.renderer.light = t ? t === 'light' : matchMedia('(prefers-color-scheme: light)').matches;
+        this.renderer.color = this.#resolveColor();
+      };
+  
       get boost() {
         return this.#target > 0.5;
       }
-
+  
       set boost(v) {
         this.#target = v ? 1 : 0;
         this.dispatchEvent(new CustomEvent('boostchange', { detail: { boost: !!v } }));
       }
-
+  
       #syncText() {
         const q = (sel) => this.shadowRoot.querySelector(sel);
         q('[data-label]').textContent = this.getAttribute('label') || '';
         q('[data-value]').textContent = this.getAttribute('value') || '';
         q('[data-module]').textContent = this.getAttribute('module') || '';
       }
-
+  
       #loop = (now) => {
         this.#raf = requestAnimationFrame(this.#loop);
         const dt = Math.min(0.05, (now - this.#last) / 1000);
         this.#last = now;
         if (!this.#visible || this.hasAttribute('paused')) return;
-
+  
         this.#t += dt;
         this.#hover = lerp(this.#hover, this.#target, 0.09);
         this.#intro = lerp(this.#intro, 1, 0.05);
@@ -763,7 +789,7 @@
         this.renderer.draw(this.scene.root, { time: this.#t });
       };
     }
-
+  
     customElements.define('wire-rocket', WireRocket);
   })();
 

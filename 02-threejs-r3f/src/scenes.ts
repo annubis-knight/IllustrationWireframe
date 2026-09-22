@@ -42,11 +42,15 @@ const NACELLE: Profile = [[0.42, 0], [0.55, 0.3], [0.58, 0.9], [0.58, 2.6], [0.5
 /** Volume noir opaque qui masque les lignes situées derrière (élimination des parties cachées). */
 function occluder(profile: Profile, segments = 32): THREE.Mesh {
   const geometry = new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(Math.max(r, 0.001), y)), segments);
-  return new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: BG }));
+  const material = new THREE.MeshBasicMaterial({ color: BG });
+  material.userData.role = 'bg'; // suit la couleur de fond quand le thème change
+  return new THREE.Mesh(geometry, material);
 }
 
 function occluderSphere(radius: number): THREE.Mesh {
-  return new THREE.Mesh(new THREE.SphereGeometry(radius * 0.99, 32, 24), new THREE.MeshBasicMaterial({ color: BG }));
+  const material = new THREE.MeshBasicMaterial({ color: BG });
+  material.userData.role = 'bg';
+  return new THREE.Mesh(new THREE.SphereGeometry(radius * 0.99, 32, 24), material);
 }
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
@@ -176,7 +180,9 @@ function booster(res: THREE.Vector2, color: number): View {
   const orbitLines = lines(ring(10.5, 96), { color, width: 1.2, opacity: 0.7, resolution: res });
   materials.push(orbitLines.material);
   orbit.add(orbitLines);
-  const satellite = new THREE.Mesh(new THREE.OctahedronGeometry(0.28), new THREE.MeshBasicMaterial({ color: WHITE }));
+  const satMat = new THREE.MeshBasicMaterial({ color: WHITE });
+  satMat.userData.role = 'hot';
+  const satellite = new THREE.Mesh(new THREE.OctahedronGeometry(0.28), satMat);
   orbit.add(satellite);
   root.add(orbit);
 

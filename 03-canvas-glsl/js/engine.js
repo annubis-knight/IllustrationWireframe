@@ -187,6 +187,7 @@
       this.pitch = rad(12);
       this.yaw = 0;
       this.glow = true;
+      this.light = false; // thème clair : encre sur papier, pas de néon additif
       this.alpha = 1; // pilotée par l'intro
       this.dpr = 1;
       this._m = new Float32Array(12);
@@ -310,7 +311,9 @@
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       if (dash) ctx.setLineDash(dash);
-      if (additive) ctx.globalCompositeOperation = 'lighter';
+      // En thème clair, le mélange additif éclaircirait l'encre : on reste en tracé normal
+      const blend = this.light ? 'source-over' : 'lighter';
+      if (additive) ctx.globalCompositeOperation = blend;
 
       // Regroupement par (épaisseur, opacité) : un seul `stroke` par groupe au lieu d'un par trait.
       // C'est le principal levier de perf en Canvas 2D — chaque appel à stroke() coûte cher.
@@ -324,20 +327,21 @@
 
       // Halo : même tracé, épais et transparent, en mélange additif (le « glow » du canvas 2D)
       if (glow) {
-        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalCompositeOperation = blend;
         for (const g of groups.values()) {
-          ctx.globalAlpha = 0.09 * alpha * g.a;
+          ctx.globalAlpha = (this.light ? 0.05 : 0.09) * alpha * g.a;
           ctx.lineWidth = g.w * 5;
           ctx.beginPath();
           for (const run of g.runs) trace(ctx, run);
           ctx.stroke();
         }
-        ctx.globalCompositeOperation = additive ? 'lighter' : 'source-over';
+        ctx.globalCompositeOperation = additive ? blend : 'source-over';
       }
 
       for (const g of groups.values()) {
         ctx.globalAlpha = alpha * g.a;
-        ctx.lineWidth = g.w;
+        // Sur papier, sans halo pour épaissir le trait, on compense un peu
+        ctx.lineWidth = g.w * (this.light ? 1.25 : 1);
         ctx.beginPath();
         for (const run of g.runs) trace(ctx, run);
         ctx.stroke();

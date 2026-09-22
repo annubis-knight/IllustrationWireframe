@@ -14,6 +14,7 @@ import { BUILDERS, type SceneState, type Tier, type View } from './scenes';
 import '../../_shared/offers.css';
 import './style.css';
 import '../../_shared/perf-hud.js';
+import '../../_shared/theme.js';
 
 const COLORS: Record<Tier, number> = { starter: 0x3ff0ff, booster: 0x9d8cff, nitro: 0xff4fd8 };
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -97,6 +98,49 @@ composer.addPass(viewsPass);
 composer.addPass(bloom);
 composer.addPass(output);
 
+/* ── Thème ──────────────────────────────────────────────────────────────────
+ * Sombre : lignes néon sur noir, canvas en `screen`, bloom actif.
+ * Clair  : encre foncée sur blanc, canvas en `multiply`, bloom coupé (il délaverait tout).
+ * Les couleurs viennent des jetons CSS, comme pour les autres démos.
+ * ─────────────────────────────────────────────────────────────────────────── */
+let light = false;
+let bloomWanted = true;
+
+function applyTheme() {
+  const t = document.documentElement.dataset.theme;
+  light = t ? t === 'light' : matchMedia('(prefers-color-scheme: light)').matches;
+  const token = (n: string, fb: string) => window.LabTheme?.token(n, fb) || fb;
+  const hot = new THREE.Color(token('--hot', '#ffffff'));
+  const bg = new THREE.Color(light ? 0xffffff : 0x000000);
+
+  canvas.style.mixBlendMode = light ? 'multiply' : 'screen';
+  renderer.setClearColor(bg, 1);
+  bloom.enabled = bloomWanted && !light;
+
+  for (const c of cards) {
+    const accent = new THREE.Color(token(`--c-${c.card.dataset.tier}`, '#3ff0ff'));
+    c.view.scene.traverse((o: any) => {
+      const mats: THREE.Material[] = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : [];
+      for (const m of mats) {
+        const role = (m as any).userData?.role;
+        if (role === 'accent' || role === 'hot') {
+          (m as any).color.copy(role === 'hot' ? hot : accent);
+          (m as any).blending = light || !(m as any).userData.additive ? THREE.NormalBlending : THREE.AdditiveBlending;
+        } else if (role === 'plume') {
+          const u = (m as THREE.ShaderMaterial).uniforms;
+          u.uColor.value.copy(accent);
+          u.uDark.value = light ? 0 : 1;
+          (m as any).blending = light ? THREE.NormalBlending : THREE.AdditiveBlending;
+        } else if (role === 'bg') {
+          (m as any).color.copy(bg);
+        }
+        m.needsUpdate = true;
+      }
+    });
+  }
+}
+addEventListener('themechange', applyTheme);
+
 function resize() {
   const w = innerWidth;
   const h = innerHeight;
@@ -108,6 +152,7 @@ function resize() {
 }
 addEventListener('resize', resize);
 resize();
+applyTheme();
 
 /* ── Étiquette ancrée à un point 3D (la contrepartie du WebGL : le texte reste en DOM) ── */
 const ndc = new THREE.Vector3();
@@ -251,7 +296,8 @@ document.querySelector('.lab-panel')!.addEventListener('click', (e) => {
   const pressed = btn.getAttribute('aria-pressed') !== 'true';
   if (btn.dataset.toggle === 'glow') {
     btn.setAttribute('aria-pressed', String(pressed));
-    bloom.enabled = pressed;
+    bloomWanted = pressed;
+    bloom.enabled = pressed && !light;
     window.PerfHUD?.set('bloom', pressed ? 'on' : 'off');
   } else if (btn.dataset.toggle === 'anim') {
     btn.setAttribute('aria-pressed', String(pressed));
@@ -273,5 +319,8 @@ window.__lab = {
     c.hoverTarget = v ? 1 : 0;
     c.card.classList.toggle('is-active', v);
   }),
-  setGlow: (v: boolean) => (bloom.enabled = v),
+  setGlow: (v: boolean) => {
+    bloomWanted = v;
+    bloom.enabled = v && !light;
+  },
 };

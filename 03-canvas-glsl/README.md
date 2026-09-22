@@ -28,6 +28,12 @@ Deux détails qui font la différence de performance :
 - **Regroupement des tracés.** Chaque appel à `stroke()` coûte cher en Canvas 2D. Les ~6 900 segments sont regroupés par épaisseur et opacité, puis tracés en quelques appels seulement.
 - **Glow sans filtre.** Pas de `shadowBlur` (très lent) : chaque groupe est dessiné deux fois, une passe large et transparente en mélange additif (`globalCompositeOperation = 'lighter'`), puis le trait net par-dessus.
 
+## Thème clair / sombre
+
+En clair, le mélange additif (`globalCompositeOperation = 'lighter'`), qui fait tout l'effet néon
+sur fond noir, éclaircirait l'encre : il repasse en tracé normal, et les traits sont épaissis de
+25 % pour compenser la disparition du halo. Deux lignes dans le moteur, pilotées par un booléen.
+
 ## Poids et performances
 
 Mesures `npm run measure` : Chrome 153 headless (Playwright), viewport 1440×1000, 3 relevés de 4 s par scénario, médiane retenue.

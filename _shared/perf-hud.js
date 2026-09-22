@@ -74,11 +74,14 @@
   el.innerHTML = `
     <style>
       .perf-hud{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:12px;z-index:9999;
-        font:500 11px/1.35 ui-monospace,"JetBrains Mono",Consolas,monospace;color:#bff6ff;
-        background:rgba(2,10,18,.78);border:1px solid rgba(90,230,255,.35);padding:8px 10px 6px;
+        font:500 11px/1.35 ui-monospace,"JetBrains Mono",Consolas,monospace;
+        color:var(--ink,#bff6ff);background:var(--panel-solid,rgba(2,10,18,.78));
+        border:1px solid var(--line,rgba(90,230,255,.35));padding:8px 10px 6px;
         min-width:168px;backdrop-filter:blur(6px);pointer-events:none;letter-spacing:.04em}
       .perf-hud[hidden]{display:none}
-      .perf-hud b{color:#fff;font-weight:700}
+      .perf-hud b{color:var(--title,#fff);font-weight:700}
+      /* Vert / ambre / rouge lisibles sur fond sombre comme sur fond clair */
+      .perf-hud .ph-ok{color:#22c55e}.perf-hud .ph-warn{color:#d97706}.perf-hud .ph-bad{color:#e11d48}
       .perf-hud .ph-big{font-size:20px;line-height:1}
       .perf-hud .ph-row{display:flex;justify-content:space-between;gap:12px;opacity:.85}
       .perf-hud canvas{display:block;width:100%;height:22px;margin:6px 0 4px}
@@ -99,7 +102,7 @@
     if (el.hidden) return;
     const s = stats();
     $fps.textContent = Math.round(fpsNow);
-    $fps.style.color = fpsNow >= 55 ? '#7dffb2' : fpsNow >= 40 ? '#ffd166' : '#ff5c7a';
+    $fps.className = 'ph-big ' + (fpsNow >= 55 ? 'ph-ok' : fpsNow >= 40 ? 'ph-warn' : 'ph-bad');
     $ms.textContent = `${(1000 / (fpsNow || 1)).toFixed(1)} ms`;
 
     history.push(fpsNow);
@@ -107,7 +110,7 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     history.forEach((f, i) => {
       const h = Math.max(1, Math.min(1, f / 60) * canvas.height);
-      ctx.fillStyle = f >= 55 ? '#3ff0ff' : f >= 40 ? '#ffd166' : '#ff5c7a';
+      ctx.fillStyle = f >= 55 ? (getComputedStyle(el).getPropertyValue('--c-starter').trim() || '#3ff0ff') : f >= 40 ? '#d97706' : '#e11d48';
       ctx.fillRect(i * 4, canvas.height - h, 3, h);
     });
 

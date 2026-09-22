@@ -135,6 +135,18 @@
   if (reduced) cards.forEach((c) => c.card.classList.add('is-in'));
   addEventListener('resize', () => cards.forEach((c) => c.renderer.resize()));
 
+  /* ── Thème : les couleurs viennent des jetons CSS, le mélange s'adapte ── */
+  function applyTheme() {
+    const t = document.documentElement.dataset.theme;
+    const light = t ? t === 'light' : matchMedia('(prefers-color-scheme: light)').matches;
+    for (const c of cards) {
+      c.renderer.color = window.LabTheme?.token(`--c-${c.tier}`) || COLORS[c.tier];
+      c.renderer.light = light;
+    }
+  }
+  addEventListener('themechange', applyTheme);
+  applyTheme();
+
   /* ── Compteurs HUD ── */
   for (const c of cards) {
     const price = c.card.querySelector('[data-count]');

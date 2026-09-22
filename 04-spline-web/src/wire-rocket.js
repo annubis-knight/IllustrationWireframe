@@ -17,6 +17,7 @@
   const TEMPLATE = document.createElement('template');
   TEMPLATE.innerHTML = `
     <style>
+      /* La page peut surcharger cette couleur (elle gagne sur :host) → le composant suit le thème */
       :host { position: relative; display: block; aspect-ratio: 400 / 420; color: #3ff0ff; contain: content; }
       canvas, svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
       svg { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round;
@@ -56,6 +57,7 @@
     #t = 0;
     #last = 0;
     #visible = true;
+    #mq = null;
 
     constructor() {
       super();
@@ -66,8 +68,9 @@
 
     connectedCallback() {
       const tier = this.getAttribute('tier') || 'starter';
-      const color = this.getAttribute('color') || getComputedStyle(this).color || '#3ff0ff';
-      this.style.color = color;
+      // Sans attribut `color`, on hérite de la couleur de la page → le composant suit son thème
+      const color = this.#resolveColor();
+      if (this.getAttribute('color')) this.style.color = color;
       this.renderer = new scope.WIRE.Renderer(this.canvas, { color });
       this.scene = scope.SCENES[tier](this.renderer);
       this.basePitch = this.renderer.pitch;
@@ -79,6 +82,12 @@
 
       this.observer = new IntersectionObserver(([e]) => (this.#visible = e.isIntersecting));
       this.observer.observe(this);
+
+      // Thème clair / sombre : piloté par la page (événement) ou par le système
+      this.#mq = matchMedia('(prefers-color-scheme: light)');
+      this.#mq.addEventListener('change', this.#applyTheme);
+      addEventListener('themechange', this.#applyTheme);
+      this.#applyTheme();
       this.#last = performance.now();
       this.#loop(this.#last);
     }
@@ -86,6 +95,8 @@
     disconnectedCallback() {
       cancelAnimationFrame(this.#raf);
       this.observer?.disconnect();
+      this.#mq?.removeEventListener('change', this.#applyTheme);
+      removeEventListener('themechange', this.#applyTheme);
     }
 
     attributeChangedCallback(name, _old, value) {
@@ -101,6 +112,17 @@
         this.#syncText();
       }
     }
+
+    #resolveColor() {
+      return this.getAttribute('color') || getComputedStyle(this).color || '#3ff0ff';
+    }
+
+    #applyTheme = () => {
+      if (!this.renderer) return;
+      const t = document.documentElement.dataset.theme;
+      this.renderer.light = t ? t === 'light' : matchMedia('(prefers-color-scheme: light)').matches;
+      this.renderer.color = this.#resolveColor();
+    };
 
     get boost() {
       return this.#target > 0.5;

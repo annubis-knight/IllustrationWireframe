@@ -3,10 +3,12 @@
  * Le visuel entier est dans <wire-rocket> (Shadow DOM) : la page ne style que son enveloppe.
  */
 
-wire-rocket {
+/* La couleur de la carte gagne sur le :host du composant → il suit le thème */
+.offer__visual wire-rocket {
   position: absolute;
   inset: 0;
   display: block;
+  color: var(--accent);
 }
 
 .js .offer.is-in { visibility: visible; animation: card-in .8s var(--ease) both; }

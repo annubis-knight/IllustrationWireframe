@@ -31,6 +31,12 @@ Communs aux 3 cartes :
 - **Lignes cachées en pointillés** (convention du dessin technique) et silhouettes plus épaisses : c'est ce qui donne le rendu « plan d'aérospatiale ».
 - `prefers-reduced-motion` : tout est affiché directement, sans animation. Sans JS : le SVG complet reste visible.
 
+## Thème clair / sombre
+
+Le visuel suit le thème du lab sans une ligne de JavaScript : tout est en `currentColor`
+alimenté par les jetons CSS. En clair, les filtres de glow sont simplement coupés (`filter: none`)
+et les lignes cachées sont un peu plus contrastées — le rendu devient un plan d'architecte.
+
 ## Poids des assets et performances
 
 Mesures `npm run measure` : Chrome 153 headless piloté par Playwright, iGPU AMD Radeon 660M (ANGLE D3D11), viewport 1440×1000, DPR 1, 3 cartes à l'écran, 3 relevés de 4 s par scénario, **médiane** retenue.

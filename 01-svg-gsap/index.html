@@ -6,7 +6,7 @@
 <title>01 · SVG + GSAP — Offres Wireframe HUD</title>
 <meta name="description" content="Prototype 01 du lab IllustrationWireframe : section d'offres HUD sci-fi en SVG inline filaire animé avec GSAP.">
 <link rel="icon" href="data:,">
-<script>document.documentElement.classList.add('js');</script>
+<script>var h=document.documentElement;h.classList.add('js');try{var t=localStorage.getItem('lab-theme');if(t)h.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -288,6 +288,7 @@
 <script src="vendor/gsap.min.js"></script>
 <script src="vendor/MotionPathPlugin.min.js"></script>
 <script src="../_shared/perf-hud.js"></script>
+<script src="../_shared/theme.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

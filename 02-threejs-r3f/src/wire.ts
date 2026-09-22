@@ -125,6 +125,9 @@ export function lines(segs: Seg, { color, width = 1.4, opacity = 1, additive = f
     blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending,
   });
   material.resolution = resolution;
+  // Rôle : permet de reteinter le bon matériau quand le thème change (cf. applyTheme dans main.ts)
+  material.userData.role = new THREE.Color(color).getHex() === 0xffffff ? 'hot' : 'accent';
+  material.userData.additive = additive;
   const mesh = new LineSegments2(geometry, material);
   mesh.computeLineDistances();
   return mesh;
@@ -139,6 +142,7 @@ export function plume(radius: number, length: number, color: THREE.ColorRepresen
       uColor: { value: new THREE.Color(color) },
       uTime: { value: 0 },
       uIntensity: { value: 1 },
+      uDark: { value: 1 }, // 1 = cœur blanc incandescent (thème sombre), 0 = flamme à l'encre
     },
     vertexShader: /* glsl */ `
       varying vec2 vUv;
@@ -161,11 +165,12 @@ export function plume(radius: number, length: number, color: THREE.ColorRepresen
       varying float vLen;
       uniform vec3 uColor;
       uniform float uTime;
+      uniform float uDark;
       void main() {
         // vUv.y = 1 à la tuyère, 0 à la pointe
         float core = smoothstep(0.0, 1.0, vUv.y);
         float flicker = 0.88 + 0.12 * sin(uTime * 37.0 + vUv.y * 12.0);
-        vec3 col = mix(uColor, vec3(1.0), core * core) * core * flicker;
+        vec3 col = mix(uColor, vec3(1.0), core * core * uDark) * core * flicker;
         gl_FragColor = vec4(col, core * 0.3);
       }`,
     transparent: true,
@@ -173,5 +178,6 @@ export function plume(radius: number, length: number, color: THREE.ColorRepresen
     blending: THREE.AdditiveBlending,
     side: THREE.DoubleSide,
   });
+  material.userData.role = 'plume';
   return new THREE.Mesh(geometry, material);
 }
