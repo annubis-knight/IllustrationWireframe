@@ -1,0 +1,18 @@
+{
+  "name": "illustration-wireframe-lab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Lab comparatif de technologies web pour une section d'offres « Wireframe 3D / HUD Sci-Fi » (Starter / Booster / Nitro).",
+  "type": "module",
+  "scripts": {
+    "dev": "node tools/serve.mjs",
+    "verify": "node tools/verify.mjs",
+    "measure": "node tools/measure.mjs",
+    "svg:build": "node 01-svg-gsap/tools/generate-svg.mjs",
+    "build:02": "npm --prefix 02-threejs-r3f install && npm --prefix 02-threejs-r3f run build",
+    "bundle:04": "node 04-spline-web/tools/bundle.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.63.0"
+  }
+}

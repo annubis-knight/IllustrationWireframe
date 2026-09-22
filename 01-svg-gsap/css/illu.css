@@ -1,0 +1,75 @@
+/*
+ * Styles des illustrations filaires.
+ * Source unique : chargée par la page ET embarquée par tools/generate-svg.mjs dans svg/*.svg.
+ * Tout est piloté par `color` (currentColor) → une seule variable par offre.
+ */
+.illu { display: block; width: 100%; height: auto; overflow: hidden; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; }
+.illu text { fill: currentColor; stroke: none; }
+
+/* HUD d'arrière-plan */
+.hud-back { opacity: .4; }
+.hud-ticks { stroke-width: .8; }
+.hud-ring { stroke-width: .5; opacity: .6; }
+.hud-dash { stroke-width: .6; stroke-dasharray: 1 5; }
+.hud-arcs { stroke-width: 1.6; opacity: .7; }
+.hud-cross { stroke-width: .6; }
+.hud-corners { stroke-width: 1.2; opacity: .8; }
+
+/* Socle holographique */
+.holo-cone { stroke: none; }
+.hb-1 { stroke-width: 1.1; }
+.hb-2 { stroke-width: .6; stroke-dasharray: 3 3; opacity: .7; }
+.hb-3 { stroke-width: .8; opacity: .55; }
+.hb-ticks { stroke-width: .8; opacity: .7; }
+.hb-pulse { stroke-width: 1; opacity: 0; }
+
+/* Filaire 3D (lignes vues / cachées / silhouettes) */
+.g-front { stroke-width: .8; }
+.g-contour { stroke-width: 1.5; }
+.g-back { stroke-width: .55; stroke-dasharray: 1.6 2.6; opacity: .38; }
+.g-truss { stroke-width: .6; }
+.g-truss-b { stroke-width: .45; opacity: .28; }
+.g-grid { stroke-width: .45; opacity: .5; }
+.arm { stroke-width: .7; }
+.g-planet { stroke-width: .6; opacity: .85; }
+.g-planet-b { stroke-width: .45; stroke-dasharray: 1.4 3; opacity: .28; }
+.g-orbit { stroke-width: 1; stroke-dasharray: 6 4; }
+.g-orbit-b { stroke-width: .6; stroke-dasharray: 2 4; opacity: .3; }
+.orbit-guide { stroke: none; }
+.trail { stroke-width: 1.1; stroke-dasharray: 2 5; opacity: .85; }
+.g-shock { stroke-width: .6; stroke-dasharray: 3 3; opacity: .45; }
+.g-burn { stroke-width: 1.3; }
+
+/* Effets */
+.pl-outer { stroke-width: .9; }
+.pl-mid { stroke-width: .8; fill: currentColor; fill-opacity: .18; }
+.pl-core { stroke: none; fill: #fff; opacity: .9; }
+.pl-diamonds { stroke: #fff; stroke-width: .8; opacity: .8; }
+.vapor { stroke-width: .6; stroke-dasharray: 2 2.5; opacity: .5; }
+.ignite { opacity: 0; }
+.beacon { fill: #ffb547; stroke: none; }
+.beacon-halo { stroke: #ffb547; stroke-width: .8; opacity: .5; }
+.satellite circle { fill: #fff; stroke: currentColor; stroke-width: 1; }
+.satellite path { stroke-width: 1.2; }
+.star { fill: currentColor; stroke: none; opacity: .55; }
+.streak { stroke-width: .8; opacity: .5; }
+.streak.s2 { stroke-width: 1.2; opacity: .35; }
+.streak.s3 { stroke: #fff; stroke-width: .6; opacity: .45; }
+
+/* Annotations techniques */
+.c-dot { fill: currentColor; stroke: none; }
+.c-lead { stroke-width: .7; opacity: .9; }
+.c-txt { font-size: 9.5px; font-weight: 600; letter-spacing: .08em; }
+.c-sub { font-size: 7.5px; letter-spacing: .1em; opacity: .65; }
+.dim-ext { stroke-width: .5; stroke-dasharray: 2 2; opacity: .5; }
+.dim-line, .dim-arrows { stroke-width: .7; }
+.dim-txt { font-size: 8.5px; font-weight: 600; letter-spacing: .12em; }
+.hud-k { font-size: 7.5px; letter-spacing: .18em; opacity: .6; }
+.hud-v { font-size: 11px; font-weight: 600; letter-spacing: .08em; }
+
+/* Balayage & réticule */
+.scan { stroke: none; }
+.reticle { opacity: 0; pointer-events: none; }
+.ret-h, .ret-v { stroke-width: .5; stroke-dasharray: 2 4; opacity: .5; }
+.ret-mark { stroke-width: .9; }
+.ret-txt { font-size: 7.5px; letter-spacing: .1em; }

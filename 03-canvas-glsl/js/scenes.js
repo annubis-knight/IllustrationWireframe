@@ -1,0 +1,230 @@
+/**
+ * Les 3 scènes du prototype 03, construites avec le moteur de js/engine.js.
+ * Mêmes profils et mêmes compositions que les prototypes 01 et 02 — seul le rendu change.
+ */
+(() => {
+  'use strict';
+  const { Node, lathe, sphere, ring, line, truss, grid } = window.WIRE;
+
+  const BODY = [[0.96, 0], [1, 0.14], [1, 1.5], [1, 2.9], [1, 4.3], [1, 5.7], [1, 6.3]];
+  const FAIRING = [[1, 6.3], [1.07, 6.5], [1.07, 7.35], [1.02, 7.85], [0.9, 8.3], [0.72, 8.7], [0.5, 9.03], [0.28, 9.27], [0.09, 9.42], [0, 9.46]];
+  const BELL = [[0.3, 0], [0.34, -0.18], [0.46, -0.46], [0.64, -0.82]];
+  const BOOSTER = [[0.4, 0], [0.46, 0.12], [0.46, 2.2], [0.46, 4.4], [0.4, 4.95], [0.28, 5.4], [0.12, 5.75], [0, 5.85]];
+  const FUSELAGE = [[0.78, 0], [0.92, 0.35], [1, 1.4], [1, 2.8], [0.92, 4.2], [0.78, 5.4], [0.6, 6.5], [0.42, 7.5], [0.24, 8.35], [0.08, 8.95], [0, 9.15]];
+  const NACELLE = [[0.42, 0], [0.55, 0.3], [0.58, 0.9], [0.58, 2.6], [0.5, 3.3], [0.34, 3.8], [0.12, 4.15], [0, 4.2]];
+
+  /** Panache : cône filaire additif, étiré selon l'intensité. */
+  const plumeShape = (r, len) => lathe([[r, 0], [r * 0.78, -len * 0.35], [r * 0.45, -len * 0.72], [0, -len]], { segments: 18, meridians: 8, w: 0.9, alpha: 0.75 }).map((s) => ((s.fx = true), s));
+
+  function rocketNode({ fins = true } = {}) {
+    const n = new Node([
+      ...lathe(BODY, { meridians: 10, w: 1 }),
+      ...lathe(FAIRING, { meridians: 10, w: 1 }),
+      ...lathe(BELL, { meridians: 8, w: 0.9 }),
+    ]);
+    if (fins) {
+      for (let k = 0; k < 4; k++) {
+        const th = Math.PI / 4 + (k * Math.PI) / 2;
+        const c = Math.cos(th);
+        const s = Math.sin(th);
+        const q = (r, y) => [r * c, y, r * s];
+        n.strokes.push(
+          ...line([q(1, 1.9), q(1.9, 0.6), q(1.9, -0.3), q(1, 0.12)], { w: 0.9, closed: true }),
+          ...line([q(1, 1.0), q(1.9, 0.15)], { w: 0.8 }),
+        );
+      }
+    }
+    return n;
+  }
+
+  /* ── STARTER ── */
+  function starter(renderer) {
+    renderer.fov = 30;
+    renderer.dist = 46;
+    renderer.target = [0, 5.4, 0];
+    renderer.pitch = 0.22;
+
+    const root = new Node();
+    root.add(new Node(grid(7.5, 0.75, { alpha: 0.3 })));
+    root.add(new Node([...lathe([[3.6, 0], [3.6, 0.38], [2.6, 0.38], [1.45, 0.38]], { meridians: 24, w: 0.9, alpha: 0.85 })]));
+
+    const craft = root.add(rocketNode());
+    craft.pos = [0, 1.2, 0];
+
+    const tower = root.add(new Node(truss(1.3, 12, 12, { w: 0.7, alpha: 0.85 })));
+    tower.pos = [3.1, 0.38, -1.4];
+
+    const arms = [9, 5].map((y) => {
+      const pivot = root.add(new Node());
+      pivot.pos = [3.1, y, -1.4];
+      const dx = -3.1;
+      const dz = 1.4;
+      const L = Math.hypot(dx, dz);
+      const u = [dx / L, 0, dz / L];
+      const at = (d, h) => [u[0] * d, h, u[2] * d];
+      pivot.strokes.push(...line([at(0.65, 0.2), at(2.3, 0.2)], { w: 0.7 }), ...line([at(0.65, -0.2), at(2.3, -0.2)], { w: 0.7 }));
+      for (let i = 0; i < 6; i++) {
+        pivot.strokes.push(...line([at(0.65 + (i / 6) * 1.65, i % 2 ? 0.2 : -0.2), at(0.65 + ((i + 1) / 6) * 1.65, i % 2 ? -0.2 : 0.2)], { w: 0.6 }));
+      }
+      return pivot;
+    });
+
+    const flame = root.add(new Node(plumeShape(0.5, 3.6)));
+    flame.pos = [0, 0.38, 0];
+    flame.visible = false;
+
+    return {
+      root,
+      anchor: [0, 10.7, 0],
+      update(t, hover) {
+        renderer.yaw = 0.4 + Math.sin(t * 0.12) * 0.25;
+        root.pos = [0, Math.sin(t * 0.7) * 0.18, 0];
+        arms.forEach((a, i) => (a.rot = [0, -hover * (1.1 + i * 0.1), 0]));
+        flame.visible = hover > 0.05;
+        flame.scale = 0.4 + hover * 0.9 + Math.sin(t * 30) * 0.04 * hover;
+      },
+    };
+  }
+
+  /* ── BOOSTER ── */
+  function booster(renderer) {
+    renderer.fov = 32;
+    renderer.dist = 48;
+    renderer.target = [0, 1, 0];
+    renderer.pitch = 0.1;
+
+    const root = new Node();
+    const planet = root.add(new Node(sphere(6.2, { lat: 8, lon: 16, segments: 44, w: 0.8, alpha: 0.85 })));
+    planet.pos = [-4, -6, 0];
+    planet.rot = [0, 0, 0.35];
+
+    const orbit = root.add(new Node(ring(10.5, { segments: 80, w: 1, alpha: 0.6 })));
+    orbit.pos = [-4, -6, 0];
+    orbit.rot = [-0.38, 0, 0.3];
+
+    const satellite = orbit.add(new Node([
+      ...line([[-0.5, 0, 0], [0.5, 0, 0]], { w: 1.4, fx: true }),
+      ...line([[0, -0.35, 0], [0, 0.35, 0]], { w: 1.4, fx: true }),
+      ...ring(0.3, { segments: 10, w: 1.2, fx: true }),
+    ]));
+
+    const craft = root.add(new Node());
+    craft.pos = [3.4, 4.6, 2];
+    craft.rot = [0, 0.5, -0.6];
+    craft.scale = 0.62;
+    craft.add(rocketNode({ fins: false }));
+
+    const plumes = [];
+    const corePlume = craft.add(new Node(plumeShape(0.45, 4.2)));
+    corePlume.pos = [0, -0.82, 0];
+    plumes.push(corePlume);
+
+    for (const sx of [-1, 1]) {
+      const b = craft.add(new Node([...lathe(BOOSTER, { meridians: 8, w: 0.9 }), ...lathe([[0.18, 0], [0.22, -0.2], [0.32, -0.5]], { meridians: 6, w: 0.8 })]));
+      b.pos = [sx * 1.5, 0.3, 0];
+      craft.strokes.push(
+        ...line([[sx * 1.05, 1.2, 0], [sx * 1.5, 1.2, 0]], { w: 0.8 }),
+        ...line([[sx * 1.05, 4.6, 0], [sx * 1.5, 4.6, 0]], { w: 0.8 }),
+      );
+      const p = craft.add(new Node(plumeShape(0.26, 2.8)));
+      p.pos = [sx * 1.5, -0.25, 0];
+      plumes.push(p);
+    }
+
+    const home = [3.4, 4.6, 2];
+    const axis = [Math.sin(0.6) * Math.cos(0.5), Math.cos(0.6), Math.sin(0.6) * Math.sin(0.5)];
+
+    return {
+      root,
+      anchor: [3.4 + axis[0] * 5.9, 4.6 + axis[1] * 5.9, 2 + axis[2] * 5.9],
+      update(t, hover) {
+        renderer.yaw = Math.sin(t * 0.1) * 0.2;
+        planet.rot = [0, t * 0.06, 0.35];
+        const a = t * (0.4 + hover * 0.6);
+        satellite.pos = [Math.cos(a) * 10.5, 0, Math.sin(a) * 10.5];
+        const d = hover * 1.6 + Math.sin(t * 0.8) * 0.12;
+        craft.pos = [home[0] + axis[0] * d, home[1] + axis[1] * d, home[2] + axis[2] * d];
+        plumes.forEach((p, i) => (p.scale = (0.75 + hover * 0.8) * (i ? 0.9 : 1) * (0.95 + Math.sin(t * 26 + i) * 0.05)));
+      },
+    };
+  }
+
+  /* ── NITRO ── */
+  function nitro(renderer) {
+    renderer.fov = 34;
+    renderer.dist = 27;
+    renderer.target = [0, 0.5, 0];
+    renderer.pitch = 0.23;
+
+    const root = new Node();
+    const ship = root.add(new Node());
+    ship.rot = [-Math.PI / 2 + 0.35, 0, 0];
+
+    const hull = ship.add(new Node(lathe(FUSELAGE, { meridians: 12, w: 1.1 })));
+    hull.scale = [1.25, 1, 0.52];
+
+    const canopy = ship.add(new Node(lathe([[0.3, 4.2], [0.5, 4.8], [0.52, 5.5], [0.42, 6.2], [0.22, 6.8], [0, 7.1]], { meridians: 8, w: 0.9, alpha: 0.7 })));
+    canopy.scale = [0.7, 1, 0.6];
+    canopy.pos = [0, 0, 0.3];
+
+    for (const sx of [-1, 1]) {
+      ship.strokes.push(
+        ...line([[sx * 1.1, 5.2, 0], [sx * 4.8, 1.2, 0], [sx * 4.8, 0.1, 0], [sx * 1.2, 0.5, 0]], { w: 1.1, closed: true }),
+        ...line([[sx * 1.15, 3.8, 0], [sx * 4.8, 0.85, 0]], { w: 0.8 }),
+        ...line([[sx * 1.2, 2.2, 0], [sx * 4.8, 0.45, 0]], { w: 0.8 }),
+        ...line([[sx * 3, 3.15, 0], [sx * 3, 0.29, 0]], { w: 0.8 }),
+      );
+    }
+    ship.strokes.push(...line([[0, 0.3, 0.45], [0, 2.8, 0.45], [0, 1, 1.8], [0, -0.2, 1.8]], { w: 1, closed: true }));
+
+    const burn = [];
+    const plumes = [];
+    for (const nz of [{ x: 0, y: 0, r: 0.42, big: true }, { x: -2.2, y: -0.6, r: 0.34 }, { x: 2.2, y: -0.6, r: 0.34 }]) {
+      const n = ship.add(new Node());
+      n.pos = [nz.x, nz.y, nz.x === 0 ? 0 : -0.15];
+      if (nz.x !== 0) n.strokes.push(...lathe(NACELLE, { meridians: 8, w: 1 }));
+      n.strokes.push(...lathe([[nz.r, 0], [nz.r * 0.86, -0.24], [nz.r * 1.12, -0.58]], { meridians: 6, w: 1, alpha: 0.85 }));
+      [1.3, 2.4, 3.7].forEach((d, i) => {
+        const r = n.add(new Node(ring(nz.r * 1.3 * [0.95, 0.8, 0.6][i], { segments: 24, w: 1.2, fx: true })));
+        r.pos = [0, -0.58 - d, 0];
+        r.rot = [Math.PI / 2, 0, 0];
+        burn.push(r);
+      });
+      const p = n.add(new Node(plumeShape(nz.r * 1.1, nz.big ? 5 : 3.8)));
+      p.pos = [0, -0.58, 0];
+      plumes.push(p);
+    }
+
+    const shock = ship.add(new Node([
+      ...ring(0.9, { segments: 28, y: 8.6, w: 0.7, alpha: 0.3 }),
+      ...ring(1.8, { segments: 28, y: 7.5, w: 0.7, alpha: 0.3 }),
+      ...ring(2.6, { segments: 28, y: 6.2, w: 0.7, alpha: 0.3 }),
+    ]));
+
+    // Traînées d'hyper-vitesse : segments le long de Z, défilant vers la caméra
+    const SPAN = 60;
+    const streaks = root.add(new Node());
+    for (let i = 0; i < 60; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const r = 3 + Math.random() * 11;
+      const z = -SPAN / 2 + Math.random() * SPAN;
+      const len = 2 + Math.random() * 6;
+      streaks.strokes.push(...line([[Math.cos(a) * r, Math.sin(a) * r * 0.6, z], [Math.cos(a) * r, Math.sin(a) * r * 0.6, z + len]], { w: 0.8, alpha: 0.35, fx: true }));
+    }
+
+    return {
+      root,
+      anchor: [0, 0, 9.4],
+      update(t, hover) {
+        renderer.yaw = -0.45 + Math.sin(t * 0.13) * 0.18;
+        ship.pos = [(Math.random() - 0.5) * hover * 0.08, 0.5 + Math.sin(t * 0.9) * 0.15, (Math.random() - 0.5) * hover * 0.08];
+        streaks.pos = [0, 0, ((t * (8 + hover * 46)) % SPAN) - SPAN / 2];
+        burn.forEach((r, i) => (r.scale = 1 + 0.35 * (0.5 + 0.5 * Math.sin(t * (6 + hover * 10) - i * 0.9))));
+        plumes.forEach((p, i) => (p.scale = (0.8 + hover * 0.9) * (0.95 + Math.sin(t * 30 + i) * 0.05)));
+        shock.visible = true;
+      },
+    };
+  }
+
+  window.SCENES = { starter, booster, nitro };
+})();

@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · Three.js — Offres Wireframe HUD</title>
+<meta name="description" content="Prototype 02 du lab IllustrationWireframe : section d'offres HUD sci-fi en 3D temps réel avec Three.js (lignes épaisses + bloom).">
+<link rel="icon" href="data:,">
+<script>document.documentElement.classList.add('js');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+  <script type="module" crossorigin src="./assets/index-BWQtDOxv.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-D6TfAQLn.css">
+</head>
+<body>
+<div class="backdrop" aria-hidden="true"></div>
+<canvas id="stage" aria-hidden="true"></canvas>
+
+<header class="topbar">
+  <a class="topbar__back" href="../index.html">← Lab</a>
+  <p class="topbar__id"><span>Proto 02</span> Three.js 0.186 · WebGL temps réel</p>
+  <p class="topbar__geo" aria-hidden="true">43.6047° N · 1.4442° E <span data-clock>T+ 00:00:00</span></p>
+</header>
+
+<main>
+  <section class="offers" aria-labelledby="offers-title">
+    <header class="offers__head">
+      <p class="kicker"><span class="kicker__dot"></span>SYS.OFFRES // Sélection du module de propulsion</p>
+      <h1 id="offers-title" class="offers__title">Choisissez votre <em>trajectoire</em></h1>
+      <p class="offers__lede">Trois configurations de propulsion pour faire décoller votre présence en ligne — du premier lancement à l'hyper-vitesse.</p>
+    </header>
+
+    <div class="offers__grid">
+
+      <article class="offer" data-tier="starter" aria-labelledby="starter-name">
+        <div class="offer__frame">
+          <span class="offer__corner offer__corner--tl" aria-hidden="true"></span>
+          <span class="offer__corner offer__corner--br" aria-hidden="true"></span>
+          <header class="offer__head">
+            <span class="offer__code">MOD·01</span>
+            <span class="offer__status"><i></i>Pas de tir · prêt</span>
+          </header>
+          <div class="offer__visual">
+            <svg class="hud" viewBox="0 0 400 420" aria-hidden="true">
+              <g class="hud-back">
+                <circle class="hud-ring" cx="200" cy="200" r="178"/>
+                <circle class="hud-dash" cx="200" cy="200" r="150"/>
+                <path class="hud-cross" d="M193 200h14M200 193v14"/>
+              </g>
+              <g class="hud-texts">
+                <text class="hud-k" x="18" y="30">SÉQUENCE</text><text class="hud-v" x="18" y="45" data-countdown>T-00:00:10</text>
+                <text class="hud-k" x="382" y="30" text-anchor="end">MODULE</text><text class="hud-v" x="382" y="45" text-anchor="end">01 / 03</text>
+              </g>
+              <g class="callout" data-callout>
+                <circle class="c-dot" r="2"/>
+                <path class="c-lead"/>
+                <text class="c-txt">H 42,6 M</text>
+                <text class="c-sub">POUSSÉE 7,6 MN</text>
+              </g>
+              <path class="hud-corners" d="M10 30V10H30M370 10H390V30M390 390V410H370M30 410H10V390"/>
+            </svg>
+          </div>
+          <div class="offer__body">
+            <p class="offer__stage">Étage 1 — Base de lancement</p>
+            <h2 id="starter-name" class="offer__name">Starter</h2>
+            <div class="offer__power" data-level="4" role="img" aria-label="Puissance : niveau 1 sur 3"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <p class="offer__price"><span class="offer__from">dès</span> <b data-count="1490">1 490</b> <span class="offer__cur">€ HT</span></p>
+            <dl class="offer__specs">
+              <div><dt>Pages</dt><dd>1 – 5</dd></div>
+              <div><dt>Design</dt><dd>Template adapté</dd></div>
+              <div><dt>CMS</dt><dd>—</dd></div>
+              <div><dt>SEO</dt><dd>Fondations</dd></div>
+              <div><dt>Mise en orbite</dt><dd>3 sem.</dd></div>
+            </dl>
+            <a class="offer__cta" href="#contact">Initialiser le lancement <svg aria-hidden="true" viewBox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
+          </div>
+        </div>
+      </article>
+
+      <article class="offer offer--featured" data-tier="booster" aria-labelledby="booster-name">
+        <div class="offer__frame">
+          <span class="offer__corner offer__corner--tl" aria-hidden="true"></span>
+          <span class="offer__corner offer__corner--br" aria-hidden="true"></span>
+          <p class="offer__badge">Trajectoire recommandée</p>
+          <header class="offer__head">
+            <span class="offer__code">MOD·02</span>
+            <span class="offer__status"><i></i>En vol · nominal</span>
+          </header>
+          <div class="offer__visual">
+            <svg class="hud" viewBox="0 0 400 420" aria-hidden="true">
+              <g class="hud-back">
+                <circle class="hud-ring" cx="200" cy="200" r="178"/>
+                <circle class="hud-dash" cx="200" cy="200" r="150"/>
+                <path class="hud-cross" d="M193 200h14M200 193v14"/>
+              </g>
+              <g class="hud-texts">
+                <text class="hud-k" x="18" y="30">VITESSE</text><text class="hud-v" x="18" y="45" data-vel>7,66 KM/S</text>
+                <text class="hud-k" x="382" y="30" text-anchor="end">MODULE</text><text class="hud-v" x="382" y="45" text-anchor="end">02 / 03</text>
+              </g>
+              <g class="callout" data-callout>
+                <circle class="c-dot" r="2"/>
+                <path class="c-lead"/>
+                <text class="c-txt">ALT 408 KM</text>
+                <text class="c-sub">BOOSTERS ×2</text>
+              </g>
+              <path class="hud-corners" d="M10 30V10H30M370 10H390V30M390 390V410H370M30 410H10V390"/>
+            </svg>
+          </div>
+          <div class="offer__body">
+            <p class="offer__stage">Étage 2 — Mise en orbite</p>
+            <h2 id="booster-name" class="offer__name">Booster</h2>
+            <div class="offer__power" data-level="8" role="img" aria-label="Puissance : niveau 2 sur 3"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <p class="offer__price"><span class="offer__from">dès</span> <b data-count="3490">3 490</b> <span class="offer__cur">€ HT</span></p>
+            <dl class="offer__specs">
+              <div><dt>Pages</dt><dd>5 – 12</dd></div>
+              <div><dt>Design</dt><dd>Sur-mesure</dd></div>
+              <div><dt>CMS</dt><dd>WordPress headless</dd></div>
+              <div><dt>SEO</dt><dd>Avancé + GA4</dd></div>
+              <div><dt>Mise en orbite</dt><dd>5 sem.</dd></div>
+            </dl>
+            <a class="offer__cta" href="#contact">Activer les boosters <svg aria-hidden="true" viewBox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
+          </div>
+        </div>
+      </article>
+
+      <article class="offer" data-tier="nitro" aria-labelledby="nitro-name">
+        <div class="offer__frame">
+          <span class="offer__corner offer__corner--tl" aria-hidden="true"></span>
+          <span class="offer__corner offer__corner--br" aria-hidden="true"></span>
+          <header class="offer__head">
+            <span class="offer__code">MOD·03</span>
+            <span class="offer__status"><i></i>Hyper-vitesse</span>
+          </header>
+          <div class="offer__visual">
+            <svg class="hud" viewBox="0 0 400 420" aria-hidden="true">
+              <g class="hud-back">
+                <circle class="hud-ring" cx="200" cy="200" r="178"/>
+                <circle class="hud-dash" cx="200" cy="200" r="150"/>
+                <path class="hud-cross" d="M193 200h14M200 193v14"/>
+              </g>
+              <g class="hud-texts">
+                <text class="hud-k" x="18" y="30">PROPULSION</text><text class="hud-v" x="18" y="45" data-boost>NITRO 340 %</text>
+                <text class="hud-k" x="382" y="30" text-anchor="end">MODULE</text><text class="hud-v" x="382" y="45" text-anchor="end">03 / 03</text>
+              </g>
+              <g class="callout" data-callout>
+                <circle class="c-dot" r="2"/>
+                <path class="c-lead"/>
+                <text class="c-txt">WARP ×2.0</text>
+                <text class="c-sub">RÉACTEURS ×3</text>
+              </g>
+              <path class="hud-corners" d="M10 30V10H30M370 10H390V30M390 390V410H370M30 410H10V390"/>
+            </svg>
+          </div>
+          <div class="offer__body">
+            <p class="offer__stage">Étage 3 — Vaisseau 2.0</p>
+            <h2 id="nitro-name" class="offer__name">Nitro</h2>
+            <div class="offer__power" data-level="12" role="img" aria-label="Puissance : niveau 3 sur 3"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <p class="offer__price"><span class="offer__from">dès</span> <b data-count="6900">6 900</b> <span class="offer__cur">€ HT</span></p>
+            <dl class="offer__specs">
+              <div><dt>Pages</dt><dd>Illimitées</dd></div>
+              <div><dt>Design</dt><dd>Sur-mesure + motion 3D</dd></div>
+              <div><dt>CMS</dt><dd>WordPress headless</dd></div>
+              <div><dt>SEO</dt><dd>Stratégie + tunnels</dd></div>
+              <div><dt>Mise en orbite</dt><dd>8 sem.</dd></div>
+            </dl>
+            <a class="offer__cta" href="#contact">Passer en hyper-vitesse <svg aria-hidden="true" viewBox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+</main>
+
+<aside class="lab-panel" aria-label="Contrôles du prototype">
+  <span class="lab-panel__title">LAB</span>
+  <button type="button" data-toggle="glow" aria-pressed="true">Bloom</button>
+  <button type="button" data-toggle="anim" aria-pressed="true">Anim.</button>
+  <button type="button" data-action="replay">↻ Intro</button>
+</aside>
+
+</body>
+</html>

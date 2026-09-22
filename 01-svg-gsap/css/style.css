@@ -1,0 +1,18 @@
+/*
+ * Spécifique au prototype 01 (SVG inline + GSAP).
+ * L'habillage des cartes est commun à toutes les démos : ../_shared/offers.css
+ */
+
+/* Le SVG occupe toute la zone d'illustration et s'incline en 3D au pointeur */
+.offer__visual .illu {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* Bouton « Glow » du panneau LAB : coupe les filtres SVG (attributs `filter` surchargés) */
+.no-glow .glow,
+.no-glow .fx { filter: none; }

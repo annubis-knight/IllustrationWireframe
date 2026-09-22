@@ -1,0 +1,7 @@
+node_modules/
+**/node_modules/
+.DS_Store
+Thumbs.db
+*.log
+# captures temporaires des mesures (les previews finales sont versionnées dans chaque dossier)
+tools/.tmp/
