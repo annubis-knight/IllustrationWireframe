@@ -133,8 +133,9 @@
 
   /* ── Nœud : un groupe de traits avec sa transformation ───────────────── */
   class Node {
-    constructor(strokes = [], { pos = [0, 0, 0], rot = [0, 0, 0], scale = 1 } = {}) {
+    constructor(strokes = [], { pos = [0, 0, 0], rot = [0, 0, 0], scale = 1, layer = null } = {}) {
       this.strokes = strokes;
+      this.layer = layer; // 'model' | 'decor' | 'fx' … (panneau CALQUES)
       this.pos = pos;
       this.rot = rot; // [x, y, z] en radians
       this.scale = scale;
@@ -187,6 +188,7 @@
       this.pitch = rad(12);
       this.yaw = 0;
       this.glow = true;
+      this.layers = {}; // calques éteints : { fx: false, … }
       this.light = false; // thème clair : encre sur papier, pas de néon additif
       this.alpha = 1; // pilotée par l'intro
       this.dpr = 1;
@@ -248,6 +250,8 @@
       this._back.length = 0;
       this._fx.length = 0;
       this._collect(root, [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]);
+      // Ce qui a reellement ete peint (sert aux tests et au debogage des calques)
+      this.stats = { front: this._front.length, back: this._back.length, fx: this._fx.length };
       this._paint(this._back, { dash: [2, 3], alpha: 0.34 * this.alpha, glow: false });
       this._paint(this._fx, { alpha: 0.9 * this.alpha, glow: this.glow, additive: true });
       this._paint(this._front, { alpha: this.alpha, glow: this.glow });
@@ -257,13 +261,16 @@
     /** Parcourt l'arbre, projette, et trie chaque segment vu / caché. */
     _collect(node, parent) {
       if (!node.visible) return;
+      // Calque éteint : on saute SES traits, mais on continue vers les enfants
+      // (masquer la fusée ne doit pas emporter ses flammes).
+      const hidden = node.layer && this.layers[node.layer] === false;
       const m = node.matrix(this._m);
       const w = combine(parent, m);
       const p0 = [0, 0, 0];
       const p1 = [0, 0, 0];
       const n0 = [0, 0, 0];
 
-      for (const s of node.strokes) {
+      if (!hidden) for (const s of node.strokes) {
         const pts = s.p;
         const nrm = s.n;
         let run = null;

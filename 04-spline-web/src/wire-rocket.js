@@ -30,19 +30,22 @@
       .corners { stroke-width: 1.2; opacity: .8; }
       .k { font-size: 7.5px; letter-spacing: .18em; opacity: .6; }
       .v { font-size: 11px; font-weight: 600; letter-spacing: .08em; }
+      [data-layer][hidden] { display: none; }
     </style>
     <canvas part="canvas"></canvas>
     <svg viewBox="0 0 400 420" aria-hidden="true" part="hud">
-      <g class="back">
+      <g class="back" data-layer="ring">
         <circle class="ring" cx="200" cy="200" r="178"/>
         <circle class="dash" cx="200" cy="200" r="150"/>
         <path class="cross" d="M193 200h14M200 193v14"/>
       </g>
-      <text class="k" x="18" y="30" data-label></text>
-      <text class="v" x="18" y="45" data-value></text>
-      <text class="k" x="382" y="30" text-anchor="end">MODULE</text>
-      <text class="v" x="382" y="45" text-anchor="end" data-module></text>
-      <path class="corners" d="M10 30V10H30M370 10H390V30M390 390V410H370M30 410H10V390"/>
+      <g data-layer="labels">
+        <text class="k" x="18" y="30" data-label></text>
+        <text class="v" x="18" y="45" data-value></text>
+        <text class="k" x="382" y="30" text-anchor="end">MODULE</text>
+        <text class="v" x="382" y="45" text-anchor="end" data-module></text>
+      </g>
+      <path class="corners" data-layer="overlay" d="M10 30V10H30M370 10H390V30M390 390V410H370M30 410H10V390"/>
     </svg>`;
 
   const lerp = (a, b, k) => a + (b - a) * k;
@@ -88,6 +91,8 @@
       this.#mq.addEventListener('change', this.#applyTheme);
       addEventListener('themechange', this.#applyTheme);
       this.#applyTheme();
+      addEventListener('layerchange', this.#applyLayers);
+      this.#applyLayers();
       this.#last = performance.now();
       this.#loop(this.#last);
     }
@@ -97,6 +102,7 @@
       this.observer?.disconnect();
       this.#mq?.removeEventListener('change', this.#applyTheme);
       removeEventListener('themechange', this.#applyTheme);
+      removeEventListener('layerchange', this.#applyLayers);
     }
 
     attributeChangedCallback(name, _old, value) {
@@ -116,6 +122,16 @@
     #resolveColor() {
       return this.getAttribute('color') || getComputedStyle(this).color || '#3ff0ff';
     }
+
+    /** Calques : le moteur pour ce qu'il peint, le Shadow DOM pour le HUD. */
+    #applyLayers = (e) => {
+      if (!this.renderer) return;
+      const layers = e?.detail?.layers ?? window.LabLayers?.state() ?? {};
+      this.renderer.layers = layers;
+      for (const el of this.shadowRoot.querySelectorAll('[data-layer]')) {
+        el.hidden = layers[el.dataset.layer] === false;
+      }
+    };
 
     #applyTheme = () => {
       if (!this.renderer) return;

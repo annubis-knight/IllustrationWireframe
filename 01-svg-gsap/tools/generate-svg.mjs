@@ -431,7 +431,7 @@ function hudBack() {
     const p = (a) => `${n1(cx + Math.cos(rad(a)) * r)} ${n1(cy + Math.sin(rad(a)) * r)}`;
     return `M${p(a0)}A${r} ${r} 0 0 1 ${p(a1)}`;
   };
-  return `<g class="hud-back">
+  return `<g class="hud-back" data-layer="ring">
 <g class="hud-rot"><path class="hud-ticks" d="${ticks}"/></g>
 <circle class="hud-ring" cx="${cx}" cy="${cy}" r="${R + 6}"/>
 <g class="hud-rot-rev"><circle class="hud-dash" cx="${cx}" cy="${cy}" r="${R - 22}"/></g>
@@ -448,16 +448,16 @@ function holoBase(id) {
     const t = rad(a);
     ticks += `M${n1(cx + Math.cos(t) * 134)} ${n1(cy + Math.sin(t) * 134 * k)} ${n1(cx + Math.cos(t) * 141)} ${n1(cy + Math.sin(t) * 141 * k)}`;
   }
-  return `<g class="holo-base">
+  return `<g class="holo-base" data-layer="base">
 <path class="holo-cone" d="M${cx - 128} ${cy}L${cx - 160} 70H${cx + 160}L${cx + 128} ${cy}Z" fill="url(#cone-${id})"/>
 ${e(128, 'hb-1')}${e(92, 'hb-2')}${e(56, 'hb-3')}<path class="hb-ticks" d="${ticks}"/>${e(128, 'hb-pulse')}
 </g>`;
 }
 
-const hudCorners = () => `<path class="hud-corners" d="M10 30V10H30M370 10H390V30M390 390V410H370M30 410H10V390"/>`;
+const hudCorners = () => `<path class="hud-corners" data-layer="overlay" d="M10 30V10H30M370 10H390V30M390 390V410H370M30 410H10V390"/>`;
 
 function hudTexts(tl, tr) {
-  return `<g class="hud-texts">
+  return `<g class="hud-texts" data-layer="labels">
 <text class="hud-k" x="18" y="30">${tl[0]}</text><text class="hud-v" x="18" y="45"${tl[2] ?? ''}>${tl[1]}</text>
 <text class="hud-k" x="382" y="30" text-anchor="end">${tr[0]}</text><text class="hud-v" x="382" y="45" text-anchor="end"${tr[2] ?? ''}>${tr[1]}</text>
 </g>`;
@@ -468,13 +468,13 @@ function callout([ax, ay], [edx, edy], h, text, sub) {
   const ex = ax + edx, ey = ay + edy, hx = ex + h;
   const anchor = h >= 0 ? 'start' : 'end';
   const tx = h >= 0 ? ex + 1 : ex - 1;
-  return `<g class="callout"><circle class="c-dot" cx="${n1(ax)}" cy="${n1(ay)}" r="2"/><path class="c-lead draw" pathLength="1" d="M${n1(ax)} ${n1(ay)} ${n1(ex)} ${n1(ey)} ${n1(hx)} ${n1(ey)}"/><text class="c-txt" x="${n1(tx)}" y="${n1(ey - 4)}" text-anchor="${anchor}">${text}</text>${sub ? `<text class="c-sub" x="${n1(tx)}" y="${n1(ey + 10)}" text-anchor="${anchor}">${sub}</text>` : ''}</g>`;
+  return `<g class="callout" data-layer="labels"><circle class="c-dot" cx="${n1(ax)}" cy="${n1(ay)}" r="2"/><path class="c-lead draw" pathLength="1" d="M${n1(ax)} ${n1(ay)} ${n1(ex)} ${n1(ey)} ${n1(hx)} ${n1(ey)}"/><text class="c-txt" x="${n1(tx)}" y="${n1(ey - 4)}" text-anchor="${anchor}">${text}</text>${sub ? `<text class="c-sub" x="${n1(tx)}" y="${n1(ey + 10)}" text-anchor="${anchor}">${sub}</text>` : ''}</g>`;
 }
 
 /** Cote verticale (dessin technique) de y0 (bas) à y1 (haut). */
 function dimV(x, y0, y1, label, fromX) {
   const X = n1(x), a = n1(y0), b = n1(y1);
-  return `<g class="dim"><path class="dim-ext" d="M${n1(fromX[0])} ${a}H${n1(x - 4)}M${n1(fromX[1])} ${b}H${n1(x - 4)}"/><path class="dim-line draw" pathLength="1" d="M${X} ${a}V${b}"/><path class="dim-arrows" d="M${n1(x - 3)} ${n1(y1 + 6)}L${X} ${b} ${n1(x + 3)} ${n1(y1 + 6)}M${n1(x - 3)} ${n1(y0 - 6)}L${X} ${a} ${n1(x + 3)} ${n1(y0 - 6)}"/><text class="dim-txt" transform="translate(${n1(x - 5)} ${n1((y0 + y1) / 2)}) rotate(-90)" text-anchor="middle">${label}</text></g>`;
+  return `<g class="dim" data-layer="labels"><path class="dim-ext" d="M${n1(fromX[0])} ${a}H${n1(x - 4)}M${n1(fromX[1])} ${b}H${n1(x - 4)}"/><path class="dim-line draw" pathLength="1" d="M${X} ${a}V${b}"/><path class="dim-arrows" d="M${n1(x - 3)} ${n1(y1 + 6)}L${X} ${b} ${n1(x + 3)} ${n1(y1 + 6)}M${n1(x - 3)} ${n1(y0 - 6)}L${X} ${a} ${n1(x + 3)} ${n1(y0 - 6)}"/><text class="dim-txt" transform="translate(${n1(x - 5)} ${n1((y0 + y1) / 2)}) rotate(-90)" text-anchor="middle">${label}</text></g>`;
 }
 
 /** Panache de réacteur orienté (angle en degrés, pointe dans l'axe local +Y). */
@@ -492,9 +492,9 @@ function plume([x, y], angle, { len: L, w, diamonds = 0, cls = '' }, id) {
 /** Angle SVG (deg) pour orienter l'axe local +Y de a vers b. */
 const angleTo = ([ax, ay], [bx, by]) => (Math.atan2(-(bx - ax), by - ay) * 180) / Math.PI;
 
-const scanLine = (id) => `<rect class="scan" x="0" y="-44" width="${W}" height="44" fill="url(#scan-${id})"/>`;
+const scanLine = (id) => `<rect class="scan" data-layer="overlay" x="0" y="-44" width="${W}" height="44" fill="url(#scan-${id})"/>`;
 
-const reticle = () => `<g class="reticle"><path class="ret-h" d="M0 0H${W}"/><path class="ret-v" d="M0 0V${H}"/><g class="ret-mark"><circle r="9"/><path d="M-15 0h6M9 0h6M0-15v6M0 9v6"/><text class="ret-txt" x="14" y="-12">X 000 · Y 000</text></g></g>`;
+const reticle = () => `<g class="reticle" data-layer="overlay"><path class="ret-h" d="M0 0H${W}"/><path class="ret-v" d="M0 0V${H}"/><g class="ret-mark"><circle r="9"/><path d="M-15 0h6M9 0h6M0-15v6M0 9v6"/><text class="ret-txt" x="14" y="-12">X 000 · Y 000</text></g></g>`;
 
 /* ── Scène 1 : STARTER — pas de tir ─────────────────────────────────────── */
 function sceneStarter() {
@@ -571,15 +571,15 @@ ${holoBase(id)}
 <g class="scene">
 <g class="levitate">
 <g class="glow" filter="url(#glow-${id})">
-<g class="g-grid" mask="url(#gridmask-${id})">${sc.paths('grid')}</g>
-<g class="g-back">${sc.paths('back')}</g>
-<g class="g-truss-b">${sc.paths('truss-b')}</g>
-<g class="g-front">${sc.paths('front', { draw: true })}</g>
-<g class="g-truss">${sc.paths('truss', { draw: true })}</g>
-<g class="g-contour">${sc.paths('contour', { draw: true })}</g>
-<g class="g-arms">${arms}</g>
+<g class="g-grid" data-layer="decor" mask="url(#gridmask-${id})">${sc.paths('grid')}</g>
+<g class="g-back" data-layer="model">${sc.paths('back')}</g>
+<g class="g-truss-b" data-layer="model">${sc.paths('truss-b')}</g>
+<g class="g-front" data-layer="model">${sc.paths('front', { draw: true })}</g>
+<g class="g-truss" data-layer="model">${sc.paths('truss', { draw: true })}</g>
+<g class="g-contour" data-layer="model">${sc.paths('contour', { draw: true })}</g>
+<g class="g-arms" data-layer="model">${arms}</g>
 </g>
-<g class="fx" filter="url(#glow-${id})">
+<g class="fx" data-layer="fx" filter="url(#glow-${id})">
 <g class="vapors">${vapor}</g>
 <g class="ignite">${plume(exit, 0, { len: 46, w: 16, diamonds: 2 }, id)}</g>
 <circle class="beacon-halo" cx="${n1(mastTop[0])}" cy="${n1(mastTop[1])}" r="7"/><circle class="beacon" cx="${n1(mastTop[0])}" cy="${n1(mastTop[1])}" r="2.4"/>
@@ -648,25 +648,25 @@ function sceneBooster() {
 
   const body = `${defs(id)}
 ${hudBack()}
-<g class="stars">${stars}</g>
+<g class="stars" data-layer="decor">${stars}</g>
 ${holoBase(id)}
 <g class="scene">
 <g class="glow" filter="url(#glow-${id})">
-<g class="g-planet-b">${sc.paths('planet-b')}</g>
-<g class="g-orbit-b">${sc.paths('orbit-b')}</g>
-<g class="g-planet">${sc.paths('planet', { draw: true })}</g>
-<g class="g-orbit">${sc.paths('orbit')}</g>
-<path class="trail" d="${trail}"/>
+<g class="g-planet-b" data-layer="decor">${sc.paths('planet-b')}</g>
+<g class="g-orbit-b" data-layer="decor">${sc.paths('orbit-b')}</g>
+<g class="g-planet" data-layer="decor">${sc.paths('planet', { draw: true })}</g>
+<g class="g-orbit" data-layer="decor">${sc.paths('orbit')}</g>
+<path class="trail" data-layer="decor" d="${trail}"/>
 <path id="orbit-path-${id}" class="orbit-guide" d="${orbitD}"/>
-<g class="satellite" data-hidden="${hiddenRanges(orb, sc)}"><circle r="3"/><path d="M-7 0h4M3 0h4"/></g>
+<g class="satellite" data-layer="decor" data-hidden="${hiddenRanges(orb, sc)}"><circle r="3"/><path d="M-7 0h4M3 0h4"/></g>
 </g>
 <g class="levitate">
 <g class="craft" data-dx="${n1(tip[0] - exit[0])}" data-dy="${n1(tip[1] - exit[1])}">
-<g class="fx" filter="url(#glow-${id})">${plumes}</g>
+<g class="fx" data-layer="fx" filter="url(#glow-${id})">${plumes}</g>
 <g class="glow" filter="url(#glow-${id})">
-<g class="g-back">${sc.paths('back')}</g>
-<g class="g-front">${sc.paths('front', { draw: true })}</g>
-<g class="g-contour">${sc.paths('contour', { draw: true })}</g>
+<g class="g-back" data-layer="model">${sc.paths('back')}</g>
+<g class="g-front" data-layer="model">${sc.paths('front', { draw: true })}</g>
+<g class="g-contour" data-layer="model">${sc.paths('contour', { draw: true })}</g>
 </g>
 </g>
 </g>
@@ -762,17 +762,17 @@ function sceneNitro() {
 
   const body = `${defs(id)}
 ${hudBack()}
-<g class="streaks">${streaks}</g>
+<g class="streaks" data-layer="decor">${streaks}</g>
 ${holoBase(id)}
 <g class="scene">
 <g class="levitate">
 <g class="craft">
-<g class="fx" filter="url(#glow-${id})">${plumes}<g class="g-burn">${sc.paths('burn')}</g></g>
+<g class="fx" data-layer="fx" filter="url(#glow-${id})">${plumes}<g class="g-burn" data-layer="fx">${sc.paths('burn')}</g></g>
 <g class="glow" filter="url(#glow-${id})">
-<g class="g-shock">${sc.paths('shock')}</g>
-<g class="g-back">${sc.paths('back')}</g>
-<g class="g-front">${sc.paths('front', { draw: true })}</g>
-<g class="g-contour">${sc.paths('contour', { draw: true })}</g>
+<g class="g-shock" data-layer="fx">${sc.paths('shock')}</g>
+<g class="g-back" data-layer="model">${sc.paths('back')}</g>
+<g class="g-front" data-layer="model">${sc.paths('front', { draw: true })}</g>
+<g class="g-contour" data-layer="model">${sc.paths('contour', { draw: true })}</g>
 </g>
 </g>
 </g>

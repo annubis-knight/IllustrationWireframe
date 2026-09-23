@@ -48,6 +48,16 @@ La page contient les 3 cartes d'offre, puis une section « intégration » avec 
 
 Le rendu interne est le moteur Canvas 2D du prototype 03, assemblé par `tools/bundle.mjs` : moteur + scènes + élément, le tout dans une IIFE (aucune variable globale n'est exposée). L'intérêt n'est donc pas le rendu — déjà mesuré en 03 — mais **le mode de distribution**.
 
+## Calques et couleurs
+
+Cas particulier : **la CSS de la page n'entre pas dans un Shadow DOM**. Le composant ne peut donc pas
+compter sur la règle commune du lab — il écoute l'événement `layerchange`, transmet les calques à son
+moteur et masque lui-même les éléments de son HUD interne. Même logique pour la couleur : sans
+attribut `color`, il lit celle que la page lui donne et se remet à jour sur `themechange`.
+
+C'est la contrepartie de l'encapsulation : rien ne peut le casser de l'extérieur, mais il doit
+exposer explicitement ce qu'on veut piloter.
+
 ## Thème clair / sombre
 
 Le composant n'impose pas ses couleurs : sans attribut `color`, il hérite de la couleur CSS de son
@@ -58,20 +68,20 @@ n'importe quelle page, il suit donc le thème de celle-ci, sans configuration.
 
 | Poste | Brut | gzip |
 |---|---:|---:|
-| `dist/wire-rocket.js` (moteur + 3 scènes + élément) | 30,3 Ko | **9,3 Ko** |
-| Page de démo (HTML + CSS + pilotage) | 26,8 Ko | 8,8 Ko |
-| **Total page** | **57 Ko** | **≈ 18 Ko** |
+| `dist/wire-rocket.js` (moteur + 3 scènes + élément) | 34,1 Ko | **10,2 Ko** |
+| Page de démo (HTML + CSS + pilotage) | 28,5 Ko | 9,4 Ko |
+| **Total page en production** | **63 Ko** | **≈ 20 Ko** |
 
-Un site qui n'a besoin que du visuel n'embarque donc que **9,3 Ko compressés** — tout compris, illustrations comprises.
+Un site qui n'a besoin que du visuel n'embarque donc que **10,2 Ko compressés** — tout compris, illustrations comprises. (Le banc affiche 100 Ko transférés : non compressé, outillage du lab inclus.)
 
 | Scénario | FPS médian | 1 % low | Frame p95 |
 |---|---:|---:|---:|
-| Repos (6 composants sur la page, 3 en pause hors écran) | 59,4 | 59,2 | 16,8 ms |
-| Boost | 59,9 | 59,2 | 16,8 ms |
-| CPU ralenti ×4 (≈ mobile) | 28,7 | 15,0 | 50,2 ms |
-| Sans glow | 51,9 | 12,0 | 16,9 ms |
+| Repos (6 composants sur la page, 3 en pause hors écran) | 55,2 | 29,9 | 16,8 ms |
+| Boost | 59,7 | 59,2 | 16,8 ms |
+| CPU ralenti ×4 (≈ mobile) | 30,0 | 19,9 | 50,2 ms |
+| Sans glow | 59,9 | 59,2 | 16,8 ms |
 
-Le relevé « sans glow » plus bas que les autres est un artefact de mesure (des composants entrent dans le champ pendant la fenêtre) : ce n'est pas un coût réel. À retenir : **même moteur que le 03, mais meilleur sous CPU contraint** (28,7 contre 21,6 fps), parce que chaque composant se met en pause dès qu'il sort de l'écran — un comportement offert par l'encapsulation.
+À retenir : **même moteur que le 03, mais meilleur sous CPU contraint** (30 contre 25 fps), parce que chaque composant se met en pause dès qu'il sort de l'écran — un comportement offert par l'encapsulation.
 
 ## Et Spline ?
 
@@ -80,12 +90,12 @@ Le relevé « sans glow » plus bas que les autres est un artefact de mesure (de
 1. **Tu crées les scènes dans Spline** (matériau wireframe + glow, états au survol via leurs *events*), tu exportes en URL publique, et tu la colles dans la constante `SPLINE_URL` de `js/demo.js`. Le visualiseur `@splinetool/viewer` remplace alors le cadre vide de la section « intégration », et `npm run measure` compare directement poids et fluidité avec le composant maison.
 2. **Tu pars du filaire existant** : les géométries des 3 scènes peuvent être exportées en glTF pour être importées dans Spline ou Blender, puis retravaillées visuellement.
 
-Ordre de grandeur à anticiper : le runtime Spline pèse ~1 à 3 Mo selon la scène, contre 9,3 Ko ici. L'échange se fait donc entre **temps d'édition visuelle** (Spline gagne largement) et **poids / contrôle** (le code gagne largement).
+Ordre de grandeur à anticiper : le runtime Spline pèse ~1 à 3 Mo selon la scène, contre 10,2 Ko ici. L'échange se fait donc entre **temps d'édition visuelle** (Spline gagne largement) et **poids / contrôle** (le code gagne largement).
 
 | Critère | Note |
 |---|:-:|
 | Fidélité au style wireframe / HUD | ★★★★☆ |
-| Poids | ★★★★★ (9,3 Ko gz le composant) |
+| Poids | ★★★★★ (10,2 Ko gz le composant) |
 | Performances desktop / mobile | ★★★★★ / ★★★☆☆ |
 | Facilité d'animation | ★★★☆☆ (héritée du 03) |
 | Réutilisation / portabilité | ★★★★★ (un tag, partout, sans build) |

@@ -73,11 +73,13 @@
   el.setAttribute('aria-hidden', 'true');
   el.innerHTML = `
     <style>
+      /* Hors dock : panneau flottant autonome. Dans le dock : il se fond dedans. */
       .perf-hud{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:12px;z-index:9999;
         font:500 11px/1.35 ui-monospace,"JetBrains Mono",Consolas,monospace;
         color:var(--ink,#bff6ff);background:var(--panel-solid,rgba(2,10,18,.78));
         border:1px solid var(--line,rgba(90,230,255,.35));padding:8px 10px 6px;
         min-width:168px;backdrop-filter:blur(6px);pointer-events:none;letter-spacing:.04em}
+      .dock-panel__body .perf-hud{position:static;padding:0;min-width:0;border:0;background:none;backdrop-filter:none}
       .perf-hud[hidden]{display:none}
       .perf-hud b{color:var(--title,#fff);font-weight:700}
       /* Vert / ambre / rouge lisibles sur fond sombre comme sur fond clair */
@@ -128,7 +130,8 @@
 
   function mount() {
     el.hidden = new URLSearchParams(location.search).get('perf') === '0';
-    document.body.appendChild(el);
+    const body = window.LabDock?.panel({ id: 'perf', title: 'Perf', order: 10 });
+    (body || document.body).appendChild(el);
   }
 
   addEventListener('keydown', (e) => {

@@ -35,7 +35,11 @@ IllustrationWireframe/
 ├── 04-spline-web/        ✅ Web Component <wire-rocket> (+ emplacement Spline)
 ├── _shared/
 │   ├── offers.css        habillage commun des cartes (design identique partout)
+│   ├── dock.js           colonne de panneaux repliables (touche D)
 │   ├── perf-hud.js       compteur FPS commun (touche P) + API lue par le banc
+│   ├── theme.js          thème clair / auto / sombre
+│   ├── layers.js         les 7 calques du visuel
+│   ├── accents.js        couleur principale de chaque offre
 │   └── results.js        résultats générés par npm run measure (lus par le dashboard)
 └── tools/
     ├── serve.mjs         serveur statique sans dépendance
@@ -47,10 +51,55 @@ Les 4 démos partagent **le même habillage de cartes, le même contenu et les m
 
 Chaque démo a son `README.md` : rendu obtenu, poids / FPS, facilité d'animation et de personnalisation.
 
+## Le dock du lab
+
+Une colonne de panneaux repliables à droite de chaque démo (touche **D** pour tout replier,
+**P** pour le compteur). Réglages mémorisés d'une visite à l'autre.
+
+| Panneau | Ce qu'il fait |
+|---|---|
+| **Perf** | FPS instantané, moyenne, 1 % low, p95, poids transféré |
+| **Thème** | Clair · Auto (suit le système) · Sombre |
+| **Couleurs** | Une couleur principale par offre, modifiable en direct |
+| **Calques** | Allume / éteint les 7 éléments du visuel |
+| **Lab** | Glow (ou bloom), animations, rejouer l'intro |
+
+### Les 7 calques
+
+`model` · `ring` · `base` · `overlay` · `labels` · `decor` · `fx` — même vocabulaire dans les
+4 démos, donc comparables une à une.
+
+| Calque | Contenu |
+|---|---|
+| Élément central | fusée, lanceur et ses boosters, vaisseau |
+| Cercle HUD | cadran radar et graduations |
+| Socle | socle holographique et cône de lumière |
+| Overlay | ligne de balayage, réticule, coins d'écran |
+| Légendes | étiquettes techniques, cotes, télémétrie |
+| Décor | grille au sol, planète, orbite, étoiles, traînées warp |
+| Effets | flammes, anneaux de réacteur, vapeurs, onde de choc |
+
+Éteindre un calque n'emporte pas ce qui s'y accroche : masquer la fusée laisse ses flammes
+visibles. Chaque techno s'y prend différemment — c'est un point de comparaison de plus :
+
+- **01 SVG** : zéro ligne de JavaScript. Les groupes portent `data-layer`, une règle CSS les masque.
+- **02 Three.js** : les objets 3D portent `userData.layer`, on bascule leur `visible` ; le HUD, lui,
+  reste du DOM et suit la même règle CSS.
+- **03 Canvas 2D** : le moteur saute les traits du nœud éteint mais continue vers ses enfants.
+- **04 Web Component** : la CSS de la page n'entre pas dans le Shadow DOM — le composant écoute
+  l'événement `layerchange` et masque lui-même ses éléments.
+
+### Couleurs
+
+Chaque carte est pilotée par **un seul jeton** (`--c-starter`, `--c-booster`, `--c-nitro`). Tout en
+découle : bordures, fonds, jauges et CTA via `color-mix()`, traits de l'illustration via
+`currentColor`, et les démos Canvas / WebGL relisent le jeton quand il change. Le panneau Couleurs
+ne fait donc que réécrire ces trois variables. Seuls le blanc incandescent des flammes (`--hot`) et
+l'ambre de la balise restent indépendants : ce sont des couleurs de matière, pas d'identité.
+
 ## Thème clair / sombre
 
-Tout le lab (dashboard + 4 démos) bascule via le bouton de la barre du haut. Ce n'est pas une
-inversion : ce sont **deux identités graphiques**.
+Ce n'est pas une inversion : ce sont **deux identités graphiques**.
 
 | | Sombre | Clair |
 |---|---|---|
@@ -58,46 +107,47 @@ inversion : ce sont **deux identités graphiques**.
 | Halo | filtres SVG / bloom WebGL / additif Canvas | supprimé — le trait porte seul |
 | Accents | cyan / violet / magenta fluo | teal, indigo et magenta encrés |
 
-Le thème suit le réglage du système, et le choix manuel est mémorisé (`localStorage`). Chaque
-technologie a dû s'adapter à sa manière — c'est en soi un point de comparaison :
+Là encore, chaque technologie s'adapte à sa manière :
 
-- **01 SVG** : rien à coder, tout est en `currentColor` et en jetons CSS. Seuls les filtres de
+- **01 SVG** : rien à coder, tout est en `currentColor` et en jetons CSS ; seuls les filtres de
   glow sont coupés en clair.
 - **02 Three.js** : le plus de travail. Le canvas passe de `mix-blend-mode: screen` à `multiply`,
   la couleur de fond et celle des occludeurs changent, le bloom est désactivé, et chaque matériau
   est reteinté selon son rôle (`accent`, `hot`, `plume`, `bg`).
-- **03 Canvas 2D** : le mélange additif (`lighter`) devient un tracé normal, et les traits sont
-  légèrement épaissis pour compenser l'absence de halo.
-- **04 Web Component** : il hérite simplement de la couleur de sa carte et écoute l'événement
-  `themechange` — même déposé dans une page tierce, il suit le thème de son hôte.
+- **03 Canvas 2D** : le mélange additif devient un tracé normal, traits épaissis de 25 %.
+- **04 Web Component** : il hérite de la couleur de sa carte et écoute `themechange` — déposé dans
+  une page tierce, il suit le thème de son hôte.
 
 ## Comparatif mesuré
 
 | | 01 SVG + GSAP | 02 Three.js | 03 Canvas 2D | 04 Web Component |
 |---|---|---|---|---|
-| Poids prod (gzip) | 71 Ko (dont GSAP 37) | **151 Ko** | **16 Ko** | 18 Ko (composant seul : 9,3) |
-| FPS repos | 58,7 (1 % low 30) | **59,9** (low 59) | **59,9** (low 59) | 59,4 (low 59) |
-| FPS survol des 3 cartes | 45,2 | **59,9** | 58,9 | 59,9 |
-| FPS CPU ×4 (≈ mobile) | 27,7 | **49,9** | 21,6 | 28,7 |
-| Sans glow / bloom | 59,9 | 59,7 | 59,9 | — |
+| Poids prod (gzip) | 72 Ko (dont GSAP 37) | **~148 Ko** | **18 Ko** | 20 Ko (composant seul : 10,2) |
+| FPS repos | 57,7 (1 % low 30) | **59,9** (low 59) | **59,9** (low 59) | 55,2 (low 30) |
+| FPS survol des 3 cartes | 59,9 | **59,9** | 59,9 | 59,7 |
+| FPS CPU ×4 (≈ mobile) | 22,0 | **48,4** | 25,0 | 30,0 |
+| Sans glow / bloom | 59,9 (low 59,5) | 59,9 | 59,9 | 59,9 |
 | Vraie 3D temps réel | ✗ (angle figé au build) | ✓ | ✓ | ✓ |
 | Lignes cachées | pointillés (calculés) | masquées (profondeur) | pointillés (calculés) | pointillés (calculés) |
 | Visible sans JS / indexable | **✓** | ✗ | ✗ | ✗ |
-| Édition visuelle sans code | ✗ | ✗ | ✗ | ✗ (Spline le permettrait) |
+| Calques | CSS seule | `visible` des objets 3D | filtre dans le moteur | événement + Shadow DOM |
 | Distribution | markup dans la page | bundle + build | 3 fichiers JS | **1 fichier, 1 tag** |
+
+> Les poids mesurés par le banc incluent l'outillage du lab (dock, thème, calques, couleurs,
+> compteur : ~12 Ko gzip) ; la colonne « poids prod » l'exclut, puisqu'il ne part pas en production.
 
 ### Ce que les mesures disent
 
-1. **Le glow SVG coûte plus cher que la 3D WebGL.** Le prototype 01 perd 15 fps dès que les 3 cartes sont survolées (45 fps), et retrouve 60 fps réguliers une fois les filtres coupés. Three.js, lui, ne bouge pas — le GPU absorbe tout.
-2. **Le plus léger n'est pas le plus fluide.** Le Canvas 2D tient 60 fps sur desktop avec 16 Ko, mais tombe à 22 fps quand le CPU est ralenti ×4 : tout le travail de projection est sur le processeur.
-3. **Le plus lourd est le plus robuste.** Three.js coûte 151 Ko mais reste à 50 fps en mobile simulé, là où les trois autres sont entre 22 et 29.
+1. **Le glow SVG coûte plus cher que la 3D WebGL.** Le prototype 01 tourne à 57,7 fps avec des à-coups (1 % low à 30) et tombe à 22 fps quand le CPU est ralenti ×4 ; filtres coupés, il retrouve 59,9 fps parfaitement réguliers (1 % low 59,5). Three.js, lui, ne bouge pas — le GPU absorbe tout.
+2. **Le plus léger n'est pas le plus fluide.** Le Canvas 2D tient 60 fps sur desktop avec 18 Ko, mais tombe à 25 fps quand le CPU est ralenti ×4 : tout le travail de projection est sur le processeur.
+3. **Le plus lourd est le plus robuste.** Three.js coûte ~148 Ko mais reste à 48 fps en mobile simulé, là où les trois autres sont entre 22 et 30.
 4. **Un seul candidat survit sans JavaScript** : le SVG du prototype 01, qui reste visible et indexable — un argument de poids pour une section d'offres commerciale.
 
 ### Recommandation pour une section d'offres PropulSite
 
 - **Site vitrine classique, priorité SEO et légèreté** → prototype **01 (SVG + GSAP)**, en allégeant le glow (filtre au survol uniquement, ou halo par doublage de tracé comme en 03).
 - **Effet « waouh » assumé, page de vente ou landing premium** → prototype **02 (Three.js)**, avec une image de repli pour le SSR et les machines sans GPU.
-- **Réutilisation sur plusieurs sites clients / WordPress** → prototype **04 (`<wire-rocket>`)** : un fichier de 9,3 Ko, aucun build, aucun conflit CSS.
+- **Réutilisation sur plusieurs sites clients / WordPress** → prototype **04 (`<wire-rocket>`)** : un fichier de 10,2 Ko, aucun build, aucun conflit CSS.
 - **Spline** reste pertinent si tu veux *éditer visuellement* les scènes : c'est le seul chemin sans code, mais il demande ton compte et pèse 1 à 3 Mo.
 
 ### Protocole de mesure

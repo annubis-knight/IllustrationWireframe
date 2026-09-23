@@ -28,6 +28,14 @@ Deux détails qui font la différence de performance :
 - **Regroupement des tracés.** Chaque appel à `stroke()` coûte cher en Canvas 2D. Les ~6 900 segments sont regroupés par épaisseur et opacité, puis tracés en quelques appels seulement.
 - **Glow sans filtre.** Pas de `shadowBlur` (très lent) : chaque groupe est dessiné deux fois, une passe large et transparente en mélange additif (`globalCompositeOperation = 'lighter'`), puis le trait net par-dessus.
 
+## Calques et couleurs
+
+Chaque nœud de la scène porte son calque. Quand il est éteint, le moteur saute **ses** traits mais
+continue de descendre vers ses enfants : masquer le vaisseau laisse donc ses flammes visibles, alors
+qu'un simple `visible = false` sur le groupe les aurait emportées. Le HUD, lui, est du SVG en
+surimpression, masqué par la règle CSS commune. La couleur du renderer est relue dans le jeton
+`--c-<offre>` à chaque changement.
+
 ## Thème clair / sombre
 
 En clair, le mélange additif (`globalCompositeOperation = 'lighter'`), qui fait tout l'effet néon
@@ -40,23 +48,23 @@ Mesures `npm run measure` : Chrome 153 headless (Playwright), viewport 1440×100
 
 | Poste | Brut | gzip |
 |---|---:|---:|
-| `engine.js` (moteur 3D complet) | 13,8 Ko | 4,4 Ko |
-| `scenes.js` (les 3 illustrations) | 9,2 Ko | 2,9 Ko |
-| `main.js` | 7,4 Ko | 2,7 Ko |
-| CSS (habillage commun + spécifique) | 12,9 Ko | 4,1 Ko |
-| HTML | 10,2 Ko | 2,2 Ko |
-| **Total** | **53 Ko** | **≈ 16 Ko** |
+| `engine.js` (moteur 3D complet) | 14,6 Ko | 4,6 Ko |
+| `scenes.js` (les 3 illustrations) | 10,3 Ko | 3,2 Ko |
+| `main.js` | 7,9 Ko | 2,8 Ko |
+| CSS (habillage commun + spécifique) | 15,3 Ko | 5,0 Ko |
+| HTML | 10,5 Ko | 2,3 Ko |
+| **Total en production** | **59 Ko** | **≈ 18 Ko** |
 
-**C'est le poids le plus faible des quatre** : 4 fois plus léger que le SVG + GSAP, 9 fois plus léger que Three.js. Et les illustrations ne sont pas des assets : elles sont *calculées*, donc ajouter une quatrième offre ne coûte que quelques lignes.
+**C'est le poids le plus faible des quatre** : 4 fois plus léger que le SVG + GSAP, 8 fois plus léger que Three.js. (Le banc affiche 95 Ko transférés : non compressé, et outillage du lab inclus.) Et les illustrations ne sont pas des assets : elles sont *calculées*, donc ajouter une quatrième offre ne coûte que quelques lignes.
 
 | Scénario | FPS médian | 1 % low | Frame p95 |
 |---|---:|---:|---:|
 | Repos | 59,9 | 59,2 | 16,8 ms |
-| Boost (3 cartes survolées) | 58,9 | 29,9 | 16,8 ms |
-| CPU ralenti ×4 (≈ mobile) | **21,6** | 8,6 | 83,4 ms |
-| Sans glow | 59,9 | 59,2 | 16,8 ms |
+| Boost (3 cartes survolées) | 59,9 | 59,5 | 16,8 ms |
+| CPU ralenti ×4 (≈ mobile) | **25,0** | 14,9 | 66,8 ms |
+| Sans glow | 59,9 | 59,5 | 16,8 ms |
 
-Lecture honnête : **60 fps sur desktop, mais c'est la démo la plus fragile sous CPU contraint** (21,6 fps, et des à-coups à 8 fps). Logique : tout est fait par le processeur — projeter 6 900 segments, les trier vus/cachés, puis les peindre, 60 fois par seconde. Sur mobile, il faudrait réduire la densité des maillages (moins de méridiens, moins d'anneaux) ou n'animer que la carte visible.
+Lecture honnête : **60 fps sur desktop, mais c'est la démo la plus fragile sous CPU contraint** (25 fps, et des à-coups à 15 fps). Logique : tout est fait par le processeur — projeter 6 900 segments, les trier vus/cachés, puis les peindre, 60 fois par seconde. Sur mobile, il faudrait réduire la densité des maillages (moins de méridiens, moins d'anneaux) ou n'animer que la carte visible.
 
 ## Facilité d'animation et de personnalisation
 

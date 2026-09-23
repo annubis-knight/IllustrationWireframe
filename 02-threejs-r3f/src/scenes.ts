@@ -55,7 +55,23 @@ function occluderSphere(radius: number): THREE.Mesh {
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 
-/** Lanceur complet (corps, coiffe, tuyère, ailerons) + son occludeur. */
+/** Marque un objet pour le panneau CALQUES (model / decor / fx). */
+function L<T extends THREE.Object3D>(obj: T, layer: string): T {
+  obj.userData.layer = layer;
+  return obj;
+}
+
+/** Socle holographique : anneaux concentriques + graduations, sous la scene. */
+function holoBase(res: THREE.Vector2, color: number, y: number, r: number): THREE.Object3D {
+  const segs: Seg = [...ring(r, 72, y), ...ring(r * 0.72, 64, y), ...ring(r * 0.44, 48, y)];
+  for (let i = 0; i < 24; i++) {
+    const a = (i / 24) * Math.PI * 2;
+    segs.push(...polyline([V(Math.cos(a) * r, y, Math.sin(a) * r), V(Math.cos(a) * r * 1.06, y, Math.sin(a) * r * 1.06)]));
+  }
+  return L(lines(segs, { color, width: 1, opacity: 0.7, resolution: res }), 'base');
+}
+
+/** Lanceur complet (corps, coiffe, tuyere, ailerons) + son occludeur. */
 function rocket(res: THREE.Vector2, color: number, { fins = true, width = 1.1 } = {}) {
   const g = new THREE.Group();
   const segs: Seg = [...lathe(BODY, { meridians: 10 }), ...lathe(FAIRING, { meridians: 10 }), ...lathe(BELL, { meridians: 10 })];
@@ -70,7 +86,7 @@ function rocket(res: THREE.Vector2, color: number, { fins = true, width = 1.1 } 
   }
   const body = lines(segs, { color, width, resolution: res });
   g.add(occluder([...BODY, ...FAIRING]), body);
-  return { group: g, materials: [body.material] };
+  return { group: L(g, 'model'), materials: [body.material] };
 }
 
 /* ── STARTER ───────────────────────────────────────────────────────────── */
@@ -90,8 +106,9 @@ function starter(res: THREE.Vector2, color: number): View {
     return l;
   };
 
-  add(grid(7.5, 0.75), { color, width: 0.8, opacity: 0.35, resolution: res });
-  add([...lathe([[3.6, 0], [3.6, 0.38], [2.6, 0.38], [1.45, 0.38]], { meridians: 28 }), ...lathe([[1.2, 0.95], [1.2, 1.18]], { meridians: 16 })], { color, width: 1, opacity: 0.8, resolution: res });
+  root.add(holoBase(res, color, -0.5, 5.4));
+  L(add(grid(7.5, 0.75), { color, width: 0.8, opacity: 0.35, resolution: res }), 'decor');
+  L(add([...lathe([[3.6, 0], [3.6, 0.38], [2.6, 0.38], [1.45, 0.38]], { meridians: 28 }), ...lathe([[1.2, 0.95], [1.2, 1.18]], { meridians: 16 })], { color, width: 1, opacity: 0.8, resolution: res }), 'model');
 
   const craft = rocket(res, color);
   craft.group.position.y = 1.2;
@@ -103,7 +120,7 @@ function starter(res: THREE.Vector2, color: number): View {
   tower.position.set(3.1, 0.38, -1.4);
   const towerLines = lines(truss(1.3, 12, 12), { color, width: 0.9, opacity: 0.85, resolution: res });
   materials.push(towerLines.material);
-  tower.add(towerLines);
+  tower.add(L(towerLines, 'model'));
   root.add(tower);
 
   const arms: THREE.Group[] = [];
@@ -121,12 +138,12 @@ function starter(res: THREE.Vector2, color: number): View {
     }
     const l = lines(segs, { color, width: 0.8, resolution: res });
     materials.push(l.material);
-    pivot.add(l);
+    pivot.add(L(l, 'model'));
     root.add(pivot);
     arms.push(pivot);
   }
 
-  const flame = plume(0.45, 4.2, color);
+  const flame = L(plume(0.45, 4.2, color), 'fx');
   flame.position.y = 0.38;
   flame.scale.setScalar(0.001);
   root.add(flame);
@@ -165,13 +182,14 @@ function booster(res: THREE.Vector2, color: number): View {
   scene.add(root);
   const materials: THREE.Material[] = [];
 
-  // Planète : sphère noire opaque + filaire par-dessus → les lignes du fond sont masquées
+  root.add(holoBase(res, color, -13.5, 10));
+  // Planete : sphere noire opaque + filaire par-dessus → les lignes du fond sont masquées
   const planet = new THREE.Group();
   planet.position.set(-4, -6, 0);
   planet.rotation.z = 0.35;
   const planetLines = lines(sphere(6.2, { lat: 9, lon: 18, segments: 64 }), { color, width: 0.9, opacity: 0.85, resolution: res });
   materials.push(planetLines.material);
-  planet.add(occluderSphere(6.2), planetLines);
+  planet.add(L(occluderSphere(6.2), 'decor'), L(planetLines, 'decor'));
   root.add(planet);
 
   const orbit = new THREE.Group();
@@ -179,11 +197,11 @@ function booster(res: THREE.Vector2, color: number): View {
   orbit.rotation.set(-0.38, 0, 0.3);
   const orbitLines = lines(ring(10.5, 96), { color, width: 1.2, opacity: 0.7, resolution: res });
   materials.push(orbitLines.material);
-  orbit.add(orbitLines);
+  orbit.add(L(orbitLines, 'decor'));
   const satMat = new THREE.MeshBasicMaterial({ color: WHITE });
   satMat.userData.role = 'hot';
   const satellite = new THREE.Mesh(new THREE.OctahedronGeometry(0.28), satMat);
-  orbit.add(satellite);
+  orbit.add(L(satellite, 'decor'));
   root.add(orbit);
 
   // Lanceur + 2 boosters latéraux
@@ -197,7 +215,7 @@ function booster(res: THREE.Vector2, color: number): View {
 
   const plumes: THREE.Mesh[] = [];
   const addPlume = (x: number, y: number, radius: number, length: number) => {
-    const p = plume(radius, length, color);
+    const p = L(plume(radius, length, color), 'fx');
     p.position.set(x, y, 0);
     craft.add(p);
     plumes.push(p);
@@ -208,11 +226,11 @@ function booster(res: THREE.Vector2, color: number): View {
     b.position.set(sx * 1.5, 0.3, 0);
     const bl = lines([...lathe(BOOSTER_BODY, { meridians: 10 }), ...lathe([[0.18, 0], [0.22, -0.2], [0.32, -0.5]], { meridians: 8 })], { color, width: 1.1, resolution: res });
     materials.push(bl.material);
-    b.add(occluder(BOOSTER_BODY), bl);
+    b.add(L(occluder(BOOSTER_BODY), 'model'), L(bl, 'model'));
     craft.add(b);
     const struts = lines([...polyline([new THREE.Vector3(sx * 1.05, 1.2, 0), new THREE.Vector3(sx * 1.5, 1.2, 0)]), ...polyline([new THREE.Vector3(sx * 1.05, 4.6, 0), new THREE.Vector3(sx * 1.5, 4.6, 0)])], { color, width: 0.9, resolution: res });
     materials.push(struts.material);
-    craft.add(struts);
+    craft.add(L(struts, 'model'));
     addPlume(sx * 1.5, -0.25, 0.3, 3.4);
   }
   root.add(craft);
@@ -261,7 +279,8 @@ function nitro(res: THREE.Vector2, color: number): View {
   scene.add(root);
   const materials: THREE.Material[] = [];
 
-  // Vaisseau : nez vers +Y local, aplati sur Z, puis couché vers le spectateur
+  root.add(holoBase(res, color, -6.5, 7.5));
+  // Vaisseau : nez vers +Y local, aplati sur Z, puis couche vers le spectateur
   const ship = new THREE.Group();
   ship.rotation.set(-Math.PI / 2 + 0.35, 0, 0);
   ship.position.y = 0.5;
@@ -270,7 +289,7 @@ function nitro(res: THREE.Vector2, color: number): View {
   hull.scale.set(1.25, 1, 0.52);
   const hullLines = lines(lathe(FUSELAGE, { meridians: 14 }), { color, width: 1.3, resolution: res });
   materials.push(hullLines.material);
-  hull.add(occluder(FUSELAGE), hullLines);
+  hull.add(L(occluder(FUSELAGE), 'model'), L(hullLines, 'model'));
   ship.add(hull);
   ship.position.z = -1;
 
@@ -279,7 +298,7 @@ function nitro(res: THREE.Vector2, color: number): View {
   canopy.position.z = 0.3;
   const canopyLines = lines(lathe([[0.3, 4.2], [0.5, 4.8], [0.52, 5.5], [0.42, 6.2], [0.22, 6.8], [0, 7.1]], { meridians: 8 }), { color: WHITE, width: 1, opacity: 0.5, resolution: res });
   materials.push(canopyLines.material);
-  canopy.add(canopyLines);
+  canopy.add(L(canopyLines, 'model'));
   ship.add(canopy);
 
   const wingSegs: Seg = [];
@@ -294,7 +313,7 @@ function nitro(res: THREE.Vector2, color: number): View {
   wingSegs.push(...polyline([V(0, 0.3, 0.45), V(0, 2.8, 0.45), V(0, 1, 1.8), V(0, -0.2, 1.8)], true));
   const wings = lines(wingSegs, { color, width: 1.3, resolution: res });
   materials.push(wings.material);
-  ship.add(wings);
+  ship.add(L(wings, 'model'));
 
   // 3 réacteurs : nacelles, tuyères, anneaux de post-combustion, panaches
   const burnRings: THREE.Object3D[] = [];
@@ -305,22 +324,22 @@ function nitro(res: THREE.Vector2, color: number): View {
     if (nz.x !== 0) {
       const nl = lines(lathe(NACELLE, { meridians: 10 }), { color, width: 1.1, resolution: res });
       materials.push(nl.material);
-      n.add(occluder(NACELLE), nl);
+      n.add(L(occluder(NACELLE), 'model'), L(nl, 'model'));
     }
     const nozzle = lines(lathe([[nz.r, 0], [nz.r * 0.86, -0.24], [nz.r * 1.12, -0.58]], { meridians: 8 }), { color: WHITE, width: 1.2, opacity: 0.8, resolution: res });
     materials.push(nozzle.material);
-    n.add(nozzle);
+    n.add(L(nozzle, 'model'));
 
     [1.3, 2.4, 3.7].forEach((d, i) => {
       // Anneaux de post-combustion : opacité pulsée dans update() → hors de `materials`
       const r = lines(ring(nz.r * 1.3 * [0.95, 0.8, 0.6][i], 32), { color, width: 1.4, additive: true, resolution: res });
       r.rotation.x = Math.PI / 2;
       r.position.y = -0.58 - d;
-      n.add(r);
+      n.add(L(r, 'fx'));
       burnRings.push(r);
     });
 
-    const p = plume(nz.r * 1.05, nz.x === 0 ? 5 : 3.8, color);
+    const p = L(plume(nz.r * 1.05, nz.x === 0 ? 5 : 3.8, color), 'fx');
     p.position.y = -0.58;
     n.add(p);
     plumes.push(p);
@@ -330,7 +349,7 @@ function nitro(res: THREE.Vector2, color: number): View {
   // Cône d'onde de choc devant le nez
   const shock = lines([...ring(0.9, 40, 8.6), ...ring(1.8, 40, 7.5), ...ring(2.6, 40, 6.2)], { color, width: 0.9, opacity: 0.35, resolution: res });
   materials.push(shock.material);
-  ship.add(shock);
+  ship.add(L(shock, 'fx'));
   root.add(ship);
 
   // Traînées d'hyper-vitesse : segments qui défilent le long de l'axe de vol
@@ -346,7 +365,7 @@ function nitro(res: THREE.Vector2, color: number): View {
   }
   // Opacité pilotée dans update() → hors de `materials`
   const streaks = lines(streakSegs, { color: WHITE, width: 1, opacity: 0.35, additive: true, resolution: res });
-  streakGroup.add(streaks);
+  streakGroup.add(L(streaks, 'decor'));
   root.add(streakGroup);
 
   const anchor = new THREE.Object3D(); // nez du vaisseau

@@ -145,8 +145,9 @@
   
     /* ── Nœud : un groupe de traits avec sa transformation ───────────────── */
     class Node {
-      constructor(strokes = [], { pos = [0, 0, 0], rot = [0, 0, 0], scale = 1 } = {}) {
+      constructor(strokes = [], { pos = [0, 0, 0], rot = [0, 0, 0], scale = 1, layer = null } = {}) {
         this.strokes = strokes;
+        this.layer = layer; // 'model' | 'decor' | 'fx' … (panneau CALQUES)
         this.pos = pos;
         this.rot = rot; // [x, y, z] en radians
         this.scale = scale;
@@ -199,6 +200,7 @@
         this.pitch = rad(12);
         this.yaw = 0;
         this.glow = true;
+        this.layers = {}; // calques éteints : { fx: false, … }
         this.light = false; // thème clair : encre sur papier, pas de néon additif
         this.alpha = 1; // pilotée par l'intro
         this.dpr = 1;
@@ -260,6 +262,8 @@
         this._back.length = 0;
         this._fx.length = 0;
         this._collect(root, [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]);
+        // Ce qui a reellement ete peint (sert aux tests et au debogage des calques)
+        this.stats = { front: this._front.length, back: this._back.length, fx: this._fx.length };
         this._paint(this._back, { dash: [2, 3], alpha: 0.34 * this.alpha, glow: false });
         this._paint(this._fx, { alpha: 0.9 * this.alpha, glow: this.glow, additive: true });
         this._paint(this._front, { alpha: this.alpha, glow: this.glow });
@@ -269,13 +273,16 @@
       /** Parcourt l'arbre, projette, et trie chaque segment vu / caché. */
       _collect(node, parent) {
         if (!node.visible) return;
+        // Calque éteint : on saute SES traits, mais on continue vers les enfants
+        // (masquer la fusée ne doit pas emporter ses flammes).
+        const hidden = node.layer && this.layers[node.layer] === false;
         const m = node.matrix(this._m);
         const w = combine(parent, m);
         const p0 = [0, 0, 0];
         const p1 = [0, 0, 0];
         const n0 = [0, 0, 0];
   
-        for (const s of node.strokes) {
+        if (!hidden) for (const s of node.strokes) {
           const pts = s.p;
           const nrm = s.n;
           let run = null;
@@ -405,17 +412,31 @@
   (() => {
     'use strict';
     const { Node, lathe, sphere, ring, line, truss, grid } = scope.WIRE;
-
+  
     const BODY = [[0.96, 0], [1, 0.14], [1, 1.5], [1, 2.9], [1, 4.3], [1, 5.7], [1, 6.3]];
     const FAIRING = [[1, 6.3], [1.07, 6.5], [1.07, 7.35], [1.02, 7.85], [0.9, 8.3], [0.72, 8.7], [0.5, 9.03], [0.28, 9.27], [0.09, 9.42], [0, 9.46]];
     const BELL = [[0.3, 0], [0.34, -0.18], [0.46, -0.46], [0.64, -0.82]];
     const BOOSTER = [[0.4, 0], [0.46, 0.12], [0.46, 2.2], [0.46, 4.4], [0.4, 4.95], [0.28, 5.4], [0.12, 5.75], [0, 5.85]];
     const FUSELAGE = [[0.78, 0], [0.92, 0.35], [1, 1.4], [1, 2.8], [0.92, 4.2], [0.78, 5.4], [0.6, 6.5], [0.42, 7.5], [0.24, 8.35], [0.08, 8.95], [0, 9.15]];
     const NACELLE = [[0.42, 0], [0.55, 0.3], [0.58, 0.9], [0.58, 2.6], [0.5, 3.3], [0.34, 3.8], [0.12, 4.15], [0, 4.2]];
-
+  
     /** Panache : cône filaire additif, étiré selon l'intensité. */
     const plumeShape = (r, len) => lathe([[r, 0], [r * 0.78, -len * 0.35], [r * 0.45, -len * 0.72], [0, -len]], { segments: 18, meridians: 8, w: 0.9, alpha: 0.75 }).map((s) => ((s.fx = true), s));
-
+  
+    /** Socle holographique : anneaux concentriques + graduations, sous la scene. */
+    function holoBase(y, r) {
+      const out = [
+        ...ring(r, { segments: 72, y, w: 1.1, alpha: 0.85 }),
+        ...ring(r * 0.72, { segments: 64, y, w: 0.6, alpha: 0.5 }),
+        ...ring(r * 0.44, { segments: 48, y, w: 0.8, alpha: 0.45 }),
+      ];
+      for (let i = 0; i < 24; i++) {
+        const a = (i / 24) * Math.PI * 2;
+        out.push(...line([[Math.cos(a) * r, y, Math.sin(a) * r], [Math.cos(a) * r * 1.06, y, Math.sin(a) * r * 1.06]], { w: 0.8, alpha: 0.7 }));
+      }
+      return out;
+    }
+  
     function rocketNode({ fins = true } = {}) {
       const n = new Node([
         ...lathe(BODY, { meridians: 10, w: 1 }),
@@ -436,26 +457,29 @@
       }
       return n;
     }
-
+  
     /* ── STARTER ── */
     function starter(renderer) {
       renderer.fov = 30;
       renderer.dist = 46;
       renderer.target = [0, 5.4, 0];
       renderer.pitch = 0.22;
-
+  
       const root = new Node();
-      root.add(new Node(grid(7.5, 0.75, { alpha: 0.3 })));
-      root.add(new Node([...lathe([[3.6, 0], [3.6, 0.38], [2.6, 0.38], [1.45, 0.38]], { meridians: 24, w: 0.9, alpha: 0.85 })]));
-
+      root.add(new Node(holoBase(-0.5, 5.4), { layer: 'base' }));
+      root.add(new Node(grid(7.5, 0.75, { alpha: 0.3 }), { layer: 'decor' }));
+      root.add(new Node([...lathe([[3.6, 0], [3.6, 0.38], [2.6, 0.38], [1.45, 0.38]], { meridians: 24, w: 0.9, alpha: 0.85 })], { layer: 'model' }));
+  
       const craft = root.add(rocketNode());
+      craft.layer = 'model';
       craft.pos = [0, 1.2, 0];
-
-      const tower = root.add(new Node(truss(1.3, 12, 12, { w: 0.7, alpha: 0.85 })));
+  
+      const tower = root.add(new Node(truss(1.3, 12, 12, { w: 0.7, alpha: 0.85 }), { layer: 'model' }));
       tower.pos = [3.1, 0.38, -1.4];
-
+  
       const arms = [9, 5].map((y) => {
         const pivot = root.add(new Node());
+        pivot.layer = 'model';
         pivot.pos = [3.1, y, -1.4];
         const dx = -3.1;
         const dz = 1.4;
@@ -468,11 +492,11 @@
         }
         return pivot;
       });
-
-      const flame = root.add(new Node(plumeShape(0.5, 3.6)));
+  
+      const flame = root.add(new Node(plumeShape(0.5, 3.6), { layer: 'fx' }));
       flame.pos = [0, 0.38, 0];
       flame.visible = false;
-
+  
       return {
         root,
         anchor: [0, 10.7, 0],
@@ -485,55 +509,56 @@
         },
       };
     }
-
+  
     /* ── BOOSTER ── */
     function booster(renderer) {
       renderer.fov = 32;
       renderer.dist = 48;
       renderer.target = [0, 1, 0];
       renderer.pitch = 0.1;
-
+  
       const root = new Node();
-      const planet = root.add(new Node(sphere(6.2, { lat: 8, lon: 16, segments: 44, w: 0.8, alpha: 0.85 })));
+      root.add(new Node(holoBase(-13.5, 10), { layer: 'base' }));
+      const planet = root.add(new Node(sphere(6.2, { lat: 8, lon: 16, segments: 44, w: 0.8, alpha: 0.85 }), { layer: 'decor' }));
       planet.pos = [-4, -6, 0];
       planet.rot = [0, 0, 0.35];
-
-      const orbit = root.add(new Node(ring(10.5, { segments: 80, w: 1, alpha: 0.6 })));
+  
+      const orbit = root.add(new Node(ring(10.5, { segments: 80, w: 1, alpha: 0.6 }), { layer: 'decor' }));
       orbit.pos = [-4, -6, 0];
       orbit.rot = [-0.38, 0, 0.3];
-
+  
       const satellite = orbit.add(new Node([
         ...line([[-0.5, 0, 0], [0.5, 0, 0]], { w: 1.4, fx: true }),
         ...line([[0, -0.35, 0], [0, 0.35, 0]], { w: 1.4, fx: true }),
         ...ring(0.3, { segments: 10, w: 1.2, fx: true }),
-      ]));
-
+      ], { layer: 'decor' }));
+  
       const craft = root.add(new Node());
       craft.pos = [3.4, 4.6, 2];
       craft.rot = [0, 0.5, -0.6];
       craft.scale = 0.62;
-      craft.add(rocketNode({ fins: false }));
-
+      craft.add(rocketNode({ fins: false })).layer = 'model';
+  
       const plumes = [];
-      const corePlume = craft.add(new Node(plumeShape(0.45, 4.2)));
+      const corePlume = craft.add(new Node(plumeShape(0.45, 4.2), { layer: 'fx' }));
       corePlume.pos = [0, -0.82, 0];
       plumes.push(corePlume);
-
+  
       for (const sx of [-1, 1]) {
-        const b = craft.add(new Node([...lathe(BOOSTER, { meridians: 8, w: 0.9 }), ...lathe([[0.18, 0], [0.22, -0.2], [0.32, -0.5]], { meridians: 6, w: 0.8 })]));
+        const b = craft.add(new Node([...lathe(BOOSTER, { meridians: 8, w: 0.9 }), ...lathe([[0.18, 0], [0.22, -0.2], [0.32, -0.5]], { meridians: 6, w: 0.8 })], { layer: 'model' }));
         b.pos = [sx * 1.5, 0.3, 0];
         craft.strokes.push(
           ...line([[sx * 1.05, 1.2, 0], [sx * 1.5, 1.2, 0]], { w: 0.8 }),
           ...line([[sx * 1.05, 4.6, 0], [sx * 1.5, 4.6, 0]], { w: 0.8 }),
         );
-        const p = craft.add(new Node(plumeShape(0.26, 2.8)));
+        const p = craft.add(new Node(plumeShape(0.26, 2.8), { layer: 'fx' }));
         p.pos = [sx * 1.5, -0.25, 0];
         plumes.push(p);
       }
-
+  
       const home = [3.4, 4.6, 2];
       const axis = [Math.sin(0.6) * Math.cos(0.5), Math.cos(0.6), Math.sin(0.6) * Math.sin(0.5)];
-
+  
       return {
         root,
         anchor: [3.4 + axis[0] * 5.9, 4.6 + axis[1] * 5.9, 2 + axis[2] * 5.9],
@@ -548,25 +573,27 @@
         },
       };
     }
-
+  
     /* ── NITRO ── */
     function nitro(renderer) {
       renderer.fov = 34;
       renderer.dist = 27;
       renderer.target = [0, 0.5, 0];
       renderer.pitch = 0.23;
-
+  
       const root = new Node();
+      root.add(new Node(holoBase(-6.5, 7.5), { layer: 'base' }));
       const ship = root.add(new Node());
+      ship.layer = 'model';
       ship.rot = [-Math.PI / 2 + 0.35, 0, 0];
-
-      const hull = ship.add(new Node(lathe(FUSELAGE, { meridians: 12, w: 1.1 })));
+  
+      const hull = ship.add(new Node(lathe(FUSELAGE, { meridians: 12, w: 1.1 }), { layer: 'model' }));
       hull.scale = [1.25, 1, 0.52];
-
-      const canopy = ship.add(new Node(lathe([[0.3, 4.2], [0.5, 4.8], [0.52, 5.5], [0.42, 6.2], [0.22, 6.8], [0, 7.1]], { meridians: 8, w: 0.9, alpha: 0.7 })));
+  
+      const canopy = ship.add(new Node(lathe([[0.3, 4.2], [0.5, 4.8], [0.52, 5.5], [0.42, 6.2], [0.22, 6.8], [0, 7.1]], { meridians: 8, w: 0.9, alpha: 0.7 }), { layer: 'model' }));
       canopy.scale = [0.7, 1, 0.6];
       canopy.pos = [0, 0, 0.3];
-
+  
       for (const sx of [-1, 1]) {
         ship.strokes.push(
           ...line([[sx * 1.1, 5.2, 0], [sx * 4.8, 1.2, 0], [sx * 4.8, 0.1, 0], [sx * 1.2, 0.5, 0]], { w: 1.1, closed: true }),
@@ -576,34 +603,35 @@
         );
       }
       ship.strokes.push(...line([[0, 0.3, 0.45], [0, 2.8, 0.45], [0, 1, 1.8], [0, -0.2, 1.8]], { w: 1, closed: true }));
-
+  
       const burn = [];
       const plumes = [];
       for (const nz of [{ x: 0, y: 0, r: 0.42, big: true }, { x: -2.2, y: -0.6, r: 0.34 }, { x: 2.2, y: -0.6, r: 0.34 }]) {
         const n = ship.add(new Node());
+        n.layer = 'model';
         n.pos = [nz.x, nz.y, nz.x === 0 ? 0 : -0.15];
         if (nz.x !== 0) n.strokes.push(...lathe(NACELLE, { meridians: 8, w: 1 }));
         n.strokes.push(...lathe([[nz.r, 0], [nz.r * 0.86, -0.24], [nz.r * 1.12, -0.58]], { meridians: 6, w: 1, alpha: 0.85 }));
         [1.3, 2.4, 3.7].forEach((d, i) => {
-          const r = n.add(new Node(ring(nz.r * 1.3 * [0.95, 0.8, 0.6][i], { segments: 24, w: 1.2, fx: true })));
+          const r = n.add(new Node(ring(nz.r * 1.3 * [0.95, 0.8, 0.6][i], { segments: 24, w: 1.2, fx: true }), { layer: 'fx' }));
           r.pos = [0, -0.58 - d, 0];
           r.rot = [Math.PI / 2, 0, 0];
           burn.push(r);
         });
-        const p = n.add(new Node(plumeShape(nz.r * 1.1, nz.big ? 5 : 3.8)));
+        const p = n.add(new Node(plumeShape(nz.r * 1.1, nz.big ? 5 : 3.8), { layer: 'fx' }));
         p.pos = [0, -0.58, 0];
         plumes.push(p);
       }
-
+  
       const shock = ship.add(new Node([
         ...ring(0.9, { segments: 28, y: 8.6, w: 0.7, alpha: 0.3 }),
         ...ring(1.8, { segments: 28, y: 7.5, w: 0.7, alpha: 0.3 }),
         ...ring(2.6, { segments: 28, y: 6.2, w: 0.7, alpha: 0.3 }),
-      ]));
-
+      ], { layer: 'fx' }));
+  
       // Traînées d'hyper-vitesse : segments le long de Z, défilant vers la caméra
       const SPAN = 60;
-      const streaks = root.add(new Node());
+      const streaks = root.add(new Node([], { layer: 'decor' }));
       for (let i = 0; i < 60; i++) {
         const a = Math.random() * Math.PI * 2;
         const r = 3 + Math.random() * 11;
@@ -611,7 +639,7 @@
         const len = 2 + Math.random() * 6;
         streaks.strokes.push(...line([[Math.cos(a) * r, Math.sin(a) * r * 0.6, z], [Math.cos(a) * r, Math.sin(a) * r * 0.6, z + len]], { w: 0.8, alpha: 0.35, fx: true }));
       }
-
+  
       return {
         root,
         anchor: [0, 0, 9.4],
@@ -625,7 +653,7 @@
         },
       };
     }
-
+  
     scope.SCENES = { starter, booster, nitro };
   })();
 
@@ -663,19 +691,22 @@
         .corners { stroke-width: 1.2; opacity: .8; }
         .k { font-size: 7.5px; letter-spacing: .18em; opacity: .6; }
         .v { font-size: 11px; font-weight: 600; letter-spacing: .08em; }
+        [data-layer][hidden] { display: none; }
       </style>
       <canvas part="canvas"></canvas>
       <svg viewBox="0 0 400 420" aria-hidden="true" part="hud">
-        <g class="back">
+        <g class="back" data-layer="ring">
           <circle class="ring" cx="200" cy="200" r="178"/>
           <circle class="dash" cx="200" cy="200" r="150"/>
           <path class="cross" d="M193 200h14M200 193v14"/>
         </g>
-        <text class="k" x="18" y="30" data-label></text>
-        <text class="v" x="18" y="45" data-value></text>
-        <text class="k" x="382" y="30" text-anchor="end">MODULE</text>
-        <text class="v" x="382" y="45" text-anchor="end" data-module></text>
-        <path class="corners" d="M10 30V10H30M370 10H390V30M390 390V410H370M30 410H10V390"/>
+        <g data-layer="labels">
+          <text class="k" x="18" y="30" data-label></text>
+          <text class="v" x="18" y="45" data-value></text>
+          <text class="k" x="382" y="30" text-anchor="end">MODULE</text>
+          <text class="v" x="382" y="45" text-anchor="end" data-module></text>
+        </g>
+        <path class="corners" data-layer="overlay" d="M10 30V10H30M370 10H390V30M390 390V410H370M30 410H10V390"/>
       </svg>`;
   
     const lerp = (a, b, k) => a + (b - a) * k;
@@ -721,6 +752,8 @@
         this.#mq.addEventListener('change', this.#applyTheme);
         addEventListener('themechange', this.#applyTheme);
         this.#applyTheme();
+        addEventListener('layerchange', this.#applyLayers);
+        this.#applyLayers();
         this.#last = performance.now();
         this.#loop(this.#last);
       }
@@ -730,6 +763,7 @@
         this.observer?.disconnect();
         this.#mq?.removeEventListener('change', this.#applyTheme);
         removeEventListener('themechange', this.#applyTheme);
+        removeEventListener('layerchange', this.#applyLayers);
       }
   
       attributeChangedCallback(name, _old, value) {
@@ -749,6 +783,16 @@
       #resolveColor() {
         return this.getAttribute('color') || getComputedStyle(this).color || '#3ff0ff';
       }
+  
+      /** Calques : le moteur pour ce qu'il peint, le Shadow DOM pour le HUD. */
+      #applyLayers = (e) => {
+        if (!this.renderer) return;
+        const layers = e?.detail?.layers ?? window.LabLayers?.state() ?? {};
+        this.renderer.layers = layers;
+        for (const el of this.shadowRoot.querySelectorAll('[data-layer]')) {
+          el.hidden = layers[el.dataset.layer] === false;
+        }
+      };
   
       #applyTheme = () => {
         if (!this.renderer) return;

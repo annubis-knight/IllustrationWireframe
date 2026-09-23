@@ -33,6 +33,16 @@ Dans Nuxt, `wire.ts` et `scenes.ts` ne bougent pas ; seul `main.ts` devient un c
 - **Un seul contexte WebGL pour 3 cartes** : un canvas plein écran en `mix-blend-mode: screen`, et à chaque frame on dessine chaque scène dans le rectangle de sa carte (`viewport` + `scissor`). Résultat : **1 seul draw call par frame** côté composeur, et rien n'empêche d'en ajouter 6 autres.
 - **Au survol** : les bras de la tour pivotent (une rotation 3D, là où le SVG devait morpher un tracé), les panaches s'allongent, le lanceur avance dans son axe, le vaisseau vibre et les traînées accélèrent.
 
+## Calques et couleurs
+
+Les objets 3D portent un marqueur (`userData.layer`) et le panneau Calques bascule leur `visible`.
+Le marquage est posé sur les **feuilles** de la scène, jamais sur les groupes : éteindre le vaisseau
+laisse donc ses flammes et ses anneaux allumés, puisqu'ils sont des objets frères et non enfants.
+
+Le HUD (cercle, légendes, coins) reste du DOM au-dessus du canvas : il suit la même règle CSS que
+les autres démos. Les couleurs, elles, sont relues dans les jetons CSS à chaque changement de thème
+ou de teinte, puis appliquées matériau par matériau selon son rôle.
+
 ## Thème clair / sombre
 
 C'est la démo qui a demandé le plus d'adaptation. En clair : le canvas passe de
@@ -46,21 +56,22 @@ Mesures `npm run measure` : Chrome 153 headless (Playwright), iGPU AMD Radeon 66
 
 | Poste | Brut | gzip |
 |---|---:|---:|
-| Bundle JS (three.js + post-traitement + scènes) | 571,9 Ko | **146,0 Ko** |
-| CSS | 9,9 Ko | 3,0 Ko |
-| HTML | 10,2 Ko | 2,3 Ko |
-| **Total** | **592 Ko** | **≈ 151 Ko** |
+| Bundle JS (three.js + post-traitement + scènes + outillage du lab) | 590 Ko | 151,0 Ko |
+| CSS | 11,1 Ko | 3,4 Ko |
+| HTML | 10,3 Ko | 2,3 Ko |
+| **Total mesuré** | **613 Ko** | **≈ 157 Ko** |
+| **Total en production** (sans l'outillage du lab) | — | **≈ 148 Ko** |
 
-C'est **plus du double du prototype 01** (71 Ko) et **9 fois le prototype 03** (16 Ko). Three.js tree-shaké reste gros ; le post-traitement ajoute ~25 Ko.
+C'est **le double du prototype 01** (72 Ko) et **8 fois le prototype 03** (18 Ko). Three.js tree-shaké reste gros ; le post-traitement ajoute ~25 Ko.
 
 | Scénario | FPS médian | 1 % low | Frame p95 |
 |---|---:|---:|---:|
-| Repos | 59,9 | 59,2 | 16,8 ms |
+| Repos | 59,9 | 59,5 | 16,8 ms |
 | Boost (3 cartes survolées) | 59,9 | 59,5 | 16,8 ms |
-| CPU ralenti ×4 (≈ mobile) | **49,9** | 29,9 | 33,4 ms |
-| Sans bloom | 59,7 | 58,1 | 16,8 ms |
+| CPU ralenti ×4 (≈ mobile) | **48,4** | 20,0 | 33,4 ms |
+| Sans bloom | 59,9 | 59,5 | 16,8 ms |
 
-**C'est la démo la plus stable des quatre**, et de loin la meilleure sous CPU contraint (49,9 fps contre 28 pour le SVG et 22 pour le Canvas 2D) : le travail est fait par le GPU, le CPU ne fait que mettre à jour des matrices. Le bloom ne coûte presque rien ici.
+**C'est la démo la plus stable des quatre**, et de loin la meilleure sous CPU contraint (48,4 fps contre 22 pour le SVG et 25 pour le Canvas 2D) : le travail est fait par le GPU, le CPU ne fait que mettre à jour des matrices. Le bloom ne coûte presque rien ici.
 
 À nuancer : le chargement est plus lourd (1,3 s contre 1,0 s) et il faut un GPU. Sur une machine sans accélération (vieux parc, VM, certains environnements d'entreprise), le rendu bascule en logiciel et s'effondre — cas où le SVG reste imbattable.
 

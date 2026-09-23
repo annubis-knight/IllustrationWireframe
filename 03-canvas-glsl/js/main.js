@@ -147,6 +147,13 @@
   addEventListener('themechange', applyTheme);
   applyTheme();
 
+  /* ── Calques : ce que le moteur doit dessiner ou non ── */
+  function applyLayers(layers) {
+    for (const c of cards) c.renderer.layers = layers;
+  }
+  addEventListener('layerchange', (e) => applyLayers(e.detail.layers));
+  applyLayers(window.LabLayers?.state() ?? {});
+
   /* ── Compteurs HUD ── */
   for (const c of cards) {
     const price = c.card.querySelector('[data-count]');
@@ -206,6 +213,8 @@
   window.PerfHUD?.set('glow', 'on');
 
   window.__lab = {
+    // Exposé pour tools/ : compteurs de traits réellement peints
+    renderers: () => cards.map((c) => c.renderer),
     boostAll: (v) => cards.forEach((c) => {
       c.hoverTarget = v ? 1 : 0;
       c.card.classList.toggle('is-active', v);

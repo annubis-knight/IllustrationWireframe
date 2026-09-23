@@ -13,8 +13,11 @@ import { Pass } from 'three/addons/postprocessing/Pass.js';
 import { BUILDERS, type SceneState, type Tier, type View } from './scenes';
 import '../../_shared/offers.css';
 import './style.css';
+import '../../_shared/dock.js';
 import '../../_shared/perf-hud.js';
 import '../../_shared/theme.js';
+import '../../_shared/layers.js';
+import '../../_shared/accents.js';
 
 const COLORS: Record<Tier, number> = { starter: 0x3ff0ff, booster: 0x9d8cff, nitro: 0xff4fd8 };
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -141,6 +144,17 @@ function applyTheme() {
 }
 addEventListener('themechange', applyTheme);
 
+/* ── Calques : on masque les objets marques, sans toucher a leurs enfants ── */
+function applyLayers(layers: Record<string, boolean>) {
+  for (const c of cards) {
+    c.view.scene.traverse((o) => {
+      const layer = o.userData?.layer;
+      if (layer) o.visible = layers[layer] !== false;
+    });
+  }
+}
+addEventListener('layerchange', (e) => applyLayers((e as CustomEvent).detail.layers));
+
 function resize() {
   const w = innerWidth;
   const h = innerHeight;
@@ -153,6 +167,7 @@ function resize() {
 addEventListener('resize', resize);
 resize();
 applyTheme();
+applyLayers(window.LabLayers?.state() ?? {});
 
 /* ── Étiquette ancrée à un point 3D (la contrepartie du WebGL : le texte reste en DOM) ── */
 const ndc = new THREE.Vector3();
@@ -315,6 +330,8 @@ window.PerfHUD?.set('segments', cards.reduce((s, c) => s + c.view.materials.leng
 window.PerfHUD?.set('bloom', 'on');
 
 window.__lab = {
+  // Exposé pour tools/ : permet de vérifier ce qui est réellement visible
+  scenes: () => cards.map((c) => c.view.scene),
   boostAll: (v: boolean) => cards.forEach((c) => {
     c.hoverTarget = v ? 1 : 0;
     c.card.classList.toggle('is-active', v);

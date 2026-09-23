@@ -31,6 +31,13 @@ Communs aux 3 cartes :
 - **Lignes cachées en pointillés** (convention du dessin technique) et silhouettes plus épaisses : c'est ce qui donne le rendu « plan d'aérospatiale ».
 - `prefers-reduced-motion` : tout est affiché directement, sans animation. Sans JS : le SVG complet reste visible.
 
+## Calques et couleurs
+
+C'est la démo la plus simple à équiper : **zéro ligne de JavaScript**. Le générateur marque chaque
+groupe (`data-layer="model|ring|base|overlay|labels|decor|fx"`) et une règle CSS du lab les masque.
+La couleur suit le même principe : tout est en `currentColor`, donc réécrire `--c-starter` recolore
+le visuel entier, halo compris.
+
 ## Thème clair / sombre
 
 Le visuel suit le thème du lab sans une ligne de JavaScript : tout est en `currentColor`
@@ -48,22 +55,22 @@ Mesures `npm run measure` : Chrome 153 headless piloté par Playwright, iGPU AMD
 | MotionPathPlugin (servant uniquement au satellite) | 21,5 Ko | 9,5 Ko |
 | CSS (habillage commun + `illu.css` + spécifique) | 15,8 Ko | 5,0 Ko |
 | `main.js` | 16,6 Ko | 5,5 Ko |
-| **Total en production** | **~209 Ko** | **≈ 71 Ko** |
+| **Total en production** | **~210 Ko** | **≈ 72 Ko** |
 
-Hors webfonts (Chakra Petch + JetBrains Mono, mutualisées avec le reste du site) et hors `perf-hud.js`, qui ne sert qu'au lab. Le banc mesure 218 Ko transférés parce que le serveur de dev ne compresse pas.
+Hors webfonts (Chakra Petch + JetBrains Mono, mutualisées avec le reste du site) et hors outillage du lab (dock, thème, calques, couleurs, compteur : ~12 Ko gzip). Le banc mesure 249 Ko transférés parce que le serveur de dev ne compresse pas et qu'il sert aussi ces outils.
 
 | Scénario | FPS médian | 1 % low | Frame p95 |
 |---|---:|---:|---:|
-| Repos | 58,7 | 30,0 | 16,8 ms |
-| Boost (3 cartes survolées en même temps) | **45,2** | 20,0 | 33,4 ms |
-| CPU ralenti ×4 (≈ mobile milieu de gamme) | **27,7** | 8,5 | 66,7 ms |
-| Sans glow (filtres SVG coupés) | **59,9** | 59,2 | 16,8 ms |
+| Repos | 57,7 | 29,9 | 16,8 ms |
+| Boost (3 cartes survolées en même temps) | 59,9 | 59,2 | 16,8 ms |
+| CPU ralenti ×4 (≈ mobile milieu de gamme) | **22,0** | 8,5 | 83,4 ms |
+| Sans glow (filtres SVG coupés) | **59,9** | 59,5 | 16,8 ms |
 
 Lecture — et c'est le vrai enseignement de ce prototype :
 
-- **Le glow SVG est le poste de coût dominant.** Filtres coupés : 60 fps parfaitement réguliers (1 % low à 59). Filtres activés : 58,7 fps au repos avec des à-coups (1 % low à 30), et 45 fps quand les 3 cartes sont survolées ensemble. Chaque image animée oblige le navigateur à recalculer deux flous gaussiens par illustration, sur le processeur.
+- **Le glow SVG est le poste de coût dominant.** Filtres coupés : 59,9 fps parfaitement réguliers (1 % low à 59,5). Filtres activés : 57,7 fps au repos avec des à-coups (1 % low à 30), et 22 fps seulement quand le CPU est ralenti ×4. Chaque image animée oblige le navigateur à recalculer deux flous gaussiens par illustration, sur le processeur. Le bouton **Glow** du dock chiffre le gain en direct.
 - **Leviers si besoin** : n'appliquer le filtre qu'au survol, remplacer le flou par un doublage de tracé (trait large et transparent sous le trait net, comme le fait le prototype 03), ou réduire `stdDeviation`. Le bouton **Glow** du panneau LAB permet de comparer en direct.
-- **Sous CPU contraint** (×4, proxy d'un mobile milieu de gamme) : 27,7 fps. Les boucles se mettent déjà en pause hors écran ; il faudrait alléger le glow pour viser le 60 fps mobile.
+- **Sous CPU contraint** (×4, proxy d'un mobile milieu de gamme) : 22 fps. Les boucles se mettent déjà en pause hors écran ; il faudrait alléger le glow pour viser le 60 fps mobile.
 - Chargement quasi instantané malgré tout : aucune texture, aucun modèle, aucun WASM.
 
 ## Facilité d'animation et de personnalisation

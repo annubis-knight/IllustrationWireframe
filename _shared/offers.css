@@ -437,3 +437,16 @@ body {
   .topbar { padding-right: clamp(16px, 4vw, 40px); }
   .topbar__geo { display: none; }
 }
+
+/* ── Calques (panneau CALQUES du dock) ───────────────────────────────────────
+ * Tout élément marqué `data-layer="…"` disparaît quand son calque est décoché.
+ * Les démos qui peignent (Canvas, WebGL, Shadow DOM) écoutent l'événement
+ * `layerchange` en plus de cette règle.
+ * ─────────────────────────────────────────────────────────────────────────── */
+html[data-layers-off~="model"] [data-layer="model"],
+html[data-layers-off~="ring"] [data-layer="ring"],
+html[data-layers-off~="base"] [data-layer="base"],
+html[data-layers-off~="overlay"] [data-layer="overlay"],
+html[data-layers-off~="labels"] [data-layer="labels"],
+html[data-layers-off~="decor"] [data-layer="decor"],
+html[data-layers-off~="fx"] [data-layer="fx"] { display: none; }
