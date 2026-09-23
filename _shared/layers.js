@@ -22,9 +22,11 @@
     { key: 'ring', label: 'Cercle HUD', hint: 'cadran radar et graduations' },
     { key: 'base', label: 'Socle', hint: 'socle holographique et cône de lumière' },
     { key: 'overlay', label: 'Overlay', hint: 'balayage, réticule, coins d’écran' },
-    { key: 'labels', label: 'Légendes', hint: 'étiquettes techniques et télémétrie' },
+    { key: 'labels', label: 'Légendes (visuel)', hint: 'étiquettes techniques et télémétrie de l’illustration' },
     { key: 'decor', label: 'Décor', hint: 'grille au sol, planète, étoiles, traînées' },
     { key: 'fx', label: 'Effets', hint: 'flammes, anneaux de réacteur, vapeurs' },
+    { key: 'cardtext', label: 'Textes (carte)', hint: 'en-tête, étage, nom, prix, specs et bouton de la carte' },
+    { key: 'shadow', label: 'Ombre de la carte', hint: 'halo interne du cadre, renforcé au survol' },
   ];
 
   const state = Object.fromEntries(LAYERS.map((l) => [l.key, true]));

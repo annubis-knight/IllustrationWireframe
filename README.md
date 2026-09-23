@@ -61,13 +61,13 @@ Une colonne de panneaux repliables à droite de chaque démo (touche **D** pour 
 | **Perf** | FPS instantané, moyenne, 1 % low, p95, poids transféré |
 | **Thème** | Clair · Auto (suit le système) · Sombre |
 | **Couleurs** | Une couleur principale par offre, modifiable en direct |
-| **Calques** | Allume / éteint les 7 éléments du visuel |
+| **Calques** | Allume / éteint les 9 éléments de la carte |
 | **Lab** | Glow (ou bloom), animations, rejouer l'intro |
 
-### Les 7 calques
+### Les 9 calques
 
-`model` · `ring` · `base` · `overlay` · `labels` · `decor` · `fx` — même vocabulaire dans les
-4 démos, donc comparables une à une.
+`model` · `ring` · `base` · `overlay` · `labels` · `decor` · `fx` · `cardtext` · `shadow` — même
+vocabulaire dans les 4 démos, donc comparables une à une.
 
 | Calque | Contenu |
 |---|---|
@@ -75,9 +75,15 @@ Une colonne de panneaux repliables à droite de chaque démo (touche **D** pour 
 | Cercle HUD | cadran radar et graduations |
 | Socle | socle holographique et cône de lumière |
 | Overlay | ligne de balayage, réticule, coins d'écran |
-| Légendes | étiquettes techniques, cotes, télémétrie |
+| Légendes (visuel) | étiquettes techniques, cotes, télémétrie de l'illustration |
 | Décor | grille au sol, planète, orbite, étoiles, traînées warp |
 | Effets | flammes, anneaux de réacteur, vapeurs, onde de choc |
+| Textes (carte) | en-tête, badge, étage, nom, prix, specs et bouton — masqués **sans perdre leur place**, la carte garde sa forme |
+| Ombre de la carte | halo interne du cadre, et son renfort au survol |
+
+Les deux derniers ne touchent pas à l'illustration mais à la carte elle-même : une règle CSS de
+`_shared/offers.css` suffit, et elle vaut immédiatement pour les 4 démos puisqu'elles partagent
+le même habillage. Décocher les deux laisse le cadre nu avec son seul visuel.
 
 Éteindre un calque n'emporte pas ce qui s'y accroche : masquer la fusée laisse ses flammes
 visibles. Chaque techno s'y prend différemment — c'est un point de comparaison de plus :

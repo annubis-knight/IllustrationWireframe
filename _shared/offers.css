@@ -450,3 +450,13 @@ html[data-layers-off~="overlay"] [data-layer="overlay"],
 html[data-layers-off~="labels"] [data-layer="labels"],
 html[data-layers-off~="decor"] [data-layer="decor"],
 html[data-layers-off~="fx"] [data-layer="fx"] { display: none; }
+
+/* Textes de la carte : masqués sans retirer leur place, pour garder la mise en page */
+html[data-layers-off~="cardtext"] .offer__head,
+html[data-layers-off~="cardtext"] .offer__body { visibility: hidden; }
+/* Le badge reçoit un `visibility` en style inline de GSAP (intro) : il faut passer devant */
+html[data-layers-off~="cardtext"] .offer__badge { visibility: hidden !important; }
+
+/* Ombre du cadre (halo interne), y compris son renfort au survol */
+html[data-layers-off~="shadow"] .offer__frame,
+html[data-layers-off~="shadow"] .offer.is-active .offer__frame { box-shadow: none; }
