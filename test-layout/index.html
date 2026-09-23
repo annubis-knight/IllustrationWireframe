@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Banc de layouts — une offre à la fois</title>
+<meta name="description" content="Six mises en page pour présenter une seule offre à la fois, avec six façons de passer d'une offre à l'autre. Chaque section se lance à la demande.">
+<link rel="icon" href="data:,">
+<script>var h=document.documentElement;h.classList.add('js');try{var t=localStorage.getItem('lab-theme');if(t)h.dataset.theme=t}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../_shared/offers.css">
+<link rel="stylesheet" href="../01-svg-gsap/css/illu.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="backdrop" aria-hidden="true"></div>
+
+<header class="topbar">
+  <a class="topbar__back" href="../index.html">← Lab</a>
+  <p class="topbar__id"><span>Banc de layouts</span> SVG inline + GSAP · une offre à la fois</p>
+  <p class="topbar__geo" aria-hidden="true">43.6047° N · 1.4442° E</p>
+</header>
+
+<main class="page">
+  <header class="page__head">
+    <p class="kicker"><span class="kicker__dot"></span>SYS.LAYOUT // Six mises en scène d'une même offre</p>
+    <h1 class="page__title">Une offre, <em>six façons</em> de la montrer</h1>
+    <p class="page__lede">
+      Ici on ne compare plus des technologies mais des <strong>partis pris de mise en page</strong> :
+      une seule offre à l'écran, et six manières différentes de passer de l'une à l'autre —
+      onglets, ascenseur d'étages, carrousel, explorateur, pile de cartes, levier de poussée.
+    </p>
+    <p class="page__note">
+      Chaque section démarre <strong>éteinte</strong> : ni visuel injecté, ni animation. Appuie sur
+      <em>Lancer</em> pour la réveiller, et sur <em>Éteindre</em> pour tout libérer. La page reste
+      légère même en bas du scroll.
+    </p>
+    <div class="page__actions">
+      <button type="button" data-all-on>Tout lancer</button>
+      <button type="button" data-all-off>Tout éteindre</button>
+    </div>
+  </header>
+
+  <section class="lab-section" data-layout="split" data-tier="booster" id="split">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 01</p>
+        <h2>Deux colonnes · onglets</h2>
+        <p class="lab-section__intent">La valeur sûre : visuel à gauche, argumentaire à droite, onglets au-dessus du texte. Lecture immédiate, comparaison facile entre offres — mais aucune surprise.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <section class="lab-section" data-layout="hero" data-tier="starter" id="hero">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 02</p>
+        <h2>Hero centré · ascenseur d'étages</h2>
+        <p class="lab-section__intent">Le visuel prend toute la place, le texte suit dessous. La sélection devient un ascenseur : étage 1, 2, 3 — la montée en gamme se lit comme une trajectoire.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <section class="lab-section" data-layout="immersive" data-tier="nitro" id="immersive">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 03</p>
+        <h2>Immersif · carrousel</h2>
+        <p class="lab-section__intent">Visuel plein cadre, texte en surimpression, flèches et points comme un carrousel (flèches du clavier acceptées). Spectaculaire, mais le texte se bat avec l'image.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <section class="lab-section" data-layout="datasheet" data-tier="booster" id="datasheet">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 04</p>
+        <h2>Fiche technique · explorateur</h2>
+        <p class="lab-section__intent">Pour un acheteur qui compare : liste des modules à gauche avec leur prix, données denses à droite, visuel réduit au rang d'illustration. Rationnel, peu émotionnel.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <section class="lab-section" data-layout="stack" data-tier="starter" id="stack">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 05</p>
+        <h2>Pile de cartes</h2>
+        <p class="lab-section__intent">Une offre devant, les deux autres visibles derrière en perspective : on garde le choix sous les yeux sans afficher trois blocs complets. Un clic ramène une carte au premier plan.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <section class="lab-section" data-layout="throttle" data-tier="starter" id="throttle">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 06</p>
+        <h2>Levier de poussée</h2>
+        <p class="lab-section__intent">La sélection devient un geste : on pousse le levier de 1 à 3 et la gamme monte avec la jauge. Ludique et très thématique — à tester avec de vrais visiteurs avant de s'y fier.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+</main>
+
+<script src="../01-svg-gsap/vendor/gsap.min.js"></script>
+<script src="../_shared/dock.js"></script>
+<script src="../_shared/perf-hud.js"></script>
+<script src="../_shared/theme.js"></script>
+<script src="../_shared/layers.js"></script>
+<script src="../_shared/accents.js"></script>
+<script src="js/svg-data.js"></script>
+<script src="js/offers.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

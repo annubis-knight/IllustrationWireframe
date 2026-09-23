@@ -50,6 +50,19 @@ const CHECKS = [
     check: () => (document.querySelectorAll('canvas.wire').length === 3 ? null : 'canvas manquants'),
   },
   {
+    id: 'test-layout',
+    entry: 'test-layout/index.html',
+    check: () => {
+      const sections = document.querySelectorAll('[data-layout]').length;
+      if (sections < 5) return `seulement ${sections} layouts`;
+      // L'invariant de cette page : rien n'est monte tant qu'on n'a pas clique
+      if (document.querySelectorAll('.lab-section svg').length) return 'des visuels sont montes alors que tout doit etre en veille';
+      const first = document.querySelector('[data-layout] [data-power]');
+      first.click();
+      return null;
+    },
+  },
+  {
     id: '04-spline-web',
     entry: '04-spline-web/index.html',
     check: () => {

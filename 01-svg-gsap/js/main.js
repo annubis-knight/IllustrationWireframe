@@ -173,18 +173,24 @@
       q('.arm').forEach((arm, i) => {
         tl.to(arm, { attr: { d: arm.dataset.retract }, duration: 0.9, ease: 'power2.inOut' }, i * 0.12);
       });
-      // Nuage de decollage : les bouffees s'ouvrent depuis le carneau, de part et d'autre
-      const puffs = q('.puff');
-      gsap.set(puffs, { opacity: 0, scale: 0.25, transformOrigin: '50% 50%' });
-      tl.to(puffs, {
-        opacity: 0.5,
-        scale: 1,
-        x: (i, el) => +el.dataset.dx,
-        y: (i, el) => +el.dataset.dy,
-        duration: 1.2,
-        ease: 'power2.out',
-        stagger: { each: 0.05, from: 'center' },
-      }, 0.3);
+      // Échappement des réacteurs : chaque bouffée part de la tuyère, file vers l'extérieur
+      // en grossissant, puis se dissipe — et recommence. L'émission tourne en boucle tant que
+      // la carte est survolée, ce qui donne un jet continu plutôt qu'un nuage figé.
+      this.jet = q('.puff').map((el) => {
+        const dx = +el.dataset.dx;
+        const dy = +el.dataset.dy;
+        const s = +el.dataset.scale;
+        const loop = gsap.timeline({ repeat: -1, delay: +el.dataset.delay, paused: true })
+          .fromTo(el.firstChild,
+            { x: 0, y: 0, scale: 0.2, opacity: 0, transformOrigin: '50% 50%' },
+            { x: dx * 0.45, y: dy * 0.5, scale: s * 0.6, opacity: 0.62, duration: 1, ease: 'power2.out' })
+          .to(el.firstChild, { x: dx, y: dy - 14, scale: s, opacity: 0, duration: 1.5, ease: 'power1.in' });
+        return this.keep(loop);
+      });
+
+      // L'émission démarre avec l'allumage et s'arrête à la sortie du survol
+      tl.add(() => this.jet.forEach((t) => (tl.reversed() ? t.pause() : t.play())), 0.3);
+      tl.eventCallback('onReverseComplete', () => this.jet.forEach((t) => t.pause().progress(0)));
 
       return tl
         .to(q('.ignite'), { opacity: 1, duration: 0.25 }, 0.45)

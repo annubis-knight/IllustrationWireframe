@@ -103,17 +103,26 @@ function rocket(res: THREE.Vector2, color: number, { fins = true, engines = true
   return { group: L(g, 'model'), materials: [body.material] };
 }
 
-/** Nuage de decollage : bouffees spheriques autour du pas de tir, deployees au survol. */
-function smoke(res: THREE.Vector2, color: number, parent: THREE.Object3D, count = 12) {
-  const puffs: { obj: THREE.Object3D; mat: THREE.Material; dir: THREE.Vector2; d: number; y: number; phase: number }[] = [];
+/**
+ * Echappement des reacteurs : chaque bouffee nait a la tuyere, file vers l'exterieur en
+ * grossissant puis se dissipe, et recommence — c'est la progression cyclique qui fait le jet.
+ */
+function smoke(res: THREE.Vector2, color: number, parent: THREE.Object3D, count = 18) {
+  const puffs: { obj: THREE.Object3D; mat: THREE.Material; dir: THREE.Vector2; dist: number; rise: number; size: number; speed: number; phase: number }[] = [];
   for (let i = 0; i < count; i++) {
-    const a = i * 2.39996;                       // angle d'or : repartition reguliere
-    const d = 1.2 + (i / count) * 2.6;
-    const r = 0.5 + (i % 3) * 0.22;
-    const obj = L(lines(sphere(r, { lat: 2, lon: 4, segments: 10 }), { color, width: 0.6, opacity: 0, resolution: res }), 'fx');
-    obj.position.set(Math.cos(a) * d, 0.5 + (i % 2) * 0.35, Math.sin(a) * d);
+    const a = i * 2.39996;                       // angle d'or : aucune direction privilegiee
+    const obj = L(lines(sphere(1, { lat: 2, lon: 4, segments: 10 }), { color, width: 0.6, opacity: 0, resolution: res }), 'fx');
     parent.add(obj);
-    puffs.push({ obj, mat: obj.material as THREE.Material, dir: new THREE.Vector2(Math.cos(a), Math.sin(a)), d, y: obj.position.y, phase: (i % 5) / 5 });
+    puffs.push({
+      obj,
+      mat: obj.material as THREE.Material,
+      dir: new THREE.Vector2(Math.cos(a), Math.sin(a)),
+      dist: 3.8 + (i % 5) * 1,
+      rise: 0.5 + (i % 3) * 0.5,
+      size: 0.75 + (i % 4) * 0.26,
+      speed: 0.32 + (i % 3) * 0.06,
+      phase: i / count,
+    });
   }
   return puffs;
 }
@@ -198,13 +207,13 @@ function starter(res: THREE.Vector2, color: number): View {
       flame.scale.setScalar(Math.max(0.001, hover * intro));
       flameMat.uniforms.uTime.value = time;
       flameMat.uniforms.uIntensity.value = 0.6 + hover * 0.6;
-      // Le nuage s'ouvre depuis le pas de tir, chaque bouffee a son propre souffle
+      // Jet continu : la progression tourne en boucle, l'intensite suit le survol
       for (const p of puffs) {
-        const g2 = Math.min(1, hover * (0.55 + p.phase * 0.9));
-        (p.mat as any).opacity = g2 * 0.32 * intro;
-        const spread = p.d * (0.55 + g2 * 0.9);
-        p.obj.position.set(p.dir.x * spread, p.y + g2 * 0.9, p.dir.y * spread);
-        p.obj.scale.setScalar(0.4 + g2 * 1.1 + Math.sin(time * 1.6 + p.phase * 6) * 0.06 * g2);
+        const k = (time * p.speed + p.phase) % 1;          // 0 = a la tuyere, 1 = dissipee
+        const reach = k * p.dist;
+        p.obj.position.set(p.dir.x * reach, 0.4 + k * k * p.rise, p.dir.y * reach);
+        p.obj.scale.setScalar(p.size * (0.3 + k * 1.8));
+        (p.mat as any).opacity = hover * Math.sin(k * Math.PI) * 0.45 * intro;
       }
     },
   };

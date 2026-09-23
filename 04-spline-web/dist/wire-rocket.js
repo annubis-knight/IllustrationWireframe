@@ -472,17 +472,27 @@
       return n;
     }
   
-    /** Nuage de decollage : bouffees spheriques autour du pas de tir, deployees au survol. */
-    function smokeNodes(parent, { y = 0.3, count = 18 } = {}) {
+    /**
+     * Echappement des reacteurs : chaque bouffee nait a la tuyere, file vers l'exterieur en
+     * grossissant puis se dissipe, et recommence. C'est l'enchainement (progression cyclique)
+     * qui donne le jet, pas la disposition des bouffees.
+     */
+    function smokeNodes(parent, { y = 0.4, count = 26 } = {}) {
       const puffs = [];
       for (let i = 0; i < count; i++) {
-        const a = i * 2.39996;                       // angle d'or : repartition reguliere
-        const d = 1.4 + (i / count) * 4.2;
-        const r = 0.9 + (i % 3) * 0.45;
-        const node = parent.add(new Node(sphere(r, { lat: 2, lon: 4, segments: 14, w: 0.7, alpha: 0.6 }), { layer: 'fx' }));
-        node.pos = [Math.cos(a) * d, y + (i % 2) * 0.35, Math.sin(a) * d];
+        const a = i * 2.39996;                       // angle d'or : aucune direction privilegiee
+        const node = parent.add(new Node(sphere(1, { lat: 2, lon: 4, segments: 12, w: 0.7, alpha: 0.55 }), { layer: 'fx' }));
         node.alpha = 0;
-        puffs.push({ node, dir: [Math.cos(a), Math.sin(a)], d, y: node.pos[1], phase: (i % 5) / 5 });
+        puffs.push({
+          node,
+          dir: [Math.cos(a), Math.sin(a)],
+          dist: 4 + (i % 5) * 1.1,                 // portee au sol
+          rise: 0.5 + (i % 3) * 0.5,                 // enroulement vers le haut en fin de course
+          size: 0.85 + (i % 4) * 0.3,
+          speed: 0.32 + (i % 3) * 0.06,
+          phase: i / count,
+          y,
+        });
       }
       return puffs;
     }
@@ -537,12 +547,13 @@
           arms.forEach((a, i) => (a.rot = [0, -hover * (1.1 + i * 0.1), 0]));
           flame.visible = hover > 0.05;
           flame.scale = 0.4 + hover * 0.9 + Math.sin(t * 30) * 0.04 * hover;
-          // Le nuage s'ouvre depuis le pas de tir, chaque bouffee a son propre souffle
+          // Jet continu : la progression tourne en boucle, l'intensite suit le survol
           for (const p of smoke) {
-            const g = Math.min(1, hover * (0.55 + p.phase * 0.9));
-            p.node.alpha = g * 0.85;
-            p.node.scale = 0.35 + g * 1.5 + Math.sin(t * 1.6 + p.phase * 6) * 0.06 * g;
-            p.node.pos = [p.dir[0] * (p.d * (0.55 + g * 0.9)), p.y + g * 0.9, p.dir[1] * (p.d * (0.55 + g * 0.9))];
+            const k = (t * p.speed + p.phase) % 1;             // 0 = a la tuyere, 1 = dissipee
+            const reach = k * p.dist;
+            p.node.pos = [p.dir[0] * reach, p.y + k * k * p.rise, p.dir[1] * reach];
+            p.node.scale = p.size * (0.3 + k * 1.8);
+            p.node.alpha = hover * Math.sin(k * Math.PI) * 0.9;
           }
         },
       };

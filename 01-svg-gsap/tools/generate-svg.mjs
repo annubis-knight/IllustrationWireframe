@@ -582,28 +582,38 @@ function sceneStarter() {
     vapor += `<circle class="vapor" cx="${n1(vx)}" cy="${n1(vy)}" r="${n1(5 + rnd() * 9)}"/>`;
   }
 
-  // Nuage de décollage : bouffées filaires, déployées au survol par GSAP.
-  // Chaque bouffée est un contour irrégulier (cercle bruité) : le rendu reste « schéma technique ».
-  const puff = (cx, cy, r, seed) => {
+  // Échappement des réacteurs : toutes les bouffées naissent à la tuyère et sont
+  // projetées vers l'extérieur par GSAP (émission en boucle), comme un jet qui frappe
+  // le carneau et roule au sol. La forme reste filaire : contour bruité, pas de remplissage.
+  const puff = (r, seed) => {
     const p = prng(seed);
     const pts = [];
-    const n = 13;
+    const n = 15;
     for (let i = 0; i <= n; i++) {
       const a = (i / n) * TAU;
-      const rr = r * (0.72 + p() * 0.5);
-      pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * 0.78]);
+      const rr = r * (0.68 + p() * 0.55);
+      pts.push([Math.cos(a) * rr, Math.sin(a) * rr * 0.82]);
     }
     return pathD(pts);
   };
   let smoke = '';
-  for (let i = 0; i < 26; i++) {
+  const JET = 26;
+  for (let i = 0; i < JET; i++) {
     const side = i % 2 ? 1 : -1;
-    const t = Math.floor(i / 2) / 12;      // 0 au pied du lanceur, 1 aux extremites du nuage
-    const row = i % 4 < 2 ? 0 : 1;          // deux rangees : au sol, puis un peu plus haut
-    const dx = side * (14 + t * 130) + (rnd() - 0.5) * 22;
-    const dy = 10 - row * 18 - t * 22 - rnd() * 12;
-    const r = 16 + rnd() * 20 + t * 14;
-    smoke += `<path class="puff" data-dx="${n1(side * (30 + t * 78))}" data-dy="${n1(-8 - t * 26 - row * 10)}" d="${puff(exit[0] + dx, exit[1] + dy, r, 100 + i)}"/>`;
+    const k = i / JET;
+    // Trajectoire : d'abord plaquée au sol, puis elle s'enroule vers le haut
+    const ang = rad(side > 0 ? -4 - rnd() * 26 : 184 + rnd() * 26);
+    const dist = 74 + rnd() * 130;
+    smoke += `<g class="puff" data-dx="${n1(Math.cos(ang) * dist)}" data-dy="${n1(Math.sin(ang) * dist * 0.5 + 6)}"`
+      + ` data-scale="${n1(1.8 + rnd() * 1.8)}" data-delay="${n1(k * 1.6 + rnd() * 0.25)}"`
+      + ` transform="translate(${n1(exit[0])} ${n1(exit[1] + 6)})"><path d="${puff(13 + rnd() * 7, 200 + i)}"/></g>`;
+  }
+  // Colonne qui remonte le long du lanceur, une fois le sol saturé
+  for (let i = 0; i < 6; i++) {
+    const side = i % 2 ? 1 : -1;
+    smoke += `<g class="puff puff--column" data-dx="${n1(side * (18 + rnd() * 26))}" data-dy="${n1(-40 - rnd() * 70)}"`
+      + ` data-scale="${n1(1.3 + rnd() * 1.2)}" data-delay="${n1(0.6 + i * 0.28)}"`
+      + ` transform="translate(${n1(exit[0])} ${n1(exit[1] + 4)})"><path d="${puff(11 + rnd() * 5, 300 + i)}"/></g>`;
   }
 
   const extraDefs = `<mask id="gridmask-${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="${W}" height="${H}"><ellipse cx="${n1(gridC[0])}" cy="${n1(gridC[1])}" rx="175" ry="70" fill="url(#fade-${id})"/></mask>`;
@@ -848,9 +858,11 @@ const htmlPath = resolve(ROOT, 'index.html');
 let html = readFileSync(htmlPath, 'utf8');
 
 const report = [];
+const inlineByTier = {};
 for (const make of [sceneStarter, sceneBooster, sceneNitro]) {
   const scene = make();
   const inline = svgDoc(scene);
+  inlineByTier[scene.id] = inline; // repris tel quel par la page test-layout
   writeFileSync(resolve(ROOT, `svg/${scene.id}.svg`), svgDoc(scene, css));
 
   const re = new RegExp(`(<!-- @svg:${scene.id} -->)[\\s\\S]*?(<!-- /@svg:${scene.id} -->)`);
@@ -866,4 +878,11 @@ for (const make of [sceneStarter, sceneBooster, sceneNitro]) {
   });
 }
 writeFileSync(htmlPath, html);
+
+// La page test-layout consomme les memes visuels : on les lui livre en un seul fichier
+const svgData = `/* Genere par 01-svg-gsap/tools/generate-svg.mjs - ne pas editer a la main. */
+window.LAB_SVG = ${JSON.stringify(inlineByTier, null, 0)};
+`;
+writeFileSync(resolve(ROOT, '../test-layout/js/svg-data.js'), svgData);
+
 console.table(report);
