@@ -27,11 +27,24 @@ markup qu'on injecte. Comme on peut afficher onze sections en même temps, c'ét
 risquée pour la fluidité. Les trois visuels viennent de `js/svg-data.js`, généré par le
 prototype 01 : une seule source, aucun doublon.
 
-## Une section prend toute la largeur
+## Une section = un écran
 
-Aucune section n'est bridée par une largeur de page : la bordure, le fond et le visuel vont
-d'un bord à l'autre de l'écran. Ce sont les **blocs à l'intérieur** (colonne de texte à 62 ch,
-carte, panneau, grille de specs) qui se limitent, là où la lecture l'exige.
+Chaque mise en page occupe **toute la hauteur du viewport** (`100svh`, pas `100vh` : sur mobile
+la barre d'URL ne doit pas tronquer) et **toute la largeur** : la bordure, le fond et le visuel
+vont d'un bord à l'autre. Ce sont les **blocs à l'intérieur** (colonne de texte à 62 ch, carte,
+panneau, grille de specs) qui se limitent, là où la lecture l'exige. C'est la seule façon
+honnête de juger une section d'offre : on la découvre toujours ainsi.
+
+Corollaire : **le visuel se règle sur cette hauteur et ne la dépasse jamais.** Dans la première
+famille, il est borné par `--illu-max` (de 46 vh pour la fiche technique à 74 vh pour les deux
+colonnes) ; dans la seconde, son plan reste à l'intérieur de la section avec une marge de 3-4 %
+que la parallaxe consomme. Une section en veille, elle, ne prend que 42 vh — onze cadres vides à
+faire défiler, ce serait la page la moins agréable du lab.
+
+> Le dessin fait 400 × 420 : posé dans une section large et basse, il se règle sur la hauteur et
+> laisse donc de l'air sur les côtés. C'est assumé — c'est le prix du « rien n'est coupé ».
+> Les volets (09) en tiennent compte : leurs lames se resserrent autour du dessin, sinon le verre
+> dépoli n'aurait rien à flouter derrière lui.
 
 Le dock d'outils passe **par-dessus** la page plutôt que de lui manger une colonne. Il s'estompe
 au repos, et les layouts ne décalent leur contenu vers la gauche que si l'écran ne laisse pas
@@ -73,7 +86,8 @@ un outil de profondeur différent.
 
 Trois règles communes à cette famille, dans `css/style.css` :
 
-- le plan de fond **déborde** de la section, pour que la parallaxe ne découvre jamais un bord ;
+- le plan de fond **reste dans la section** et garde une marge de 3-4 % que la parallaxe
+  consomme, pour ne découvrir aucun bord sans jamais rogner le dessin ;
 - un **voile dégradé** s'intercale toujours entre le visuel et le texte, et le contenu porte son
   propre fond translucide — jamais de texte posé à nu sur le trait ;
 - en fond, le visuel **perd ses légendes et son halo** (`.illu--bg`) : deux typographies

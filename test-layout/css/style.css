@@ -47,8 +47,10 @@
 .power[aria-pressed="true"] { border-color: var(--c-nitro); color: var(--c-nitro); }
 
 .lab-section__stage { position: relative; min-height: 120px; padding-inline: clamp(16px, 3vw, 40px); }
+/* En veille, la section ne prend pas un écran entier : onze cadres vides à faire
+   défiler avant d'en allumer un, ce serait la page la moins agréable du lab. */
 .lab-section__idle {
-  display: grid; place-items: center; min-height: 200px; margin: 0;
+  display: grid; place-items: center; min-height: 42vh; margin: 0;
   border: 1px dashed var(--line); color: var(--ink-faint);
   font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase;
 }
@@ -85,6 +87,25 @@
 [data-visual] { color: var(--accent); }
 [data-visual] .illu { width: 100%; height: auto; display: block; }
 
+/* ── Une section = un écran ──────────────────────────────────────────────────
+ * Chaque mise en page occupe toute la hauteur du viewport : c'est la seule
+ * façon honnête de juger une section d'offre, qu'on découvre toujours ainsi.
+ * Corollaire : le visuel se règle sur cette hauteur (`--illu-max`), il ne la
+ * dépasse jamais. Un dessin coupé par le bas, ce n'était pas un parti pris.
+ * `svh` plutôt que `vh` : sur mobile, la barre d'URL ne doit pas tronquer.
+ * ─────────────────────────────────────────────────────────────────────────── */
+.l-split, .l-hero, .l-imm, .l-data, .l-stack, .l-throttle,
+.l-cock, .l-sten, .l-shut, .l-port, .l-dio {
+  min-height: 100vh;
+  min-height: 100svh;
+}
+[data-visual] .illu { max-height: var(--illu-max, none); }
+.l-split { --illu-max: 74vh; }
+.l-hero { --illu-max: 58vh; }
+.l-data { --illu-max: 46vh; }
+.l-stack { --illu-max: 56vh; }
+.l-throttle { --illu-max: 72vh; }
+
 /* ── 01 · Deux colonnes, onglets ─────────────────────────────────────────── */
 .l-split { display: grid; grid-template-columns: minmax(320px, 620px) minmax(320px, 64ch); gap: clamp(24px, 4vw, 72px);
   align-items: center; justify-content: center;
@@ -101,7 +122,8 @@
 @media (max-width: 900px) { .l-split { grid-template-columns: minmax(0, 1fr); } }
 
 /* ── 02 · Hero centré, ascenseur d'étages ────────────────────────────────── */
-.l-hero { display: grid; grid-template-columns: 200px minmax(0, 860px); gap: clamp(20px, 4vw, 64px); justify-content: center;
+.l-hero { display: grid; grid-template-columns: 200px minmax(0, 860px); gap: clamp(20px, 4vw, 64px);
+  justify-content: center; align-content: center;
   padding: clamp(20px, 3vw, 40px); border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent); background: var(--panel); }
 .stepper { display: flex; flex-direction: column; gap: 6px; position: relative; }
 .stepper::before { content: ""; position: absolute; left: 17px; top: 18px; bottom: 18px; width: 1px; background: var(--line); }
@@ -127,7 +149,8 @@
 @media (max-width: 760px) { .l-hero { grid-template-columns: minmax(0, 1fr); } .stepper { flex-direction: row; overflow-x: auto; } .stepper::before { display: none; } }
 
 /* ── 03 · Immersif, carrousel ────────────────────────────────────────────── */
-.l-imm { position: relative; overflow: hidden; border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent); background: var(--panel); min-height: min(76vh, 680px); }
+.l-imm { position: relative; overflow: hidden; display: flex; align-items: center;
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent); background: var(--panel); }
 .l-imm:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .l-imm__visual { position: absolute; inset: 0; display: grid; place-items: center; opacity: .95; }
 .l-imm__visual .illu { width: auto; height: 100%; max-width: none; }
@@ -164,22 +187,24 @@
 .explorer__code { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); }
 .explorer__name { grid-column: 1; font: 600 14px/1 var(--font-display); letter-spacing: .05em; text-transform: uppercase; }
 .explorer__price { grid-row: 2; text-align: right; font-size: 11.5px; font-variant-numeric: tabular-nums; }
-.l-data__panel { padding: clamp(18px, 2.5vw, 32px); }
+.l-data__panel { padding: clamp(18px, 2.5vw, 32px); display: flex; flex-direction: column; justify-content: center; }
 .l-data__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
 .l-data__grid { display: grid; grid-template-columns: minmax(240px, 340px) minmax(0, 1fr); gap: clamp(24px, 3vw, 48px); align-items: start; }
 .l-data__foot { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
 @media (max-width: 900px) { .l-data, .l-data__grid { grid-template-columns: minmax(0, 1fr); } .explorer { border-right: 0; border-bottom: 1px solid var(--line); } }
 
 /* ── 05 · Pile de cartes ─────────────────────────────────────────────────── */
-.l-stack { position: relative; padding: 10px 0 10px 150px; min-height: min(72vh, 620px); }
+.l-stack { position: relative; display: flex; align-items: center; padding: 10px 0 10px 150px; }
 .l-stack__front {
-  position: relative; z-index: 3; max-width: 1320px; display: grid; grid-template-columns: minmax(280px, 520px) minmax(0, 1fr); gap: clamp(20px, 4vw, 64px);
+  position: relative; z-index: 3; width: 100%; max-width: 1320px; display: grid; grid-template-columns: minmax(280px, 520px) minmax(0, 1fr); gap: clamp(20px, 4vw, 64px);
   align-items: center; padding: clamp(18px, 3vw, 30px);
   border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent); background: var(--panel);
   box-shadow: 0 24px 60px -40px #000;
 }
+/* Les cartes du fond suivent la hauteur de la section plutôt qu'un chiffre fixe :
+   à 100 vh, des insets en pixels les auraient étirées en lames de rasoir. */
 .l-stack__ghost {
-  position: absolute; top: 34px; bottom: 34px; width: 132px; z-index: 1; cursor: pointer;
+  position: absolute; top: 18%; bottom: 18%; width: 132px; z-index: 1; cursor: pointer;
   display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 18px 14px;
   border: 1px solid var(--line); background: var(--panel-solid); color: var(--ink-dim);
   transition: transform .35s var(--ease), border-color .3s, color .3s;
@@ -251,13 +276,15 @@
  * ════════════════════════════════════════════════════════════════════════════ */
 .l-cock, .l-sten, .l-shut, .l-port, .l-dio {
   position: relative; overflow: hidden;
-  min-height: min(78vh, 700px);
   border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
   background: var(--panel);
 }
-/* Le plan de fond : plus grand que la section, donc toujours plein cadre */
+/* Le plan de fond reste *dans* la section : il se règle sur sa hauteur et garde
+   une marge (3-4 %) que la parallaxe consomme sans jamais rogner le dessin. */
 .l-cock__bg, .l-sten__bg, .l-shut__bg, .l-port__bg, .l-dio__bg { position: absolute; inset: 0; }
-.illu--bg { width: 100%; height: 100%; }
+/* Sélecteur assez spécifique pour battre `[data-visual] .illu { height: auto }` :
+   sinon le dessin se cale sur la largeur du plan et déborde par le bas. */
+[data-visual] .illu--bg { width: 100%; height: 100%; }
 /* Un décor n'a pas besoin de parler : en fond, le visuel perd ses légendes (deux
    typographies concurrentes à deux échelles, c'en est une de trop) et son halo
    (agrandi 2×, le flou gaussien coûte cher pour un plan qu'on regarde à peine). */
@@ -266,7 +293,7 @@
 
 /* ── 07 · Poste de pilotage ──────────────────────────────────────────────── */
 .l-cock { display: flex; flex-direction: column; justify-content: space-between; }
-.l-cock__bg { inset: 2% 14% 2% 26%; opacity: .95; }
+.l-cock__bg { inset: 4% 13% 4% 30%; opacity: .95; }
 .l-cock__scrim {
   position: absolute; inset: 0;
   background:
@@ -321,7 +348,7 @@
 .tog:hover { color: var(--ink); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
 .tog__code { font-size: 9px; letter-spacing: .2em; color: var(--ink-faint); }
 .tog__name { font: 600 11px/1 var(--font-display); font-style: normal; letter-spacing: .14em; text-transform: uppercase; }
-@media (max-width: 760px) { .l-cock__bg { inset: -6% -20%; opacity: .5; } .l-cock__panel { width: auto; } }
+@media (max-width: 760px) { .l-cock__bg { inset: 2% -10%; opacity: .5; } .l-cock__panel { width: auto; } }
 
 /* ── 08 · Typographie évidée ─────────────────────────────────────────────── */
 /* Les lettres se fondent dans le visuel : éclaircies sur fond sombre, encrées sur fond
@@ -330,22 +357,24 @@
 @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --sten-blend: multiply; --sten-glow: none; } }
 :root[data-theme="light"] { --sten-blend: multiply; --sten-glow: none; }
 
-.l-sten { min-height: min(84vh, 760px); }
-.l-sten__bg { inset: -6% 0; }
+.l-sten__bg { inset: 3% 0; }
 .l-sten__veil {
   position: absolute; inset: 0;
   background: radial-gradient(92% 72% at 32% 38%, color-mix(in srgb, var(--bg) 42%, transparent), color-mix(in srgb, var(--bg) 86%, transparent) 78%);
 }
+/* Sur un plein écran, le bloc de noms se centre : sinon il flotte en haut d'une
+   section deux fois plus haute que lui. */
+.l-sten { display: grid; align-content: center; }
 .l-sten__words {
   position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-start;
-  padding: clamp(20px, 3.5vw, 52px) clamp(16px, 3vw, 40px) 0;
+  padding: 0 clamp(16px, 3vw, 40px);
 }
 /* Le mode de fusion ne se pose que sur le mot allumé : chaque élément fusionné doit
    être recomposé à chaque image du visuel qui passe dessous. Un seul, ça se paie ;
    trois, ça coûtait 15 fps. Les contours, eux, n'en ont pas besoin. */
 .l-sten__word[aria-selected="true"] { mix-blend-mode: var(--sten-blend); }
 .l-sten__word {
-  font: 700 clamp(2.4rem, 8vw, 6.8rem)/.94 var(--font-display);
+  font: 700 clamp(2.4rem, 8vw, 8.4rem)/.94 var(--font-display);
   letter-spacing: .02em; text-transform: uppercase; text-align: left;
   padding: 0; background: none; border: 0; cursor: pointer;
   color: transparent; -webkit-text-stroke: 1.2px color-mix(in srgb, var(--ink) 40%, transparent);
@@ -372,13 +401,18 @@
 @media (max-width: 760px) { .l-sten__card { position: static; width: auto; margin: 24px clamp(16px, 3vw, 40px) clamp(16px, 3vw, 40px); } }
 
 /* ── 09 · Volets de verre ────────────────────────────────────────────────── */
-.l-shut__bg { inset: -10% 0; }
-.l-shut__rail { position: absolute; inset: 0; display: flex; }
+.l-shut__bg { inset: 3% 0; }
+/* Les lames se resserrent autour du dessin (large d'environ 0,95 × la hauteur) :
+   posées aux bords d'une section deux fois plus large, elles n'auraient rien
+   derrière elles à flouter, et le verre dépoli ne se verrait pas. */
+.l-shut__rail { position: absolute; inset: 0; display: flex; padding-inline: max(0px, calc((100% - 96svh - 140px) / 2)); }
 .l-shut__pane { position: relative; border-left: 1px solid color-mix(in srgb, var(--accent) 22%, transparent); }
 .l-shut__pane:first-child { border-left: 0; }
 /* Fermé : lame de verre dépoli — c'est *derrière* elle que le flou se produit */
+/* Des lames assez larges pour mordre sur le dessin : le verre dépoli n'a d'effet
+   que là où il a quelque chose à flouter derrière lui. */
 .l-shut__pane--closed {
-  flex: 0 0 clamp(68px, 9vw, 116px); cursor: pointer; padding: 20px 0;
+  flex: 0 0 clamp(76px, 10vw, 150px); cursor: pointer; padding: 20px 0;
   display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 16px;
   background: color-mix(in srgb, var(--bg) 50%, transparent);
   backdrop-filter: blur(16px) saturate(1.15);
@@ -403,9 +437,13 @@
 @media (max-width: 760px) { .l-shut__vert { font-size: .85rem; } .l-shut__pane--closed { flex-basis: 56px; } }
 
 /* ── 10 · Hublot ─────────────────────────────────────────────────────────── */
-.l-port { --cx: 72%; --cy: 46%; --r: clamp(120px, 20vw, 240px); }
-/* Le visuel est cadré sur le hublot : c'est lui qu'on regarde à travers le disque */
-.l-port__bg { inset: 13% auto 13% auto; left: calc(var(--cx) - 21%); width: 42%; }
+.l-port { --cx: 72%; --cy: 46%; --r: clamp(120px, 17vw, 300px); }
+/* Le visuel est cadré sur le hublot, en unités de rayon : il suit le disque
+   quelle que soit la taille de l'écran, et déborde à peine de son cercle. */
+.l-port__bg {
+  inset: auto; left: calc(var(--cx) - var(--r) * 1.12); top: calc(var(--cy) - var(--r) * 1.16);
+  width: calc(var(--r) * 2.24); height: calc(var(--r) * 2.32);
+}
 /* Le voile floute *son propre fond*, sauf dans le disque : un seul visuel, deux netteté */
 .l-port__mask {
   position: absolute; inset: 0;
@@ -421,7 +459,8 @@
   box-shadow: 0 0 0 12px color-mix(in srgb, var(--bg) 35%, transparent), inset 0 0 70px -24px var(--accent);
 }
 .l-port__ring i { position: absolute; inset: -16px; border-radius: 50%; border: 1px dashed color-mix(in srgb, var(--accent) 24%, transparent); }
-.l-port__text { position: relative; z-index: 2; width: min(46ch, 56%); padding: clamp(22px, 3.5vw, 56px) clamp(16px, 3vw, 40px) 0; }
+.l-port { display: flex; align-items: center; }
+.l-port__text { position: relative; z-index: 2; width: min(46ch, 56%); padding: 0 clamp(16px, 3vw, 40px); }
 .specs--lead { max-width: 40ch; }
 .specs--lead div { border-bottom-style: dotted; }
 .l-port__foot { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 4px; }
@@ -457,9 +496,10 @@
 .l-port__marks button[aria-checked="true"] { color: var(--accent); }
 .l-port__marks button[aria-checked="true"] i { width: 24px; height: 2px; box-shadow: 0 0 8px var(--accent); }
 @media (max-width: 760px) {
-  .l-port { --cx: 72%; --cy: 26%; --r: 108px; }
-  .l-port__bg { inset: -4% -10% 40% 18%; }
-  .l-port__text { width: auto; padding-top: 240px; }
+  /* En colonne : le hublot en haut, le texte dessous — jamais sur le disque */
+  .l-port { display: block; --cx: 50%; --cy: 24%; --r: min(34vw, 150px); }
+  /* En pourcentage, un padding se mesure sur la largeur : on reste en rayons */
+  .l-port__text { width: auto; padding-top: calc(var(--r) * 2 + 56px); }
   .l-port__dial { position: static; margin: 18px clamp(16px, 3vw, 40px) clamp(18px, 3vw, 34px); }
 }
 
@@ -467,7 +507,9 @@
 .l-dio { perspective: 1200px; perspective-origin: 50% 44%; }
 .l-dio__scene { position: absolute; inset: 0; transform-style: preserve-3d; }
 .l-dio__plane { position: absolute; inset: 0; }
-.l-dio__bg { transform: translateZ(-210px) scale(1.12); opacity: .92; }
+/* Reculé de 210 px sous une perspective de 1200, le plan paraît à 85 % : on ne le
+   rattrape pas par un scale, sinon la toile déborde du diorama qui la contient. */
+.l-dio__bg { inset: 3% 0; transform: translateZ(-210px); opacity: .92; }
 .l-dio__grid {
   transform: translateZ(-90px) scale(1.16); opacity: .45;
   background-image:
@@ -532,7 +574,8 @@
   .l-data__panel, .l-stack__front { padding-right: max(clamp(18px, 2.5vw, 32px), var(--dock-w, 214px)); }
   /* Famille « visuel en fond » : ce qui est collé au bord droit passerait sous le dock */
   .l-sten__card, .l-dio__tabs { right: max(clamp(16px, 3vw, 44px), var(--dock-w, 214px)); }
-  /* Les volets s'arrêtent avant le dock : la dernière lame resterait sous lui, donc incliquable */
-  .l-shut__rail { right: var(--dock-w, 214px); }
+  /* Les volets s'arrêtent avant le dock : la dernière lame resterait sous lui, donc
+     incliquable. Le plan de fond suit, pour que lames et dessin restent concentriques. */
+  .l-shut__rail, .l-shut__bg { right: var(--dock-w, 214px); }
   .l-port { --cx: 62%; }
 }
