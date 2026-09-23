@@ -2,21 +2,21 @@
 window.LAB_RESULTS = {
   "01-svg-gsap": {
     "id": "01-svg-gsap",
-    "date": "2026-09-23T00:09:34.576Z",
+    "date": "2026-09-23T01:00:43.372Z",
     "gpu": "ANGLE (AMD, AMD Radeon(TM) 660M (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)",
-    "loadMs": 1301,
-    "totalKB": 249.1,
+    "loadMs": 866,
+    "totalKB": 258.9,
     "byTypeKB": {
-      "document": 85.6,
-      "css": 23.5,
-      "script": 140
+      "document": 93.5,
+      "css": 24.2,
+      "script": 141.2
     },
     "fps": {
       "repos": {
-        "avg": 57.7,
-        "low1": 29.9,
-        "p95ms": 17,
-        "spread": "57.2–58.4"
+        "avg": 59.9,
+        "low1": 59.2,
+        "p95ms": 16.8,
+        "spread": "59.9–59.9"
       },
       "boost": {
         "avg": 59.9,
@@ -25,59 +25,59 @@ window.LAB_RESULTS = {
         "spread": "59.9–59.9"
       },
       "cpu4x": {
-        "avg": 22,
-        "low1": 8.5,
-        "p95ms": 83.4,
-        "spread": "21.2–27"
+        "avg": 40.5,
+        "low1": 29.9,
+        "p95ms": 33.5,
+        "spread": "39.1–41.2"
       },
       "sansGlow": {
         "avg": 59.9,
-        "low1": 59.5,
+        "low1": 59.2,
         "p95ms": 16.8,
         "spread": "59.9–59.9"
       }
     },
     "extras": {
-      "nœuds SVG": 507,
+      "nœuds SVG": 578,
       "glow": "on"
     },
     "errors": []
   },
   "02-threejs-r3f": {
     "id": "02-threejs-r3f",
-    "date": "2026-09-23T00:10:32.973Z",
+    "date": "2026-09-23T01:01:40.952Z",
     "gpu": "ANGLE (AMD, AMD Radeon(TM) 660M (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)",
-    "loadMs": 1409,
-    "totalKB": 613.2,
+    "loadMs": 1186,
+    "totalKB": 614.5,
     "byTypeKB": {
       "document": 10.6,
-      "css": 13.3,
-      "script": 589.3
+      "css": 13.6,
+      "script": 590.3
     },
     "fps": {
       "repos": {
         "avg": 59.9,
         "low1": 59.5,
         "p95ms": 16.8,
-        "spread": "52.9–59.9"
+        "spread": "58.2–59.9"
       },
       "boost": {
         "avg": 59.9,
-        "low1": 59.5,
+        "low1": 59.2,
         "p95ms": 16.8,
         "spread": "59.9–59.9"
       },
       "cpu4x": {
-        "avg": 48.4,
-        "low1": 20,
-        "p95ms": 33.4,
-        "spread": "47.2–49.9"
+        "avg": 58.9,
+        "low1": 29.9,
+        "p95ms": 16.8,
+        "spread": "57.7–59.4"
       },
       "sansGlow": {
         "avg": 59.9,
-        "low1": 59.5,
+        "low1": 59.2,
         "p95ms": 16.8,
-        "spread": "59.9–59.9"
+        "spread": "58.2–59.9"
       }
     },
     "extras": {
@@ -89,21 +89,64 @@ window.LAB_RESULTS = {
   },
   "03-canvas-glsl": {
     "id": "03-canvas-glsl",
-    "date": "2026-09-23T00:11:31.479Z",
+    "date": "2026-09-23T01:02:38.470Z",
     "gpu": "ANGLE (AMD, AMD Radeon(TM) 660M (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)",
-    "loadMs": 1106,
-    "totalKB": 95.5,
+    "loadMs": 912,
+    "totalKB": 98.4,
     "byTypeKB": {
       "document": 11.2,
-      "css": 19.4,
-      "script": 64.9
+      "css": 20,
+      "script": 67.2
     },
     "fps": {
       "repos": {
         "avg": 59.9,
         "low1": 59.2,
         "p95ms": 16.8,
-        "spread": "59.7–59.9"
+        "spread": "59.9–59.9"
+      },
+      "boost": {
+        "avg": 59.9,
+        "low1": 59.2,
+        "p95ms": 16.8,
+        "spread": "59.9–59.9"
+      },
+      "cpu4x": {
+        "avg": 25.3,
+        "low1": 19.9,
+        "p95ms": 50.2,
+        "spread": "24.6–25.4"
+      },
+      "sansGlow": {
+        "avg": 59.9,
+        "low1": 59.5,
+        "p95ms": 16.8,
+        "spread": "59.9–59.9"
+      }
+    },
+    "extras": {
+      "segments 3D": 9842,
+      "glow": "on"
+    },
+    "errors": []
+  },
+  "04-spline-web": {
+    "id": "04-spline-web",
+    "date": "2026-09-23T01:03:36.210Z",
+    "gpu": "ANGLE (AMD, AMD Radeon(TM) 660M (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "loadMs": 944,
+    "totalKB": 103.3,
+    "byTypeKB": {
+      "document": 10,
+      "css": 20.8,
+      "script": 72.5
+    },
+    "fps": {
+      "repos": {
+        "avg": 59.9,
+        "low1": 59.2,
+        "p95ms": 16.8,
+        "spread": "59.9–59.9"
       },
       "boost": {
         "avg": 59.9,
@@ -112,53 +155,10 @@ window.LAB_RESULTS = {
         "spread": "59.9–59.9"
       },
       "cpu4x": {
-        "avg": 25,
-        "low1": 14.9,
-        "p95ms": 50.2,
-        "spread": "24.8–26.8"
-      },
-      "sansGlow": {
-        "avg": 59.9,
-        "low1": 59.5,
-        "p95ms": 16.8,
-        "spread": "59.2–59.9"
-      }
-    },
-    "extras": {
-      "segments 3D": 7518,
-      "glow": "on"
-    },
-    "errors": []
-  },
-  "04-spline-web": {
-    "id": "04-spline-web",
-    "date": "2026-09-23T00:12:29.967Z",
-    "gpu": "ANGLE (AMD, AMD Radeon(TM) 660M (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)",
-    "loadMs": 1428,
-    "totalKB": 100.3,
-    "byTypeKB": {
-      "document": 10,
-      "css": 20.2,
-      "script": 70.1
-    },
-    "fps": {
-      "repos": {
-        "avg": 55.2,
-        "low1": 29.9,
-        "p95ms": 16.8,
-        "spread": "47.2–59.9"
-      },
-      "boost": {
-        "avg": 59.7,
-        "low1": 59.2,
-        "p95ms": 16.8,
-        "spread": "49.1–59.9"
-      },
-      "cpu4x": {
-        "avg": 30,
+        "avg": 27.7,
         "low1": 19.9,
         "p95ms": 50.1,
-        "spread": "30–33.9"
+        "spread": "27.5–30.1"
       },
       "sansGlow": {
         "avg": 59.9,

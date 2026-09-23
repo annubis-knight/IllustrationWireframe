@@ -46,6 +46,7 @@
 .pl-core { stroke: none; fill: var(--hot, #fff); opacity: .9; }
 .pl-diamonds { stroke: var(--hot, #fff); stroke-width: .8; opacity: .8; }
 .vapor { stroke-width: .6; stroke-dasharray: 2 2.5; opacity: .5; }
+.puff { stroke-width: .8; opacity: 0; }  /* nuage de decollage, deploye au survol */
 .ignite { opacity: 0; }
 .beacon { fill: var(--amber, #ffb547); stroke: none; }
 .beacon-halo { stroke: var(--amber, #ffb547); stroke-width: .8; opacity: .5; }

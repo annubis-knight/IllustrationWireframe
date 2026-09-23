@@ -59,19 +59,19 @@ Mesures `npm run measure` : Chrome 153 headless (Playwright), iGPU AMD Radeon 66
 | Bundle JS (three.js + post-traitement + scènes + outillage du lab) | 590 Ko | 151,0 Ko |
 | CSS | 11,1 Ko | 3,4 Ko |
 | HTML | 10,3 Ko | 2,3 Ko |
-| **Total mesuré** | **613 Ko** | **≈ 157 Ko** |
-| **Total en production** (sans l'outillage du lab) | — | **≈ 148 Ko** |
+| **Total mesuré** | **614 Ko** | **≈ 157 Ko** |
+| **Total en production** (sans l'outillage du lab) | — | **≈ 145 Ko** |
 
-C'est **le double du prototype 01** (72 Ko) et **8 fois le prototype 03** (18 Ko). Three.js tree-shaké reste gros ; le post-traitement ajoute ~25 Ko.
+C'est **le double du prototype 01** (75 Ko) et **7 fois le prototype 03** (19 Ko). Three.js tree-shaké reste gros ; le post-traitement ajoute ~25 Ko.
 
 | Scénario | FPS médian | 1 % low | Frame p95 |
 |---|---:|---:|---:|
 | Repos | 59,9 | 59,5 | 16,8 ms |
-| Boost (3 cartes survolées) | 59,9 | 59,5 | 16,8 ms |
-| CPU ralenti ×4 (≈ mobile) | **48,4** | 20,0 | 33,4 ms |
-| Sans bloom | 59,9 | 59,5 | 16,8 ms |
+| Boost (3 cartes survolées) | 59,9 | 59,2 | 16,8 ms |
+| CPU ralenti ×4 (≈ mobile) | **58,9** | 29,9 | 16,8 ms |
+| Sans bloom | 59,9 | 59,2 | 16,8 ms |
 
-**C'est la démo la plus stable des quatre**, et de loin la meilleure sous CPU contraint (48,4 fps contre 22 pour le SVG et 25 pour le Canvas 2D) : le travail est fait par le GPU, le CPU ne fait que mettre à jour des matrices. Le bloom ne coûte presque rien ici.
+**C'est la démo la plus stable des quatre**, et de loin la meilleure sous CPU contraint (58,9 fps contre 40,5 pour le SVG et 25,3 pour le Canvas 2D) : le travail est fait par le GPU, le CPU ne fait que mettre à jour des matrices. Le bloom ne coûte presque rien ici.
 
 À nuancer : le chargement est plus lourd (1,3 s contre 1,0 s) et il faut un GPU. Sur une machine sans accélération (vieux parc, VM, certains environnements d'entreprise), le rendu bascule en logiciel et s'effondre — cas où le SVG reste imbattable.
 

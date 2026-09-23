@@ -68,20 +68,20 @@ n'importe quelle page, il suit donc le thème de celle-ci, sans configuration.
 
 | Poste | Brut | gzip |
 |---|---:|---:|
-| `dist/wire-rocket.js` (moteur + 3 scènes + élément) | 34,1 Ko | **10,2 Ko** |
-| Page de démo (HTML + CSS + pilotage) | 28,5 Ko | 9,4 Ko |
-| **Total page en production** | **63 Ko** | **≈ 20 Ko** |
+| `dist/wire-rocket.js` (moteur + 3 scènes + élément) | 37,2 Ko | **11,0 Ko** |
+| Page de démo (HTML + CSS + pilotage) | 28,7 Ko | 10,1 Ko |
+| **Total page en production** | **66 Ko** | **≈ 21 Ko** |
 
-Un site qui n'a besoin que du visuel n'embarque donc que **10,2 Ko compressés** — tout compris, illustrations comprises. (Le banc affiche 100 Ko transférés : non compressé, outillage du lab inclus.)
+Un site qui n'a besoin que du visuel n'embarque donc que **11 Ko compressés** — tout compris, illustrations comprises. (Le banc affiche 103 Ko transférés : non compressé, outillage du lab inclus.)
 
 | Scénario | FPS médian | 1 % low | Frame p95 |
 |---|---:|---:|---:|
-| Repos (6 composants sur la page, 3 en pause hors écran) | 55,2 | 29,9 | 16,8 ms |
-| Boost | 59,7 | 59,2 | 16,8 ms |
-| CPU ralenti ×4 (≈ mobile) | 30,0 | 19,9 | 50,2 ms |
+| Repos (6 composants sur la page, 3 en pause hors écran) | 59,9 | 59,2 | 16,8 ms |
+| Boost | 59,9 | 59,5 | 16,8 ms |
+| CPU ralenti ×4 (≈ mobile) | 27,7 | 19,9 | 50,2 ms |
 | Sans glow | 59,9 | 59,2 | 16,8 ms |
 
-À retenir : **même moteur que le 03, mais meilleur sous CPU contraint** (30 contre 25 fps), parce que chaque composant se met en pause dès qu'il sort de l'écran — un comportement offert par l'encapsulation.
+À retenir : **même moteur que le 03, à quelques fps près sous CPU contraint** (27,7 contre 25,3), avec en prime la mise en pause automatique de chaque composant sorti de l'écran — un comportement offert par l'encapsulation.
 
 ## Et Spline ?
 
@@ -90,12 +90,12 @@ Un site qui n'a besoin que du visuel n'embarque donc que **10,2 Ko compressés**
 1. **Tu crées les scènes dans Spline** (matériau wireframe + glow, états au survol via leurs *events*), tu exportes en URL publique, et tu la colles dans la constante `SPLINE_URL` de `js/demo.js`. Le visualiseur `@splinetool/viewer` remplace alors le cadre vide de la section « intégration », et `npm run measure` compare directement poids et fluidité avec le composant maison.
 2. **Tu pars du filaire existant** : les géométries des 3 scènes peuvent être exportées en glTF pour être importées dans Spline ou Blender, puis retravaillées visuellement.
 
-Ordre de grandeur à anticiper : le runtime Spline pèse ~1 à 3 Mo selon la scène, contre 10,2 Ko ici. L'échange se fait donc entre **temps d'édition visuelle** (Spline gagne largement) et **poids / contrôle** (le code gagne largement).
+Ordre de grandeur à anticiper : le runtime Spline pèse ~1 à 3 Mo selon la scène, contre 11 Ko ici. L'échange se fait donc entre **temps d'édition visuelle** (Spline gagne largement) et **poids / contrôle** (le code gagne largement).
 
 | Critère | Note |
 |---|:-:|
 | Fidélité au style wireframe / HUD | ★★★★☆ |
-| Poids | ★★★★★ (10,2 Ko gz le composant) |
+| Poids | ★★★★★ (11 Ko gz le composant) |
 | Performances desktop / mobile | ★★★★★ / ★★★☆☆ |
 | Facilité d'animation | ★★★☆☆ (héritée du 03) |
 | Réutilisation / portabilité | ★★★★★ (un tag, partout, sans build) |

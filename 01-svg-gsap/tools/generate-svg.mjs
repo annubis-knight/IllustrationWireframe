@@ -385,27 +385,46 @@ function groundGrid(sc, { R, step, y = 0, g = 'grid', tag = 'ground' }) {
   }
 }
 
-/** Lanceur générique : corps, coiffe ogivale, tuyère, ailerons optionnels. */
-function rocket(sc, xf, { m = 'rk', tag = 'rocket', meridians = 14, fins = true } = {}) {
-  lathe(sc, { profile: [[0.96, 0], [1, 0.14], [1, 1.5], [1, 2.9], [1, 4.3], [1, 5.7], [1, 6.3]], xf, meridians, m: `${m}-body`, tag });
+/**
+ * Lanceur : premier étage, interétage plus étroit, second étage, coiffe ogivale,
+ * grappe de 4 moteurs et ailerons. Élancement ~1:9, comme un vrai lanceur.
+ */
+function rocket(sc, xf, { m = 'rk', tag = 'rocket', meridians = 12, fins = true, engines = true } = {}) {
+  // Premier étage
+  lathe(sc, { profile: [[0.56, 0], [0.6, 0.15], [0.6, 1.6], [0.6, 3.2], [0.6, 4.8], [0.6, 6.2]], xf, meridians, m: `${m}-body`, tag });
+  // Interétage (anneau plus étroit : la séparation se lit au premier coup d'œil)
+  lathe(sc, { profile: [[0.6, 6.2], [0.54, 6.4], [0.54, 7], [0.6, 7.2]], xf, meridians, m: `${m}-inter`, tag });
+  // Second étage
+  lathe(sc, { profile: [[0.6, 7.2], [0.6, 8.3]], xf, meridians, m: `${m}-upper`, tag });
+  // Coiffe
   lathe(sc, {
-    profile: [[1, 6.3], [1.07, 6.5], [1.07, 7.35], [1.02, 7.85], [0.9, 8.3], [0.72, 8.7], [0.5, 9.03], [0.28, 9.27], [0.09, 9.42], [0, 9.46]],
+    profile: [[0.6, 8.3], [0.66, 8.55], [0.66, 9.2], [0.6, 9.7], [0.48, 10.1], [0.33, 10.45], [0.16, 10.7], [0, 10.8]],
     xf, meridians, m: `${m}-fair`, tag,
   });
-  lathe(sc, { profile: [[0.3, 0], [0.34, -0.18], [0.46, -0.46], [0.64, -0.82]], xf, meridians: 10, m: `${m}-bell`, tag, gc: null });
-  if (fins) {
+
+  // Grappe de 4 moteurs sous la jupe
+  if (engines) {
     for (let k = 0; k < 4; k++) {
       const th = rad(45 + k * 90);
-      const c = Math.cos(th), s = Math.sin(th);
-      const q = (r, y) => xf.pt(v(r * c, y, r * s));
-      const front = sc.cam.faces(q(1.4, 0.8), xf.dir(v(c, 0, s)));
-      const G = front ? 'front' : 'back';
-      const o = { g: G, m: `${m}-fins${front ? '' : '~b'}`, tag };
-      poly(sc, [q(1, 1.9), q(1.9, 0.6), q(1.9, -0.3), q(1, 0.12)], o);
-      sc.seg(G, q(1, 1.0), q(1.9, 0.15), o);
+      const nx = chain(xform({ pos: [0.3 * Math.cos(th), 0, 0.3 * Math.sin(th)] }), xf);
+      lathe(sc, { profile: [[0.13, 0], [0.15, -0.1], [0.2, -0.26], [0.27, -0.46]], xf: nx, meridians: 8, gc: null, m: `${m}-eng${k}`, tag });
     }
   }
-  return { tip: xf.pt(v(0, 9.46, 0)), exit: xf.pt(v(0, -0.82, 0)), axis: (y) => xf.pt(v(0, y, 0)) };
+
+  // Ailerons (alignés sur les axes, entre les moteurs)
+  if (fins) {
+    for (let k = 0; k < 4; k++) {
+      const th = rad(k * 90);
+      const c = Math.cos(th), s2 = Math.sin(th);
+      const q = (r, y) => xf.pt(v(r * c, y, r * s2));
+      const front = sc.cam.faces(q(1, 0.7), xf.dir(v(c, 0, s2)));
+      const G = front ? 'front' : 'back';
+      const o = { g: G, m: `${m}-fins${front ? '' : '~b'}`, tag };
+      poly(sc, [q(0.6, 1.7), q(1.45, 0.35), q(1.45, -0.35), q(0.6, 0.05)], o);
+      sc.seg(G, q(0.6, 0.9), q(1.45, 0.1), o);
+    }
+  }
+  return { tip: xf.pt(v(0, 10.8, 0)), exit: xf.pt(v(0, -0.46, 0)), axis: (y) => xf.pt(v(0, y, 0)) };
 }
 
 /* ── Éléments 2D (HUD, annotations, effets) ─────────────────────────────── */
@@ -505,10 +524,10 @@ function sceneStarter() {
 
   // Plateforme + table de lancement
   lathe(sc, { profile: [[3.6, 0], [3.6, 0.38], [2.6, 0.38], [1.45, 0.38]], meridians: 28, gc: null, m: 'pad', tag: 'pad' });
-  lathe(sc, { profile: [[1.2, 0.95], [1.2, 1.18]], meridians: 16, gc: null, m: 'mount', tag: 'pad' });
+  lathe(sc, { profile: [[0.85, 0.95], [0.85, 1.18]], meridians: 16, gc: null, m: 'mount', tag: 'pad' });
   for (let k = 0; k < 4; k++) {
     const th = rad(45 + 90 * k);
-    sc.seg('front', v(1.9 * Math.cos(th), 0.38, 1.9 * Math.sin(th)), v(1.2 * Math.cos(th), 1.02, 1.2 * Math.sin(th)), { m: 'mount-posts', tag: 'pad' });
+    sc.seg('front', v(1.6 * Math.cos(th), 0.38, 1.6 * Math.sin(th)), v(0.85 * Math.cos(th), 1.02, 0.85 * Math.sin(th)), { m: 'mount-posts', tag: 'pad' });
   }
   // Carneau (tranchée d'évacuation des flammes)
   for (const z of [-0.55, 0.55]) sc.seg('front', v(-1.45, 0.38, z), v(-3.6, 0.38, z), { m: 'trench', tag: 'pad' });
@@ -544,7 +563,7 @@ function sceneStarter() {
     const pivot = sc.at(A);
     return `<path class="arm draw" pathLength="1" d="${beam(A, B)}" data-retract="${beam(A, Bs)}" data-pivot="${n1(pivot[0])} ${n1(pivot[1])}"/>`;
   };
-  const arms = arm(9.3, 1.12, -70) + arm(5.4, 1.05, -70);
+  const arms = arm(9.6, 0.72, -70) + arm(5.4, 0.66, -70);
 
   const rb = sc.bbox(['rocket']);
   const tip = sc.at(rk.tip);
@@ -561,6 +580,30 @@ function sceneStarter() {
     const vx = exit[0] + (rnd() - 0.5) * 70;
     const vy = exit[1] + 6 - rnd() * 14;
     vapor += `<circle class="vapor" cx="${n1(vx)}" cy="${n1(vy)}" r="${n1(5 + rnd() * 9)}"/>`;
+  }
+
+  // Nuage de décollage : bouffées filaires, déployées au survol par GSAP.
+  // Chaque bouffée est un contour irrégulier (cercle bruité) : le rendu reste « schéma technique ».
+  const puff = (cx, cy, r, seed) => {
+    const p = prng(seed);
+    const pts = [];
+    const n = 13;
+    for (let i = 0; i <= n; i++) {
+      const a = (i / n) * TAU;
+      const rr = r * (0.72 + p() * 0.5);
+      pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * 0.78]);
+    }
+    return pathD(pts);
+  };
+  let smoke = '';
+  for (let i = 0; i < 26; i++) {
+    const side = i % 2 ? 1 : -1;
+    const t = Math.floor(i / 2) / 12;      // 0 au pied du lanceur, 1 aux extremites du nuage
+    const row = i % 4 < 2 ? 0 : 1;          // deux rangees : au sol, puis un peu plus haut
+    const dx = side * (14 + t * 130) + (rnd() - 0.5) * 22;
+    const dy = 10 - row * 18 - t * 22 - rnd() * 12;
+    const r = 16 + rnd() * 20 + t * 14;
+    smoke += `<path class="puff" data-dx="${n1(side * (30 + t * 78))}" data-dy="${n1(-8 - t * 26 - row * 10)}" d="${puff(exit[0] + dx, exit[1] + dy, r, 100 + i)}"/>`;
   }
 
   const extraDefs = `<mask id="gridmask-${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="${W}" height="${H}"><ellipse cx="${n1(gridC[0])}" cy="${n1(gridC[1])}" rx="175" ry="70" fill="url(#fade-${id})"/></mask>`;
@@ -581,6 +624,7 @@ ${holoBase(id)}
 </g>
 <g class="fx" data-layer="fx" filter="url(#glow-${id})">
 <g class="vapors">${vapor}</g>
+<g class="smoke">${smoke}</g>
 <g class="ignite">${plume(exit, 0, { len: 46, w: 16, diamonds: 2 }, id)}</g>
 <circle class="beacon-halo" cx="${n1(mastTop[0])}" cy="${n1(mastTop[1])}" r="7"/><circle class="beacon" cx="${n1(mastTop[0])}" cy="${n1(mastTop[1])}" r="2.4"/>
 </g>
@@ -612,11 +656,11 @@ function sceneBooster() {
   const craftXf = xform({ scale: [0.6, 0.6, 0.6], rot: [['y', 28], ['z', -34]], pos: [1.6, 0.2, 1.2] });
   const rk = rocket(sc, craftXf, { m: 'core', tag: 'craft', fins: false });
   const boosters = [-1, 1].map((sx) => {
-    const bx = chain(xform({ pos: [sx * 1.5, 0.3, 0] }), craftXf);
-    lathe(sc, { profile: [[0.4, 0], [0.46, 0.12], [0.46, 2.2], [0.46, 4.4], [0.4, 4.95], [0.28, 5.4], [0.12, 5.75], [0, 5.85]], xf: bx, meridians: 10, m: `bst${sx}`, tag: 'craft' });
-    lathe(sc, { profile: [[0.18, 0], [0.22, -0.2], [0.32, -0.5]], xf: bx, meridians: 8, gc: null, m: `bstb${sx}`, tag: 'craft' });
-    for (const y of [0.9, 4.3]) sc.seg('front', bx.pt(v(-sx * 0.46, y, 0)), craftXf.pt(v(sx * 1, y + 0.3, 0)), { m: 'struts', tag: 'craft' });
-    return { exit: bx.pt(v(0, -0.5, 0)), far: bx.pt(v(0, -4, 0)) };
+    const bx = chain(xform({ pos: [sx * 0.9, 0.3, 0] }), craftXf);
+    lathe(sc, { profile: [[0.26, 0], [0.3, 0.1], [0.3, 2.5], [0.3, 4.8], [0.26, 5.3], [0.18, 5.8], [0.08, 6.2], [0, 6.35]], xf: bx, meridians: 8, m: `bst${sx}`, tag: 'craft' });
+    lathe(sc, { profile: [[0.12, 0], [0.15, -0.15], [0.2, -0.35]], xf: bx, meridians: 6, gc: null, m: `bstb${sx}`, tag: 'craft' });
+    for (const y of [1, 4.6]) sc.seg('front', bx.pt(v(-sx * 0.3, y, 0)), craftXf.pt(v(sx * 0.6, y + 0.3, 0)), { m: 'struts', tag: 'craft' });
+    return { exit: bx.pt(v(0, -0.35, 0)), far: bx.pt(v(0, -4, 0)) };
   });
 
   sc.fit(['planet', 'orbit', 'craft'], [34, 66, 332, 306]);
@@ -644,7 +688,7 @@ function sceneBooster() {
   ].join('');
 
   const planetAnchor = sc.at(add(planet.c, mul(unit(v(-0.8, -0.2, 0.6)), planet.r)));
-  const boosterAnchor = sc.at(chain(xform({ pos: [-1.5, 3.2, 0] }), craftXf).pt(v(-0.46, 0, 0)));
+  const boosterAnchor = sc.at(chain(xform({ pos: [-0.9, 3.2, 0] }), craftXf).pt(v(-0.3, 0, 0)));
 
   const body = `${defs(id)}
 ${hudBack()}

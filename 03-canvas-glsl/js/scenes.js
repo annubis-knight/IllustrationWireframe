@@ -6,10 +6,13 @@
   'use strict';
   const { Node, lathe, sphere, ring, line, truss, grid } = window.WIRE;
 
-  const BODY = [[0.96, 0], [1, 0.14], [1, 1.5], [1, 2.9], [1, 4.3], [1, 5.7], [1, 6.3]];
-  const FAIRING = [[1, 6.3], [1.07, 6.5], [1.07, 7.35], [1.02, 7.85], [0.9, 8.3], [0.72, 8.7], [0.5, 9.03], [0.28, 9.27], [0.09, 9.42], [0, 9.46]];
-  const BELL = [[0.3, 0], [0.34, -0.18], [0.46, -0.46], [0.64, -0.82]];
-  const BOOSTER = [[0.4, 0], [0.46, 0.12], [0.46, 2.2], [0.46, 4.4], [0.4, 4.95], [0.28, 5.4], [0.12, 5.75], [0, 5.85]];
+  // Lanceur elance (rapport 1:9), en quatre troncons : etage 1, interetage, etage 2, coiffe
+  const BODY = [[0.56, 0], [0.6, 0.15], [0.6, 1.6], [0.6, 3.2], [0.6, 4.8], [0.6, 6.2]];
+  const INTER = [[0.6, 6.2], [0.54, 6.4], [0.54, 7], [0.6, 7.2]];
+  const UPPER = [[0.6, 7.2], [0.6, 8.3]];
+  const FAIRING = [[0.6, 8.3], [0.66, 8.55], [0.66, 9.2], [0.6, 9.7], [0.48, 10.1], [0.33, 10.45], [0.16, 10.7], [0, 10.8]];
+  const BELL = [[0.13, 0], [0.15, -0.1], [0.2, -0.26], [0.27, -0.46]];
+  const BOOSTER = [[0.26, 0], [0.3, 0.1], [0.3, 2.5], [0.3, 4.8], [0.26, 5.3], [0.18, 5.8], [0.08, 6.2], [0, 6.35]];
   const FUSELAGE = [[0.78, 0], [0.92, 0.35], [1, 1.4], [1, 2.8], [0.92, 4.2], [0.78, 5.4], [0.6, 6.5], [0.42, 7.5], [0.24, 8.35], [0.08, 8.95], [0, 9.15]];
   const NACELLE = [[0.42, 0], [0.55, 0.3], [0.58, 0.9], [0.58, 2.6], [0.5, 3.3], [0.34, 3.8], [0.12, 4.15], [0, 4.2]];
 
@@ -30,25 +33,50 @@
     return out;
   }
 
-  function rocketNode({ fins = true } = {}) {
+  function rocketNode({ fins = true, engines = true } = {}) {
     const n = new Node([
       ...lathe(BODY, { meridians: 10, w: 1 }),
+      ...lathe(INTER, { meridians: 10, w: 0.9 }),
+      ...lathe(UPPER, { meridians: 10, w: 1 }),
       ...lathe(FAIRING, { meridians: 10, w: 1 }),
-      ...lathe(BELL, { meridians: 8, w: 0.9 }),
     ]);
+    // Grappe de 4 moteurs
+    if (engines) {
+      for (let k = 0; k < 4; k++) {
+        const th = (Math.PI / 4) + (k * Math.PI) / 2;
+        const b = n.add(new Node(lathe(BELL, { meridians: 6, w: 0.9 })));
+        b.pos = [Math.cos(th) * 0.3, 0, Math.sin(th) * 0.3];
+      }
+    }
+    // Ailerons, alignes sur les axes (entre les moteurs)
     if (fins) {
       for (let k = 0; k < 4; k++) {
-        const th = Math.PI / 4 + (k * Math.PI) / 2;
+        const th = (k * Math.PI) / 2;
         const c = Math.cos(th);
         const s = Math.sin(th);
         const q = (r, y) => [r * c, y, r * s];
         n.strokes.push(
-          ...line([q(1, 1.9), q(1.9, 0.6), q(1.9, -0.3), q(1, 0.12)], { w: 0.9, closed: true }),
-          ...line([q(1, 1.0), q(1.9, 0.15)], { w: 0.8 }),
+          ...line([q(0.6, 1.7), q(1.45, 0.35), q(1.45, -0.35), q(0.6, 0.05)], { w: 0.9, closed: true }),
+          ...line([q(0.6, 0.9), q(1.45, 0.1)], { w: 0.8 }),
         );
       }
     }
     return n;
+  }
+
+  /** Nuage de decollage : bouffees spheriques autour du pas de tir, deployees au survol. */
+  function smokeNodes(parent, { y = 0.3, count = 18 } = {}) {
+    const puffs = [];
+    for (let i = 0; i < count; i++) {
+      const a = i * 2.39996;                       // angle d'or : repartition reguliere
+      const d = 1.4 + (i / count) * 4.2;
+      const r = 0.9 + (i % 3) * 0.45;
+      const node = parent.add(new Node(sphere(r, { lat: 2, lon: 4, segments: 14, w: 0.7, alpha: 0.6 }), { layer: 'fx' }));
+      node.pos = [Math.cos(a) * d, y + (i % 2) * 0.35, Math.sin(a) * d];
+      node.alpha = 0;
+      puffs.push({ node, dir: [Math.cos(a), Math.sin(a)], d, y: node.pos[1], phase: (i % 5) / 5 });
+    }
+    return puffs;
   }
 
   /* ── STARTER ── */
@@ -66,6 +94,8 @@
     const craft = root.add(rocketNode());
     craft.layer = 'model';
     craft.pos = [0, 1.2, 0];
+
+    const smoke = smokeNodes(root, { y: 0.5 });
 
     const tower = root.add(new Node(truss(1.3, 12, 12, { w: 0.7, alpha: 0.85 }), { layer: 'model' }));
     tower.pos = [3.1, 0.38, -1.4];
@@ -86,19 +116,26 @@
       return pivot;
     });
 
-    const flame = root.add(new Node(plumeShape(0.5, 3.6), { layer: 'fx' }));
+    const flame = root.add(new Node(plumeShape(0.35, 3.2), { layer: 'fx' }));
     flame.pos = [0, 0.38, 0];
     flame.visible = false;
 
     return {
       root,
-      anchor: [0, 10.7, 0],
+      anchor: [0, 12, 0],
       update(t, hover) {
         renderer.yaw = 0.4 + Math.sin(t * 0.12) * 0.25;
         root.pos = [0, Math.sin(t * 0.7) * 0.18, 0];
         arms.forEach((a, i) => (a.rot = [0, -hover * (1.1 + i * 0.1), 0]));
         flame.visible = hover > 0.05;
         flame.scale = 0.4 + hover * 0.9 + Math.sin(t * 30) * 0.04 * hover;
+        // Le nuage s'ouvre depuis le pas de tir, chaque bouffee a son propre souffle
+        for (const p of smoke) {
+          const g = Math.min(1, hover * (0.55 + p.phase * 0.9));
+          p.node.alpha = g * 0.85;
+          p.node.scale = 0.35 + g * 1.5 + Math.sin(t * 1.6 + p.phase * 6) * 0.06 * g;
+          p.node.pos = [p.dir[0] * (p.d * (0.55 + g * 0.9)), p.y + g * 0.9, p.dir[1] * (p.d * (0.55 + g * 0.9))];
+        }
       },
     };
   }
@@ -133,19 +170,19 @@
     craft.add(rocketNode({ fins: false })).layer = 'model';
 
     const plumes = [];
-    const corePlume = craft.add(new Node(plumeShape(0.45, 4.2), { layer: 'fx' }));
-    corePlume.pos = [0, -0.82, 0];
+    const corePlume = craft.add(new Node(plumeShape(0.3, 3.6), { layer: 'fx' }));
+    corePlume.pos = [0, -0.46, 0];
     plumes.push(corePlume);
 
     for (const sx of [-1, 1]) {
-      const b = craft.add(new Node([...lathe(BOOSTER, { meridians: 8, w: 0.9 }), ...lathe([[0.18, 0], [0.22, -0.2], [0.32, -0.5]], { meridians: 6, w: 0.8 })], { layer: 'model' }));
-      b.pos = [sx * 1.5, 0.3, 0];
+      const b = craft.add(new Node([...lathe(BOOSTER, { meridians: 8, w: 0.9 }), ...lathe([[0.12, 0], [0.15, -0.15], [0.2, -0.35]], { meridians: 6, w: 0.8 })], { layer: 'model' }));
+      b.pos = [sx * 0.9, 0.3, 0];
       craft.strokes.push(
-        ...line([[sx * 1.05, 1.2, 0], [sx * 1.5, 1.2, 0]], { w: 0.8 }),
-        ...line([[sx * 1.05, 4.6, 0], [sx * 1.5, 4.6, 0]], { w: 0.8 }),
+        ...line([[sx * 0.6, 1.3, 0], [sx * 0.9, 1.3, 0]], { w: 0.8 }),
+        ...line([[sx * 0.6, 4.9, 0], [sx * 0.9, 4.9, 0]], { w: 0.8 }),
       );
-      const p = craft.add(new Node(plumeShape(0.26, 2.8), { layer: 'fx' }));
-      p.pos = [sx * 1.5, -0.25, 0];
+      const p = craft.add(new Node(plumeShape(0.18, 2.4), { layer: 'fx' }));
+      p.pos = [sx * 0.9, -0.1, 0];
       plumes.push(p);
     }
 
@@ -154,7 +191,7 @@
 
     return {
       root,
-      anchor: [3.4 + axis[0] * 5.9, 4.6 + axis[1] * 5.9, 2 + axis[2] * 5.9],
+      anchor: [3.4 + axis[0] * 6.7, 4.6 + axis[1] * 6.7, 2 + axis[2] * 6.7],
       update(t, hover) {
         renderer.yaw = Math.sin(t * 0.1) * 0.2;
         planet.rot = [0, t * 0.06, 0.35];

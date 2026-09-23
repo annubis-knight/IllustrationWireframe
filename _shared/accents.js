@@ -112,7 +112,8 @@
     const reset = document.createElement('button');
     reset.type = 'button';
     reset.className = 'dock-accents__reset';
-    reset.textContent = 'Couleurs du thème';
+    reset.textContent = 'RAZ';
+    reset.title = 'Revenir aux couleurs du thème';
     reset.addEventListener('click', () => {
       custom = {};
       apply();

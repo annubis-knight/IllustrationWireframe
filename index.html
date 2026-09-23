@@ -194,26 +194,26 @@
     {
       id: '01-svg-gsap', n: '01', name: 'SVG inline + GSAP', accent: 'var(--cyan)', ready: true,
       tech: 'SVG vectoriel · GSAP 3.15 · générateur 3D → SVG en Node',
-      entry: '01-svg-gsap/index.html', readme: '01-svg-gsap/README.md', prodGz: '≈ 72 Ko',
-      verdict: 'Le seul rendu SSR / SEO, visible sans JS. Le glow coûte cher (22 fps en mobile simulé) et l\'angle de vue est figé au build.',
+      entry: '01-svg-gsap/index.html', readme: '01-svg-gsap/README.md', prodGz: '≈ 75 Ko',
+      verdict: 'Le seul rendu SSR / SEO, visible sans JS. 40 fps en mobile simulé, le meilleur des trois démos CPU. L\'angle de vue est figé au build.',
     },
     {
       id: '02-threejs-r3f', n: '02', name: 'Three.js (WebGL)', accent: 'var(--violet)', ready: true,
       tech: 'Three.js 0.186 · Vite · lignes épaisses + bloom · piste Nuxt : TresJS',
-      entry: '02-threejs-r3f/dist/index.html', readme: '02-threejs-r3f/README.md', prodGz: '≈ 148 Ko',
-      verdict: 'Le plus stable et le meilleur sur mobile simulé (48 fps), vraie rotation 3D. Mais ~148 Ko et rien sans JS.',
+      entry: '02-threejs-r3f/dist/index.html', readme: '02-threejs-r3f/README.md', prodGz: '≈ 145 Ko',
+      verdict: 'Le plus stable : 59 fps même en mobile simulé, vraie rotation 3D. Mais ~145 Ko et rien sans JS.',
     },
     {
       id: '03-canvas-glsl', n: '03', name: 'Canvas 2D', accent: 'var(--magenta)', ready: true,
       tech: 'Projection 3D maison en temps réel · Canvas additif · zéro dépendance',
-      entry: '03-canvas-glsl/index.html', readme: '03-canvas-glsl/README.md', prodGz: '≈ 18 Ko',
-      verdict: 'Le plus léger de tous, rotation libre incluse. Tout repose sur le CPU : 25 fps en mobile simulé.',
+      entry: '03-canvas-glsl/index.html', readme: '03-canvas-glsl/README.md', prodGz: '≈ 19 Ko',
+      verdict: 'Le plus léger de tous, rotation libre incluse. Tout repose sur le CPU : 25 fps en mobile simulé, le point faible.',
     },
     {
       id: '04-spline-web', n: '04', name: 'Web Component', accent: 'var(--amber)', ready: true,
       tech: '<wire-rocket> natif (Shadow DOM) · moteur du proto 03 · emplacement Spline prêt',
-      entry: '04-spline-web/index.html', readme: '04-spline-web/README.md', prodGz: '≈ 20 Ko',
-      verdict: 'Un fichier de 10,2 Ko déposable partout (Nuxt, WordPress, HTML nu). Spline demande son éditeur : emplacement prévu.',
+      entry: '04-spline-web/index.html', readme: '04-spline-web/README.md', prodGz: '≈ 21 Ko',
+      verdict: 'Un fichier de 11 Ko déposable partout (Nuxt, WordPress, HTML nu). Spline demande son éditeur : emplacement prévu.',
     },
   ];
 

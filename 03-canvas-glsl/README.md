@@ -53,18 +53,18 @@ Mesures `npm run measure` : Chrome 153 headless (Playwright), viewport 1440×100
 | `main.js` | 7,9 Ko | 2,8 Ko |
 | CSS (habillage commun + spécifique) | 15,3 Ko | 5,0 Ko |
 | HTML | 10,5 Ko | 2,3 Ko |
-| **Total en production** | **59 Ko** | **≈ 18 Ko** |
+| **Total en production** | **62 Ko** | **≈ 19 Ko** |
 
-**C'est le poids le plus faible des quatre** : 4 fois plus léger que le SVG + GSAP, 8 fois plus léger que Three.js. (Le banc affiche 95 Ko transférés : non compressé, et outillage du lab inclus.) Et les illustrations ne sont pas des assets : elles sont *calculées*, donc ajouter une quatrième offre ne coûte que quelques lignes.
+**C'est le poids le plus faible des quatre** : 4 fois plus léger que le SVG + GSAP, 7 fois plus léger que Three.js. (Le banc affiche 98 Ko transférés : non compressé, et outillage du lab inclus.) Et les illustrations ne sont pas des assets : elles sont *calculées*, donc ajouter une quatrième offre ne coûte que quelques lignes.
 
 | Scénario | FPS médian | 1 % low | Frame p95 |
 |---|---:|---:|---:|
 | Repos | 59,9 | 59,2 | 16,8 ms |
 | Boost (3 cartes survolées) | 59,9 | 59,5 | 16,8 ms |
-| CPU ralenti ×4 (≈ mobile) | **25,0** | 14,9 | 66,8 ms |
+| CPU ralenti ×4 (≈ mobile) | **25,3** | 19,9 | 66,8 ms |
 | Sans glow | 59,9 | 59,5 | 16,8 ms |
 
-Lecture honnête : **60 fps sur desktop, mais c'est la démo la plus fragile sous CPU contraint** (25 fps, et des à-coups à 15 fps). Logique : tout est fait par le processeur — projeter 6 900 segments, les trier vus/cachés, puis les peindre, 60 fois par seconde. Sur mobile, il faudrait réduire la densité des maillages (moins de méridiens, moins d'anneaux) ou n'animer que la carte visible.
+Lecture honnête : **60 fps sur desktop, mais c'est la démo la plus fragile sous CPU contraint** (25,3 fps, à-coups à 20 fps) — la moitié du prototype SVG, le quart de Three.js. Logique : tout est fait par le processeur — projeter 6 900 segments, les trier vus/cachés, puis les peindre, 60 fois par seconde. Sur mobile, il faudrait réduire la densité des maillages (moins de méridiens, moins d'anneaux) ou n'animer que la carte visible.
 
 ## Facilité d'animation et de personnalisation
 

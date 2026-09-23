@@ -173,6 +173,19 @@
       q('.arm').forEach((arm, i) => {
         tl.to(arm, { attr: { d: arm.dataset.retract }, duration: 0.9, ease: 'power2.inOut' }, i * 0.12);
       });
+      // Nuage de decollage : les bouffees s'ouvrent depuis le carneau, de part et d'autre
+      const puffs = q('.puff');
+      gsap.set(puffs, { opacity: 0, scale: 0.25, transformOrigin: '50% 50%' });
+      tl.to(puffs, {
+        opacity: 0.5,
+        scale: 1,
+        x: (i, el) => +el.dataset.dx,
+        y: (i, el) => +el.dataset.dy,
+        duration: 1.2,
+        ease: 'power2.out',
+        stagger: { each: 0.05, from: 'center' },
+      }, 0.3);
+
       return tl
         .to(q('.ignite'), { opacity: 1, duration: 0.25 }, 0.45)
         .fromTo(q('.ignite .plume'), { scaleY: 0.1 }, { scaleY: 1, transformOrigin: '50% 0%', duration: 0.6, ease: 'back.out(2)' }, 0.45)

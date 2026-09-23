@@ -95,7 +95,7 @@ class ViewsPass extends Pass {
 
 const composer = new EffectComposer(renderer);
 const viewsPass = new ViewsPass();
-const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.55, 0.45, 0.22);
+const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.42, 0.45, 0.3);
 const output = new OutputPass();
 composer.addPass(viewsPass);
 composer.addPass(bloom);
@@ -217,7 +217,7 @@ function frame(now: number) {
     for (const m of c.view.materials) (m as THREE.Material).opacity = ((m as any).__base ?? 1) * c.intro;
     updateCallout(c);
   }
-  bloom.strength = 0.5 + hoverMax * 0.35;
+  bloom.strength = 0.4 + hoverMax * 0.3;
   composer.render();
   window.PerfHUD?.set('draw calls', renderer.info.render.calls);
 }

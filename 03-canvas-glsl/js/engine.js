@@ -133,8 +133,9 @@
 
   /* ── Nœud : un groupe de traits avec sa transformation ───────────────── */
   class Node {
-    constructor(strokes = [], { pos = [0, 0, 0], rot = [0, 0, 0], scale = 1, layer = null } = {}) {
+    constructor(strokes = [], { pos = [0, 0, 0], rot = [0, 0, 0], scale = 1, layer = null, alpha = 1 } = {}) {
       this.strokes = strokes;
+      this.alpha = alpha; // opacité du nœud, multipliée à celle de ses traits
       this.layer = layer; // 'model' | 'decor' | 'fx' … (panneau CALQUES)
       this.pos = pos;
       this.rot = rot; // [x, y, z] en radians
@@ -294,20 +295,20 @@
           }
           run.pts.push(xy);
           if (front !== run.front) {
-            this._push(run, s, nrm);
+            this._push(run, s, nrm, node.alpha);
             run = { front, pts: [xy] }; // le point de bascule appartient aux deux tronçons
           }
         }
-        if (run) this._push(run, s, nrm);
+        if (run) this._push(run, s, nrm, node.alpha);
       }
       for (const child of node.children) this._collect(child, w);
     }
 
     /** Range un tronçon dans son calque : effets / lignes cachées / lignes vues. */
-    _push(run, s, hasNormals) {
-      if (run.pts.length < 2) return;
+    _push(run, s, hasNormals, nodeAlpha = 1) {
+      if (run.pts.length < 2 || nodeAlpha <= 0.01) return;
       const bucket = s.fx ? this._fx : hasNormals && !run.front ? this._back : this._front;
-      bucket.push({ run: run.pts, w: s.w, alpha: s.alpha });
+      bucket.push({ run: run.pts, w: s.w, alpha: s.alpha * nodeAlpha });
     }
 
     _paint(list, { dash = null, alpha = 1, glow = false, additive = false }) {

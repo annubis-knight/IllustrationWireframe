@@ -6,7 +6,7 @@ Thème commun, 3 états d'une fusée :
 
 | Offre | Visuel |
 |---|---|
-| **Starter** | Base de lancement / pas de tir filaire |
+| **Starter** | Base de lancement : lanceur élancé (interétage, coiffe, grappe de 4 moteurs, ailerons) sur son pas de tir, tour ombilicale, et **nuage de décollage** au survol |
 | **Booster** | Fusée en vol / mise en orbite |
 | **Nitro** | Vaisseau 2.0 en hyper-vitesse, réacteurs dopés |
 
@@ -128,11 +128,10 @@ Là encore, chaque technologie s'adapte à sa manière :
 
 | | 01 SVG + GSAP | 02 Three.js | 03 Canvas 2D | 04 Web Component |
 |---|---|---|---|---|
-| Poids prod (gzip) | 72 Ko (dont GSAP 37) | **~148 Ko** | **18 Ko** | 20 Ko (composant seul : 10,2) |
-| FPS repos | 57,7 (1 % low 30) | **59,9** (low 59) | **59,9** (low 59) | 55,2 (low 30) |
-| FPS survol des 3 cartes | 59,9 | **59,9** | 59,9 | 59,7 |
-| FPS CPU ×4 (≈ mobile) | 22,0 | **48,4** | 25,0 | 30,0 |
-| Sans glow / bloom | 59,9 (low 59,5) | 59,9 | 59,9 | 59,9 |
+| Poids prod (gzip) | 75 Ko (dont GSAP 37) | **~145 Ko** | **19 Ko** | 21 Ko (composant seul : 11) |
+| FPS repos | 59,9 | 59,9 | 59,9 | 59,9 |
+| FPS survol des 3 cartes | 59,9 | 59,9 | 59,9 | 59,9 |
+| FPS CPU ×4 (≈ mobile) | 40,5 (1 % low 30) | **58,9** (low 30) | 25,3 (low 20) | 27,7 (low 20) |
 | Vraie 3D temps réel | ✗ (angle figé au build) | ✓ | ✓ | ✓ |
 | Lignes cachées | pointillés (calculés) | masquées (profondeur) | pointillés (calculés) | pointillés (calculés) |
 | Visible sans JS / indexable | **✓** | ✗ | ✗ | ✗ |
@@ -140,20 +139,33 @@ Là encore, chaque technologie s'adapte à sa manière :
 | Distribution | markup dans la page | bundle + build | 3 fichiers JS | **1 fichier, 1 tag** |
 
 > Les poids mesurés par le banc incluent l'outillage du lab (dock, thème, calques, couleurs,
-> compteur : ~12 Ko gzip) ; la colonne « poids prod » l'exclut, puisqu'il ne part pas en production.
+> compteur : 12 Ko gzip) ; la colonne « poids prod » l'exclut, puisqu'il ne part pas en production.
 
 ### Ce que les mesures disent
 
-1. **Le glow SVG coûte plus cher que la 3D WebGL.** Le prototype 01 tourne à 57,7 fps avec des à-coups (1 % low à 30) et tombe à 22 fps quand le CPU est ralenti ×4 ; filtres coupés, il retrouve 59,9 fps parfaitement réguliers (1 % low 59,5). Three.js, lui, ne bouge pas — le GPU absorbe tout.
-2. **Le plus léger n'est pas le plus fluide.** Le Canvas 2D tient 60 fps sur desktop avec 18 Ko, mais tombe à 25 fps quand le CPU est ralenti ×4 : tout le travail de projection est sur le processeur.
-3. **Le plus lourd est le plus robuste.** Three.js coûte ~148 Ko mais reste à 48 fps en mobile simulé, là où les trois autres sont entre 22 et 30.
-4. **Un seul candidat survit sans JavaScript** : le SVG du prototype 01, qui reste visible et indexable — un argument de poids pour une section d'offres commerciale.
+1. **Sur un ordinateur de bureau, les quatre tiennent 60 fps**, même avec les 3 cartes survolées
+   en même temps. Le choix ne se joue donc pas là.
+2. **Tout se décide sous contrainte CPU.** Ralenti ×4 (proxy d'un mobile milieu de gamme) :
+   Three.js reste à 58,9 fps parce que le GPU fait le travail ; le SVG tient 40,5 ; le Canvas 2D
+   et le Web Component tombent à 25-28, puisque la projection de ~7 000 segments y est refaite
+   par le processeur à chaque image.
+3. **Le halo ne coûte pas grand-chose.** Mesuré en A/B alterné sur le prototype 01, CPU ralenti ×4 :
+   29,3 fps avec les filtres contre 31,8 sans, soit ~8 % — avec surtout des à-coups plus fréquents
+   (1 % low de 10 contre 20). C'est une piste d'optimisation, pas un défaut rédhibitoire.
+4. **Le plus léger n'est pas le plus fluide** : 19 Ko pour le Canvas 2D, mais c'est lui qui souffre
+   le plus sur mobile simulé.
+5. **Un seul candidat survit sans JavaScript** : le SVG du prototype 01, qui reste visible et
+   indexable — un argument de poids pour une section d'offres commerciale.
+
+> Prudence sur les valeurs CPU ×4 : elles varient de ±15 % selon la charge de la machine au moment
+> du relevé. Les comparaisons d'un même tableau ont été faites dans la même campagne ; les écarts
+> inférieurs à ~10 % ne veulent rien dire.
 
 ### Recommandation pour une section d'offres PropulSite
 
 - **Site vitrine classique, priorité SEO et légèreté** → prototype **01 (SVG + GSAP)**, en allégeant le glow (filtre au survol uniquement, ou halo par doublage de tracé comme en 03).
 - **Effet « waouh » assumé, page de vente ou landing premium** → prototype **02 (Three.js)**, avec une image de repli pour le SSR et les machines sans GPU.
-- **Réutilisation sur plusieurs sites clients / WordPress** → prototype **04 (`<wire-rocket>`)** : un fichier de 10,2 Ko, aucun build, aucun conflit CSS.
+- **Réutilisation sur plusieurs sites clients / WordPress** → prototype **04 (`<wire-rocket>`)** : un fichier de 11 Ko, aucun build, aucun conflit CSS.
 - **Spline** reste pertinent si tu veux *éditer visuellement* les scènes : c'est le seul chemin sans code, mais il demande ton compte et pèse 1 à 3 Mo.
 
 ### Protocole de mesure

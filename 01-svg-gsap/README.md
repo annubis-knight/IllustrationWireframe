@@ -20,7 +20,7 @@ Raccourcis de la page : `P` affiche ou masque le compteur de perfs. Le panneau *
 
 | Offre | Illustration | Au survol (« boost ») |
 |---|---|---|
-| **Starter** (cyan) | Fusée filaire sur son pas de tir, tour ombilicale en treillis, sol quadrillé, cote « H 42,6 M », balise clignotante, vapeurs | Les bras ombilicaux se rétractent (morph du tracé), les moteurs s'allument, les vapeurs s'intensifient, le compte à rebours accélère |
+| **Starter** (cyan) | Lanceur élancé (rapport 1:9) : premier étage, interétage plus étroit, second étage, coiffe ogivale, grappe de 4 moteurs et ailerons — sur son pas de tir, avec tour ombilicale en treillis, sol quadrillé, cote « H 42,6 M » et balise clignotante | Les bras ombilicaux se rétractent (morph du tracé), les moteurs s'allument et **un nuage de décollage s'ouvre de part et d'autre du carneau** (26 bouffées filaires), le compte à rebours accélère |
 | **Booster** (violet) | Lanceur à 2 boosters latéraux quittant une planète filaire, orbite en pointillés animés, trajectoire, satellite en orbite (caché quand il passe derrière la planète) | Les panaches grandissent, le lanceur avance dans son axe, la trajectoire et le satellite accélèrent, la vitesse passe à 11 km/s |
 | **Nitro** (magenta) | Vaisseau delta à 3 réacteurs, anneaux de post-combustion, cône d'onde de choc, traînées d'hyper-vitesse | Traînées ×4, panaches ×1,8, vibration de la coque, anneaux qui pulsent plus vite, « NITRO 514 % » |
 
@@ -50,27 +50,28 @@ Mesures `npm run measure` : Chrome 153 headless piloté par Playwright, iGPU AMD
 
 | Poste | Brut | gzip |
 |---|---:|---:|
-| `index.html` (dont 3 SVG inline : 138 à 194 nœuds et 54 à 101 `<path>` chacun) | 83,9 Ko | 23,2 Ko |
+| `index.html` (dont 3 SVG inline : 177 à 216 nœuds et 88 à 101 `<path>` chacun) | 92,9 Ko | 25,8 Ko |
 | GSAP core 3.15 | 71,2 Ko | 27,7 Ko |
 | MotionPathPlugin (servant uniquement au satellite) | 21,5 Ko | 9,5 Ko |
 | CSS (habillage commun + `illu.css` + spécifique) | 15,8 Ko | 5,0 Ko |
 | `main.js` | 16,6 Ko | 5,5 Ko |
-| **Total en production** | **~210 Ko** | **≈ 72 Ko** |
+| **Total en production** | **~215 Ko** | **≈ 75 Ko** |
 
-Hors webfonts (Chakra Petch + JetBrains Mono, mutualisées avec le reste du site) et hors outillage du lab (dock, thème, calques, couleurs, compteur : ~12 Ko gzip). Le banc mesure 249 Ko transférés parce que le serveur de dev ne compresse pas et qu'il sert aussi ces outils.
+Hors webfonts (Chakra Petch + JetBrains Mono, mutualisées avec le reste du site) et hors outillage du lab (dock, thème, calques, couleurs, compteur : ~12 Ko gzip). Le banc mesure 259 Ko transférés parce que le serveur de dev ne compresse pas et qu'il sert aussi ces outils.
 
 | Scénario | FPS médian | 1 % low | Frame p95 |
 |---|---:|---:|---:|
-| Repos | 57,7 | 29,9 | 16,8 ms |
+| Repos | 59,9 | 59,2 | 16,8 ms |
 | Boost (3 cartes survolées en même temps) | 59,9 | 59,2 | 16,8 ms |
-| CPU ralenti ×4 (≈ mobile milieu de gamme) | **22,0** | 8,5 | 83,4 ms |
-| Sans glow (filtres SVG coupés) | **59,9** | 59,5 | 16,8 ms |
+| CPU ralenti ×4 (≈ mobile milieu de gamme) | **40,5** | 29,9 | 33,4 ms |
+| Sans glow (filtres SVG coupés) | 59,9 | 59,2 | 16,8 ms |
 
 Lecture — et c'est le vrai enseignement de ce prototype :
 
-- **Le glow SVG est le poste de coût dominant.** Filtres coupés : 59,9 fps parfaitement réguliers (1 % low à 59,5). Filtres activés : 57,7 fps au repos avec des à-coups (1 % low à 30), et 22 fps seulement quand le CPU est ralenti ×4. Chaque image animée oblige le navigateur à recalculer deux flous gaussiens par illustration, sur le processeur. Le bouton **Glow** du dock chiffre le gain en direct.
+- **60 fps sur ordinateur**, y compris avec les 3 cartes survolées. Rien à optimiser là.
+- **Le glow coûte peu, contrairement à ce qu'on pourrait croire.** Mesuré en A/B alterné, CPU ralenti ×4 : 29,3 fps filtres activés contre 31,8 sans, soit ~8 %, avec surtout des à-coups plus fréquents (1 % low 10 contre 20). Deux flous gaussiens par illustration, recalculés à chaque image sur le processeur — c'est mesurable, pas rédhibitoire. Le bouton **Glow** du dock permet de le vérifier soi-même.
 - **Leviers si besoin** : n'appliquer le filtre qu'au survol, remplacer le flou par un doublage de tracé (trait large et transparent sous le trait net, comme le fait le prototype 03), ou réduire `stdDeviation`. Le bouton **Glow** du panneau LAB permet de comparer en direct.
-- **Sous CPU contraint** (×4, proxy d'un mobile milieu de gamme) : 22 fps. Les boucles se mettent déjà en pause hors écran ; il faudrait alléger le glow pour viser le 60 fps mobile.
+- **Sous CPU contraint** (×4, proxy d'un mobile milieu de gamme) : 40,5 fps — le meilleur des trois démos qui reposent sur le processeur. Les boucles se mettent déjà en pause hors écran ; il faudrait alléger le glow pour viser le 60 fps mobile.
 - Chargement quasi instantané malgré tout : aucune texture, aucun modèle, aucun WASM.
 
 ## Facilité d'animation et de personnalisation
@@ -90,7 +91,7 @@ Lecture — et c'est le vrai enseignement de ce prototype :
 |---|:-:|
 | Fidélité au style wireframe / HUD | ★★★★☆ (vectoriel net sur Retina, lignes cachées, glow, mais angle de vue figé) |
 | Poids | ★★★★☆ (71 Ko gz, dont 37 Ko de GSAP) |
-| Performances desktop / mobile | ★★★★☆ / ★★★☆☆ (le glow coûte cher) |
+| Performances desktop / mobile | ★★★★★ / ★★★★☆ |
 | Facilité d'animation | ★★★★☆ |
 | Personnalisation (couleurs / formes) | ★★★★★ / ★★★☆☆ |
 | Intégration Nuxt / SSR / SEO | ★★★★★ (markup statique, `<title>`/`<desc>`, fonctionne sans JS) |
