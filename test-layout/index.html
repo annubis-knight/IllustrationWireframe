@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Banc de layouts — une offre à la fois</title>
-<meta name="description" content="Six mises en page pour présenter une seule offre à la fois, avec six façons de passer d'une offre à l'autre. Chaque section se lance à la demande.">
+<meta name="description" content="Onze mises en page pour présenter une seule offre à la fois, dont cinq où le visuel passe en fond de section. Chaque section se lance à la demande.">
 <link rel="icon" href="data:,">
 <script>var h=document.documentElement;h.classList.add('js');try{var t=localStorage.getItem('lab-theme');if(t)h.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,12 +25,13 @@
 
 <main class="page">
   <header class="page__head">
-    <p class="kicker"><span class="kicker__dot"></span>SYS.LAYOUT // Six mises en scène d'une même offre</p>
-    <h1 class="page__title">Une offre, <em>six façons</em> de la montrer</h1>
+    <p class="kicker"><span class="kicker__dot"></span>SYS.LAYOUT // Onze mises en scène d'une même offre</p>
+    <h1 class="page__title">Une offre, <em>onze façons</em> de la montrer</h1>
     <p class="page__lede">
       Ici on ne compare plus des technologies mais des <strong>partis pris de mise en page</strong> :
-      une seule offre à l'écran, et six manières différentes de passer de l'une à l'autre —
-      onglets, ascenseur d'étages, carrousel, explorateur, pile de cartes, levier de poussée.
+      une seule offre à l'écran, et onze manières différentes de passer de l'une à l'autre.
+      Les six premières posent le visuel <em>à côté</em> du texte ; les cinq suivantes le passent
+      <em>derrière</em>, et font flotter l'offre au-dessus.
     </p>
     <p class="page__note">
       Chaque section démarre <strong>éteinte</strong> : ni visuel injecté, ni animation. Appuie sur
@@ -109,6 +110,77 @@
         <p class="lab-section__n">Layout 06</p>
         <h2>Levier de poussée</h2>
         <p class="lab-section__intent">La sélection devient un geste : on pousse le levier de 1 à 3 et la gamme monte avec la jauge. Ludique et très thématique — à tester avec de vrais visiteurs avant de s'y fier.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <header class="page__part">
+    <p class="kicker"><span class="kicker__dot"></span>SYS.LAYOUT // Deuxième famille</p>
+    <h2 class="page__parttitle">Le visuel passe <em>derrière</em></h2>
+    <p class="page__lede">
+      Dans les six premières, le visuel et le texte partagent un conteneur : ils sont voisins.
+      Dans les cinq suivantes, le visuel devient le <strong>décor de la section</strong> et la
+      définition de l'offre flotte au-dessus. Chacune joue la profondeur autrement — parallaxe,
+      fusion typographique, verre dépoli, masque optique, vraie perspective 3D.
+    </p>
+  </header>
+
+  <section class="lab-section" data-layout="cockpit" data-tier="booster" id="cockpit">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 07</p>
+        <h2>Poste de pilotage · interrupteurs</h2>
+        <p class="lab-section__intent">On regarde la fusée à travers une verrière : le bloc instruments se pose sur le paysage, et trois interrupteurs à bascule changent de module. Le fond suit la souris, le panneau résiste — deux vitesses, donc deux plans.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <section class="lab-section" data-layout="stencil" data-tier="nitro" id="stencil">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 08</p>
+        <h2>Typographie évidée · les noms sont le menu</h2>
+        <p class="lab-section__intent">Pas de bouton : les trois noms en très grand <em>sont</em> le sélecteur. L'offre choisie s'allume et se fond dans le visuel, les deux autres restent en contour. La fiche, elle, flotte au-dessus des deux.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <section class="lab-section" data-layout="shutters" data-tier="booster" id="shutters">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 09</p>
+        <h2>Volets de verre</h2>
+        <p class="lab-section__intent">Trois lames verticales sur un même fond. Celle qu'on ouvre laisse voir le visuel net ; les deux autres restent en verre dépoli, nom à la verticale. Le flou se fait derrière le verre : on garde les trois offres à l'écran sans les afficher trois fois.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <section class="lab-section" data-layout="porthole" data-tier="nitro" id="porthole">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 10</p>
+        <h2>Hublot · molette de module</h2>
+        <p class="lab-section__intent">Tout est flou et assombri sauf un disque, où le visuel reste net. Le texte se lit sur la zone floutée — la profondeur sert directement la lisibilité. La sélection passe par une molette à trois crans.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <section class="lab-section" data-layout="diorama" data-tier="starter" id="diorama">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 11</p>
+        <h2>Diorama · profondeur réelle</h2>
+        <p class="lab-section__intent">Ici la profondeur n'est pas simulée : la section est une scène 3D CSS. Le visuel est une toile reculée, une grille flotte entre deux eaux, la fiche est posée devant, et les étiquettes de sélection vivent à des distances différentes. La scène pivote au pointeur.</p>
       </div>
       <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
     </header>

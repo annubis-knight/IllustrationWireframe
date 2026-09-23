@@ -33,7 +33,7 @@ IllustrationWireframe/
 ├── 02-threejs-r3f/       ✅ Three.js / WebGL temps réel (bloom, occludeurs)
 ├── 03-canvas-glsl/       ✅ Canvas 2D, projection 3D maison, zéro dépendance
 ├── 04-spline-web/        ✅ Web Component <wire-rocket> (+ emplacement Spline)
-├── test-layout/          banc de mises en page : une offre a la fois, six layouts
+├── test-layout/          banc de mises en page : une offre a la fois, onze layouts
 ├── _shared/
 │   ├── offers.css        habillage commun des cartes (design identique partout)
 │   ├── dock.js           colonne de panneaux repliables (touche D)
@@ -53,9 +53,11 @@ Les 4 démos partagent **le même habillage de cartes, le même contenu et les m
 Chaque démo a son `README.md` : rendu obtenu, poids / FPS, facilité d'animation et de personnalisation.
 
 En complément, le [banc de layouts](test-layout/) ne compare plus des technologies mais des
-**mises en page** : une seule offre à l'écran et six façons d'en changer (onglets, ascenseur
-d'étages, carrousel, explorateur, pile de cartes, levier de poussée). Chaque section y démarre
-éteinte et ne charge son visuel qu'à la demande.
+**mises en page** : une seule offre à l'écran et onze façons d'en changer, en deux familles —
+six où le visuel est **à côté** du texte (onglets, ascenseur d'étages, carrousel, explorateur,
+pile de cartes, levier de poussée), cinq où il passe **en fond de section** et où l'offre flotte
+au-dessus (poste de pilotage, typographie évidée, volets de verre, hublot, diorama 3D). Chaque
+section y démarre éteinte et ne charge son visuel qu'à la demande.
 
 ## Le dock du lab
 

@@ -11,8 +11,12 @@
  * ─────────────────────────────────────────────────────────────────────────── */
 .page { padding: clamp(28px, 4vw, 56px) 0 120px; }
 /* Gouttiere commune : on la pose sur les blocs, jamais sur la page */
-.page__head, .lab-section__head { padding-inline: clamp(16px, 3vw, 40px); }
+.page__head, .lab-section__head, .page__part { padding-inline: clamp(16px, 3vw, 40px); }
 .page__head { max-width: 90ch; margin-bottom: clamp(28px, 4vw, 48px); }
+/* Intertitre : la page bascule de famille de layouts */
+.page__part { max-width: 90ch; margin: clamp(48px, 7vw, 96px) 0 clamp(24px, 3vw, 40px); padding-top: clamp(24px, 3vw, 40px); border-top: 1px solid var(--line); }
+.page__parttitle { margin: 0; font: 700 clamp(1.5rem, 3vw, 2.3rem)/1.05 var(--font-display); letter-spacing: .04em; text-transform: uppercase; color: var(--title); }
+.page__parttitle em { font-style: normal; color: var(--c-nitro); }
 .page__title {
   margin: 0;
   font: 700 clamp(2rem, 4.4vw, 3.4rem)/1.05 var(--font-display);
@@ -233,6 +237,284 @@
   .l-data .specs div { break-inside: avoid; }
 }
 
+/* ════════════════════════════════════════════════════════════════════════════
+ * FAMILLE « VISUEL EN FOND » (07 → 11)
+ *
+ * Ici le visuel n'est plus un bloc à côté du texte : c'est le décor de la section.
+ * La définition de l'offre flotte au-dessus, et chaque layout joue la profondeur
+ * autrement — parallaxe, fusion typographique, verre dépoli, masque, vraie 3D.
+ *
+ * Trois règles communes :
+ *   · le plan de fond déborde du cadre (la parallaxe ne doit jamais montrer un bord) ;
+ *   · un voile dégradé s'intercale toujours entre le visuel et le texte ;
+ *   · le contenu porte son propre fond translucide, jamais posé à nu sur le trait.
+ * ════════════════════════════════════════════════════════════════════════════ */
+.l-cock, .l-sten, .l-shut, .l-port, .l-dio {
+  position: relative; overflow: hidden;
+  min-height: min(78vh, 700px);
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
+  background: var(--panel);
+}
+/* Le plan de fond : plus grand que la section, donc toujours plein cadre */
+.l-cock__bg, .l-sten__bg, .l-shut__bg, .l-port__bg, .l-dio__bg { position: absolute; inset: 0; }
+.illu--bg { width: 100%; height: 100%; }
+/* Un décor n'a pas besoin de parler : en fond, le visuel perd ses légendes (deux
+   typographies concurrentes à deux échelles, c'en est une de trop) et son halo
+   (agrandi 2×, le flou gaussien coûte cher pour un plan qu'on regarde à peine). */
+.illu--bg [data-layer="labels"] { display: none; }
+.illu--bg .glow, .illu--bg .fx { filter: none; }
+
+/* ── 07 · Poste de pilotage ──────────────────────────────────────────────── */
+.l-cock { display: flex; flex-direction: column; justify-content: space-between; }
+.l-cock__bg { inset: 2% 14% 2% 26%; opacity: .95; }
+.l-cock__scrim {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(100deg, var(--bg) 2%, color-mix(in srgb, var(--bg) 88%, transparent) 32%, transparent 62%),
+    radial-gradient(120% 90% at 76% 50%, transparent 34%, color-mix(in srgb, var(--bg) 70%, transparent));
+}
+/* La verrière : quatre équerres et une ligne d'horizon */
+.l-cock__glass { position: absolute; inset: clamp(12px, 1.8vw, 24px); pointer-events: none; }
+.l-cock__glass i { position: absolute; width: 44px; height: 44px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); }
+.l-cock__glass i:nth-child(1) { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+.l-cock__glass i:nth-child(2) { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+.l-cock__glass i:nth-child(3) { bottom: 0; left: 0; border-right: 0; border-top: 0; }
+.l-cock__glass i:nth-child(4) { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+.l-cock__glass::after {
+  content: ""; position: absolute; left: 60px; right: 60px; top: 50%;
+  border-top: 1px dashed color-mix(in srgb, var(--accent) 20%, transparent);
+}
+.l-cock__panel {
+  position: relative; z-index: 2; width: min(44ch, 92%);
+  margin: clamp(22px, 3.5vw, 52px) clamp(16px, 3vw, 40px) 0;
+  padding: clamp(18px, 2.2vw, 30px);
+  background: color-mix(in srgb, var(--panel-solid) 82%, transparent);
+  backdrop-filter: blur(10px) saturate(1.1);
+  border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
+  box-shadow: 0 34px 64px -34px #000, inset 0 1px 0 color-mix(in srgb, var(--accent) 22%, transparent);
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+}
+.l-cock__read { max-width: none; margin-bottom: 14px; }
+.l-cock__read div { border-bottom-style: dotted; }
+.l-cock__foot { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.l-cock__switches {
+  position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: 10px;
+  margin: 24px clamp(16px, 3vw, 40px) clamp(18px, 2.5vw, 32px);
+}
+.tog {
+  display: grid; gap: 5px; justify-items: center; padding: 10px 14px 9px; cursor: pointer;
+  background: color-mix(in srgb, var(--panel-solid) 78%, transparent);
+  backdrop-filter: blur(6px); border: 1px solid var(--line); color: var(--ink-dim);
+  transition: border-color .3s, color .3s;
+}
+.tog__slot {
+  width: 24px; height: 40px; display: block; position: relative;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+}
+.tog__slot span {
+  position: absolute; left: 3px; right: 3px; top: 20px; height: 15px;
+  background: var(--ink-faint); transition: top .28s var(--ease), background .28s;
+}
+.tog[aria-checked="true"] { color: var(--ink); border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+.tog[aria-checked="true"] .tog__slot span { top: 3px; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+.tog:hover { color: var(--ink); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.tog__code { font-size: 9px; letter-spacing: .2em; color: var(--ink-faint); }
+.tog__name { font: 600 11px/1 var(--font-display); font-style: normal; letter-spacing: .14em; text-transform: uppercase; }
+@media (max-width: 760px) { .l-cock__bg { inset: -6% -20%; opacity: .5; } .l-cock__panel { width: auto; } }
+
+/* ── 08 · Typographie évidée ─────────────────────────────────────────────── */
+/* Les lettres se fondent dans le visuel : éclaircies sur fond sombre, encrées sur fond
+   clair — et sur papier, pas de halo (même règle que les filtres du visuel). */
+:root { --sten-blend: screen; --sten-glow: 0 0 46px color-mix(in srgb, var(--accent) 55%, transparent); }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --sten-blend: multiply; --sten-glow: none; } }
+:root[data-theme="light"] { --sten-blend: multiply; --sten-glow: none; }
+
+.l-sten { min-height: min(84vh, 760px); }
+.l-sten__bg { inset: -6% 0; }
+.l-sten__veil {
+  position: absolute; inset: 0;
+  background: radial-gradient(92% 72% at 32% 38%, color-mix(in srgb, var(--bg) 42%, transparent), color-mix(in srgb, var(--bg) 86%, transparent) 78%);
+}
+.l-sten__words {
+  position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-start;
+  padding: clamp(20px, 3.5vw, 52px) clamp(16px, 3vw, 40px) 0;
+}
+/* Le mode de fusion ne se pose que sur le mot allumé : chaque élément fusionné doit
+   être recomposé à chaque image du visuel qui passe dessous. Un seul, ça se paie ;
+   trois, ça coûtait 15 fps. Les contours, eux, n'en ont pas besoin. */
+.l-sten__word[aria-selected="true"] { mix-blend-mode: var(--sten-blend); }
+.l-sten__word {
+  font: 700 clamp(2.4rem, 8vw, 6.8rem)/.94 var(--font-display);
+  letter-spacing: .02em; text-transform: uppercase; text-align: left;
+  padding: 0; background: none; border: 0; cursor: pointer;
+  color: transparent; -webkit-text-stroke: 1.2px color-mix(in srgb, var(--ink) 40%, transparent);
+  transition: color .35s var(--ease), -webkit-text-stroke-color .35s var(--ease), letter-spacing .35s var(--ease);
+}
+.l-sten__word:hover { -webkit-text-stroke-color: var(--accent); }
+.l-sten__word:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.l-sten__word[aria-selected="true"] {
+  color: var(--accent); -webkit-text-stroke-color: transparent; letter-spacing: .05em;
+  text-shadow: var(--sten-glow);
+}
+.l-sten__card {
+  position: absolute; z-index: 3; right: clamp(16px, 3vw, 40px); bottom: clamp(16px, 3vw, 40px);
+  width: min(42ch, calc(100% - 2 * clamp(16px, 3vw, 40px)));
+  padding: clamp(16px, 2vw, 26px);
+  background: color-mix(in srgb, var(--panel-solid) 84%, transparent);
+  backdrop-filter: blur(12px) saturate(1.1);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  box-shadow: 0 36px 70px -36px #000;
+}
+.l-sten__card .pitch { margin-bottom: 12px; }
+.chips--left { justify-content: flex-start; }
+.l-sten__foot { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+@media (max-width: 760px) { .l-sten__card { position: static; width: auto; margin: 24px clamp(16px, 3vw, 40px) clamp(16px, 3vw, 40px); } }
+
+/* ── 09 · Volets de verre ────────────────────────────────────────────────── */
+.l-shut__bg { inset: -10% 0; }
+.l-shut__rail { position: absolute; inset: 0; display: flex; }
+.l-shut__pane { position: relative; border-left: 1px solid color-mix(in srgb, var(--accent) 22%, transparent); }
+.l-shut__pane:first-child { border-left: 0; }
+/* Fermé : lame de verre dépoli — c'est *derrière* elle que le flou se produit */
+.l-shut__pane--closed {
+  flex: 0 0 clamp(68px, 9vw, 116px); cursor: pointer; padding: 20px 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 16px;
+  background: color-mix(in srgb, var(--bg) 50%, transparent);
+  backdrop-filter: blur(16px) saturate(1.15);
+  border-top: 0; border-right: 0; border-bottom: 0; color: var(--ink-dim);
+  transition: background .35s var(--ease), color .35s;
+}
+.l-shut__pane--closed:hover, .l-shut__pane--closed:focus-visible {
+  background: color-mix(in srgb, var(--accent) 14%, color-mix(in srgb, var(--bg) 48%, transparent));
+  color: var(--ink); outline: none;
+}
+.l-shut__vert, .l-shut__meta { writing-mode: vertical-rl; transform: rotate(180deg); }
+.l-shut__vert { font: 700 clamp(.95rem, 1.5vw, 1.4rem) var(--font-display); letter-spacing: .24em; text-transform: uppercase; color: var(--accent); }
+.l-shut__meta { font-size: 10.5px; letter-spacing: .12em; font-variant-numeric: tabular-nums; }
+/* Ouvert : aucune matière, le visuel reste net — seul un dégradé porte le texte */
+.l-shut__pane.is-open { flex: 1 1 auto; display: flex; align-items: flex-end; min-width: 0; }
+.l-shut__inner {
+  width: 100%; padding: clamp(20px, 3vw, 44px);
+  background: linear-gradient(0deg, color-mix(in srgb, var(--bg) 94%, transparent) 12%, color-mix(in srgb, var(--bg) 62%, transparent) 58%, transparent);
+}
+.l-shut__inner .specs { max-width: 46ch; }
+.l-shut__foot { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+@media (max-width: 760px) { .l-shut__vert { font-size: .85rem; } .l-shut__pane--closed { flex-basis: 56px; } }
+
+/* ── 10 · Hublot ─────────────────────────────────────────────────────────── */
+.l-port { --cx: 72%; --cy: 46%; --r: clamp(120px, 20vw, 240px); }
+/* Le visuel est cadré sur le hublot : c'est lui qu'on regarde à travers le disque */
+.l-port__bg { inset: 13% auto 13% auto; left: calc(var(--cx) - 21%); width: 42%; }
+/* Le voile floute *son propre fond*, sauf dans le disque : un seul visuel, deux netteté */
+.l-port__mask {
+  position: absolute; inset: 0;
+  background: color-mix(in srgb, var(--bg) 60%, transparent);
+  backdrop-filter: blur(9px) saturate(.9);
+  -webkit-mask: radial-gradient(circle var(--r) at var(--cx) var(--cy), transparent 99%, #000 100%);
+  mask: radial-gradient(circle var(--r) at var(--cx) var(--cy), transparent 99%, #000 100%);
+}
+.l-port__ring {
+  position: absolute; left: var(--cx); top: var(--cy); width: calc(var(--r) * 2); aspect-ratio: 1;
+  transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 0 0 12px color-mix(in srgb, var(--bg) 35%, transparent), inset 0 0 70px -24px var(--accent);
+}
+.l-port__ring i { position: absolute; inset: -16px; border-radius: 50%; border: 1px dashed color-mix(in srgb, var(--accent) 24%, transparent); }
+.l-port__text { position: relative; z-index: 2; width: min(46ch, 56%); padding: clamp(22px, 3.5vw, 56px) clamp(16px, 3vw, 40px) 0; }
+.specs--lead { max-width: 40ch; }
+.specs--lead div { border-bottom-style: dotted; }
+.l-port__foot { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 4px; }
+.l-port__dial {
+  position: absolute; z-index: 3; left: clamp(16px, 3vw, 40px); bottom: clamp(18px, 2.5vw, 34px);
+  display: flex; align-items: center; gap: 16px;
+}
+.l-port__face {
+  position: relative; width: 74px; height: 74px; border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--panel-solid) 86%, transparent);
+  backdrop-filter: blur(6px); box-shadow: inset 0 0 26px -10px var(--accent);
+}
+.l-port__face::after {
+  content: ""; position: absolute; inset: 8px; border-radius: 50%;
+  border: 1px dotted color-mix(in srgb, var(--ink-faint) 60%, transparent);
+}
+.l-port__face b {
+  position: absolute; left: 50%; top: 50%; width: 2px; height: 27px; margin: -27px 0 0 -1px;
+  background: var(--accent); box-shadow: 0 0 10px var(--accent);
+  transform-origin: 50% 100%; transform: rotate(var(--needle, 0deg));
+  transition: transform .45s var(--ease);
+}
+.l-port__marks { display: flex; flex-direction: column; gap: 2px; }
+.l-port__marks button {
+  display: flex; align-items: center; gap: 8px; padding: 5px 6px; cursor: pointer;
+  background: none; border: 0; color: var(--ink-faint);
+  font: 600 10.5px/1 var(--font-mono); letter-spacing: .18em; text-transform: uppercase;
+  transition: color .3s;
+}
+.l-port__marks button i { width: 14px; height: 1px; background: currentColor; transition: width .3s var(--ease), height .3s; }
+.l-port__marks button:hover { color: var(--ink); }
+.l-port__marks button[aria-checked="true"] { color: var(--accent); }
+.l-port__marks button[aria-checked="true"] i { width: 24px; height: 2px; box-shadow: 0 0 8px var(--accent); }
+@media (max-width: 760px) {
+  .l-port { --cx: 72%; --cy: 26%; --r: 108px; }
+  .l-port__bg { inset: -4% -10% 40% 18%; }
+  .l-port__text { width: auto; padding-top: 240px; }
+  .l-port__dial { position: static; margin: 18px clamp(16px, 3vw, 40px) clamp(18px, 3vw, 34px); }
+}
+
+/* ── 11 · Diorama (vraie perspective CSS) ────────────────────────────────── */
+.l-dio { perspective: 1200px; perspective-origin: 50% 44%; }
+.l-dio__scene { position: absolute; inset: 0; transform-style: preserve-3d; }
+.l-dio__plane { position: absolute; inset: 0; }
+.l-dio__bg { transform: translateZ(-210px) scale(1.12); opacity: .92; }
+.l-dio__grid {
+  transform: translateZ(-90px) scale(1.16); opacity: .45;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--accent) 26%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 26%, transparent) 1px, transparent 1px);
+  background-size: 54px 54px;
+  -webkit-mask: radial-gradient(70% 60% at 50% 50%, #000, transparent 78%);
+  mask: radial-gradient(70% 60% at 50% 50%, #000, transparent 78%);
+}
+.l-dio__haze {
+  transform: translateZ(-40px) scale(1.08);
+  background: radial-gradient(74% 62% at 52% 52%, transparent 28%, color-mix(in srgb, var(--bg) 76%, transparent));
+}
+/* Un plan avancé se décale vers l'extérieur quand la scène pivote : on le garde
+   à distance des bords, sinon il sort du cadre et se fait couper. */
+.l-dio__card {
+  position: absolute; left: clamp(28px, 5vw, 90px); bottom: clamp(28px, 4vw, 60px);
+  width: min(42ch, 54%); padding: clamp(16px, 2vw, 26px);
+  transform: translateZ(54px);
+  background: color-mix(in srgb, var(--panel-solid) 90%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
+  box-shadow: 0 46px 80px -44px #000;
+}
+.l-dio__foot { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.l-dio__tabs {
+  position: absolute; right: clamp(28px, 5vw, 90px); top: clamp(28px, 4vw, 52px);
+  display: flex; flex-direction: column; gap: 10px; transform-style: preserve-3d;
+}
+.l-dio__tab {
+  display: grid; gap: 3px; padding: 10px 16px; text-align: right; cursor: pointer;
+  transform: translateZ(var(--z, 20px)); transition: transform .45s var(--ease), border-color .3s, color .3s;
+  background: color-mix(in srgb, var(--panel-solid) 82%, transparent);
+  border: 1px solid var(--line); color: var(--ink-dim);
+}
+.l-dio__tab span { font-size: 9px; letter-spacing: .2em; color: var(--ink-faint); }
+.l-dio__tab em { font: 600 12px/1 var(--font-display); font-style: normal; letter-spacing: .14em; text-transform: uppercase; }
+.l-dio__tab:hover { transform: translateZ(calc(var(--z, 20px) + 16px)); color: var(--ink); }
+.l-dio__tab[aria-current="true"] { border-color: var(--accent); color: var(--ink); box-shadow: 0 26px 44px -28px #000; }
+@media (max-width: 760px) {
+  .l-dio__card { position: static; width: auto; margin: 58% clamp(16px, 3vw, 40px) clamp(16px, 3vw, 40px); }
+  .l-dio__tabs { right: clamp(16px, 3vw, 40px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .l-dio__tab, .l-port__face b, .tog__slot span, .l-sten__word, .l-shut__pane--closed { transition: none; }
+}
+
 /* ── Dégagement du dock ──────────────────────────────────────────────────────
  * Le dock flotte à droite, par-dessus la page : aucune gouttière ne lui est
  * réservée, les sections gardent toute la largeur. On décale seulement le
@@ -248,4 +530,9 @@
   .lab-section__head { padding-right: max(clamp(16px, 3vw, 40px), var(--dock-w, 214px)); }
   .l-split, .l-hero, .l-throttle { padding-right: max(clamp(20px, 3vw, 40px), var(--dock-clear, 0px)); }
   .l-data__panel, .l-stack__front { padding-right: max(clamp(18px, 2.5vw, 32px), var(--dock-w, 214px)); }
+  /* Famille « visuel en fond » : ce qui est collé au bord droit passerait sous le dock */
+  .l-sten__card, .l-dio__tabs { right: max(clamp(16px, 3vw, 44px), var(--dock-w, 214px)); }
+  /* Les volets s'arrêtent avant le dock : la dernière lame resterait sous lui, donc incliquable */
+  .l-shut__rail { right: var(--dock-w, 214px); }
+  .l-port { --cx: 62%; }
 }
