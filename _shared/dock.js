@@ -76,8 +76,22 @@
     .lab-dock .lab-panel button { flex: 1 0 auto; }
 
     .dock-handle { display: flex; align-items: center; gap: 6px; }
-    @media (max-width: 720px) {
-      .lab-dock { width: 168px; right: 8px; }
+
+    /* ── Petit écran : tiroir en bas plutôt que colonne à droite ──────────────
+     * 168 px de colonne sur 360 px de large, c'était près de la moitié de la
+     * page recouverte. Ici le dock se replie en une barre au ras du pouce et
+     * s'ouvre par-dessus, sans jamais manger de largeur.
+     * ───────────────────────────────────────────────────────────────────────── */
+    @media (max-width: 1023px) {
+      .lab-dock {
+        top: auto; bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+        left: 8px; right: 8px; width: auto;
+        max-height: 64svh; opacity: 1; gap: 6px;
+      }
+      .lab-dock .dock-panel--handle { position: sticky; top: 0; z-index: 2; }
+      .lab-dock .dock-panel__head { padding: 10px 12px; }
+      /* Les cases à cocher passent sur deux colonnes : neuf lignes, c'est long */
+      .lab-dock .dock-layers { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 10px; }
     }
     @media print { .lab-dock { display: none; } }
   `;
@@ -86,7 +100,12 @@
   const dock = document.createElement('aside');
   dock.className = 'lab-dock';
   dock.setAttribute('aria-label', 'Outils du lab');
-  if (state.__collapsed) dock.setAttribute('data-collapsed', '');
+
+  /* Deux mémoires, une par format : en colonne à droite le dock est déplié par
+     défaut ; en tiroir bas, sur téléphone, il est replié — il couvrirait la page. */
+  const small = matchMedia('(max-width: 1023px)');
+  const stateKey = () => (small.matches ? '__collapsedSm' : '__collapsed');
+  const wantCollapsed = () => state[stateKey()] ?? small.matches;
 
   /* Poignée : replie tout le dock */
   const handle = document.createElement('section');
@@ -96,16 +115,21 @@
   handleBtn.className = 'dock-panel__head';
   const syncHandle = () => {
     const collapsed = dock.hasAttribute('data-collapsed');
-    handleBtn.innerHTML = `<span class="dock-handle">LAB · OUTILS</span><i>${collapsed ? '▸' : '▾'}</i>`;
+    handleBtn.innerHTML = `<span class="dock-handle">LAB · OUTILS</span><i>${collapsed ? (small.matches ? '▴' : '▸') : '▾'}</i>`;
     handleBtn.setAttribute('aria-expanded', String(!collapsed));
+  };
+  const applyCollapsed = () => {
+    dock.toggleAttribute('data-collapsed', wantCollapsed());
+    syncHandle();
   };
   handleBtn.addEventListener('click', () => {
     dock.toggleAttribute('data-collapsed');
-    state.__collapsed = dock.hasAttribute('data-collapsed');
+    state[stateKey()] = dock.hasAttribute('data-collapsed');
     write(state);
     syncHandle();
   });
-  syncHandle();
+  small.addEventListener('change', applyCollapsed);
+  applyCollapsed();
   handle.append(handleBtn);
   dock.append(handle);
 

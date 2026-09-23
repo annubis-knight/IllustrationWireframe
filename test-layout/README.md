@@ -118,6 +118,29 @@ presque rien parce qu'ils sont statiques ; le mode de fusion, lui, se paie — i
 recomposé à chaque image du visuel qui passe dessous. Le limiter au seul mot allumé (au lieu
 des trois) a rendu 15 fps au layout 08.
 
+## Sur téléphone
+
+Les onze tiennent en une colonne, mais pas de la même façon — et c'est un bon révélateur :
+
+| Layout | Ce qui change en petit écran |
+|---|---|
+| 01 · 06 | Une colonne, visuel au-dessus du texte. Rien à négocier. |
+| 02 Hero | L'ascenseur d'étages passe en rangée horizontale défilante. |
+| 03 Immersif | Le voile passe de gauche-droite à haut-bas — le texte tombe en plein milieu du vaisseau, il faut le charger. |
+| 04 Fiche technique | L'explorateur passe au-dessus, en liste. |
+| 05 Pile | Les cartes du fond deviennent deux lignes compactes au-dessus — la perspective ne survit pas, la hiérarchie oui. |
+| 07 Poste de pilotage | Le fond s'efface à 50 % : le panneau prend toute la largeur, il doit rester lisible. |
+| 08 Typographie | Les noms rétrécissent, la fiche repasse dans le flux sous eux. |
+| 09 Volets | Les lames restent verticales mais fines : c'est le layout qui perd le plus à la traduction. |
+| 10 Hublot | Le disque monte en haut, le texte s'installe dessous — **celui qui se traduit le mieux**. |
+| 11 Diorama | Les étiquettes passent en rangée, la toile remonte pour ne pas finir derrière la fiche. |
+
+La parallaxe et le pivot n'existent pas au doigt : les deux layouts qui en dépendent (07, 11)
+perdent leur argument principal sur mobile. C'est une information utile pour choisir.
+
+Toutes les cibles tactiles sont portées à ~40 px (`@media (pointer: coarse)`) sans changer le
+dessin : les points du carrousel gardent leur trait de 5 px, c'est leur zone sensible qui grandit.
+
 ## Ce que la page ne tranche pas
 
 Elle montre des options, elle ne les départage pas. Pour décider, il faut regarder :

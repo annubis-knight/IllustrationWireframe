@@ -41,6 +41,11 @@
 /* ── Enveloppe d'une section ─────────────────────────────────────────────── */
 .lab-section { margin-bottom: clamp(32px, 5vw, 64px); border-top: 1px solid var(--line); padding-top: 22px; }
 .lab-section__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 18px; }
+/* Sur téléphone, titre et bouton se marchaient dessus : on les empile */
+@media (max-width: 680px) {
+  .lab-section__head { flex-direction: column; align-items: stretch; gap: 14px; }
+  .lab-section__head .power { align-self: flex-start; }
+}
 .lab-section__n { margin: 0 0 6px; font-size: 10.5px; letter-spacing: .24em; text-transform: uppercase; color: var(--c-starter); }
 .lab-section h2 { margin: 0; font: 600 1.35rem/1.15 var(--font-display); letter-spacing: .04em; text-transform: uppercase; color: var(--title); }
 .lab-section__intent { margin: 8px 0 0; max-width: 78ch; font-size: 12.5px; color: var(--ink-dim); }
@@ -171,7 +176,14 @@
 .dots { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 2; }
 .dots button { width: 26px; height: 5px; padding: 0; background: var(--line); border: 0; cursor: pointer; }
 .dots button[aria-selected="true"] { background: var(--accent); }
-@media (max-width: 760px) { .l-imm__overlay { background: linear-gradient(180deg, transparent, var(--panel) 40%); margin-top: 220px; } }
+/* En colonne, le voile passe de gauche-droite à haut-bas, et il faut le charger :
+   le texte tombe en plein milieu du vaisseau, pas sur un fond calme. */
+@media (max-width: 760px) {
+  .l-imm__overlay {
+    max-width: none; padding-top: clamp(40px, 12vw, 70px);
+    background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--bg) 88%, transparent) 24%, color-mix(in srgb, var(--bg) 94%, transparent) 55%, transparent);
+  }
+}
 
 /* ── 04 · Fiche technique, explorateur ───────────────────────────────────── */
 .l-data { display: grid; grid-template-columns: 300px minmax(0, 1fr); border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent); background: var(--panel); }
@@ -192,6 +204,7 @@
 .l-data__grid { display: grid; grid-template-columns: minmax(240px, 340px) minmax(0, 1fr); gap: clamp(24px, 3vw, 48px); align-items: start; }
 .l-data__foot { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
 @media (max-width: 900px) { .l-data, .l-data__grid { grid-template-columns: minmax(0, 1fr); } .explorer { border-right: 0; border-bottom: 1px solid var(--line); } }
+@media (max-width: 680px) { .l-data__head { flex-direction: column; gap: 6px; } }
 
 /* ── 05 · Pile de cartes ─────────────────────────────────────────────────── */
 .l-stack { position: relative; display: flex; align-items: center; padding: 10px 0 10px 150px; }
@@ -223,7 +236,16 @@
 .l-stack__price { font-size: 11.5px; font-variant-numeric: tabular-nums; }
 .l-stack__hint { margin-top: auto; font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); }
 .l-stack__foot { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-@media (max-width: 900px) { .l-stack { padding-left: 0; } .l-stack__front { grid-template-columns: minmax(0, 1fr); } .l-stack__ghost { position: static; width: auto; transform: none; margin-bottom: 8px; } }
+/* En colonne, les cartes du fond repassent dans le flux : `display:block` est
+   indispensable, sinon le centrage en flex les aligne en rangée serrée. */
+@media (max-width: 900px) {
+  .l-stack { display: block; padding-left: 0; }
+  .l-stack__front { grid-template-columns: minmax(0, 1fr); }
+  .l-stack__ghost { position: static; width: auto; transform: none; margin-bottom: 8px; flex-direction: row; align-items: center; gap: 12px; }
+  .l-stack__ghost--0 .l-stack__code { writing-mode: horizontal-tb; transform: none; margin: 0; letter-spacing: .2em; }
+  .l-stack__ghost--0 .l-stack__name, .l-stack__ghost--0 .l-stack__price { display: block; }
+  .l-stack__hint { margin: 0 0 0 auto; }
+}
 
 /* ── 06 · Levier de poussée ──────────────────────────────────────────────── */
 .l-throttle { display: grid; grid-template-columns: minmax(300px, 560px) minmax(320px, 62ch); gap: clamp(24px, 4vw, 72px);
@@ -549,12 +571,52 @@
 .l-dio__tab:hover { transform: translateZ(calc(var(--z, 20px) + 16px)); color: var(--ink); }
 .l-dio__tab[aria-current="true"] { border-color: var(--accent); color: var(--ink); box-shadow: 0 26px 44px -28px #000; }
 @media (max-width: 760px) {
-  .l-dio__card { position: static; width: auto; margin: 58% clamp(16px, 3vw, 40px) clamp(16px, 3vw, 40px); }
-  .l-dio__tabs { right: clamp(16px, 3vw, 40px); }
+  /* En colonne : les étiquettes en rangée au-dessus, la fiche dessous, la toile entre les deux.
+     Empilées à droite, elles passaient sous la carte. */
+  .l-dio__tabs {
+    position: static; flex-direction: row; gap: 6px;
+    padding: clamp(14px, 4vw, 26px) clamp(16px, 3vw, 40px) 0;
+  }
+  .l-dio__tab { flex: 1; text-align: center; padding: 10px 6px; transform: translateZ(var(--z, 20px)); }
+  .l-dio__card { position: static; width: auto; margin: 38% clamp(16px, 3vw, 40px) 0; }
+  /* La toile remonte : sinon elle finit entièrement derrière la fiche */
+  .l-dio__bg { inset: 2% 0 34%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .l-dio__tab, .l-port__face b, .tog__slot span, .l-sten__word, .l-shut__pane--closed { transition: none; }
+}
+
+/* ── Place pour la barre d'outils ────────────────────────────────────────────
+ * Sous 1024 px le dock devient une barre au ras du bas. Tout ce qui vit au bas
+ * d'une section (interrupteurs, points du carrousel, molette) lui laisse la place.
+ * ─────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .l-cock, .l-sten, .l-dio { padding-bottom: 58px; }
+  .l-shut__inner { padding-bottom: 68px; }
+  .dots { bottom: 62px; }
+  .l-port__dial { margin-bottom: 62px; }
+}
+
+/* ── Au doigt ────────────────────────────────────────────────────────────────
+ * Onze sélecteurs différents, donc onze familles de cibles. Sur écran tactile
+ * on les porte toutes à ~40 px de haut sans toucher au dessin : le trait des
+ * points reste fin, c'est sa zone sensible qui grandit (`background-clip`).
+ * ─────────────────────────────────────────────────────────────────────────── */
+@media (pointer: coarse) {
+  .seg button { padding: 13px 18px; }
+  .dots { gap: 4px; }
+  /* content-box, sinon le rembourrage mange la barre : 5 px de trait, 33 px de cible */
+  .dots button { box-sizing: content-box; width: 34px; height: 5px; padding: 14px 0; background-clip: content-box; }
+  .l-throttle__lever input { height: 44px; }
+  .explorer button { padding: 15px 12px; }
+  .stepper button { padding: 12px 10px; }
+  .l-throttle__ticks button { padding: 12px 6px; }
+  .l-port__marks button { padding: 11px 6px; }
+  .l-dio__tab { padding: 14px 16px; }
+  .l-sten__word { padding: 4px 0; }
+  .power, .page__actions button { min-height: 44px; }
+  .l-imm__arrow { width: 48px; height: 48px; }
 }
 
 /* ── Dégagement du dock ──────────────────────────────────────────────────────
@@ -563,11 +625,12 @@
  * *contenu* des blocs pour qu'aucun bouton ne finisse sous lui.
  * Sur un bloc centré, le centrage suffit souvent : `--dock-clear` tombe alors
  * à zéro et la mise en page n'est pas touchée (cas des grands écrans).
- * Sous 1100 px, le dock se replie (touche « D ») : on ne sacrifie rien.
+ * Sous 1024 px, le dock devient un tiroir bas : il n'y a plus rien à dégager.
  * ─────────────────────────────────────────────────────────────────────────── */
-@media (min-width: 1100px) {
-  /* `--dock-w` vient de _shared/offers.css ; ici le contenu le plus large fait 1560 px */
-  :root { --dock-clear: max(0px, calc(var(--dock-w, 214px) - (100vw - 1560px) / 2)); }
+@media (min-width: 1024px) {
+  /* `--dock-w` vient de _shared/offers.css ; ici le contenu le plus large fait 1560 px.
+     Plafonné à la largeur du dock : au-delà, on écraserait le contenu pour rien. */
+  :root { --dock-clear: clamp(0px, calc(var(--dock-w, 214px) - (100vw - 1560px) / 2), var(--dock-w, 214px)); }
   /* L'en-tête de section pousse son bouton contre le bord droit : lui, il dégage toujours */
   .lab-section__head { padding-right: max(clamp(16px, 3vw, 40px), var(--dock-w, 214px)); }
   .l-split, .l-hero, .l-throttle { padding-right: max(clamp(20px, 3vw, 40px), var(--dock-clear, 0px)); }

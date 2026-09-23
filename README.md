@@ -67,7 +67,13 @@ Une colonne de panneaux repliables à droite de chaque démo (touche **D** pour 
 Le dock **flotte au-dessus de la page** : aucune gouttière ne lui est réservée, les sections
 gardent toute la largeur de l'écran. Il s'estompe tant qu'on ne le survole pas, et les mises en
 page décalent leur contenu vers la gauche uniquement quand l'écran est trop étroit pour passer
-à côté — de sorte qu'aucun bouton ne finit jamais sous lui (vérifié de 1280 à 1920 px).
+à côté — jamais de plus que sa propre largeur, de sorte qu'aucun bouton ne finit sous lui
+(vérifié de 1280 à 1920 px).
+
+**Sous 1024 px, il change de forme** : une colonne de 194 px sur un téléphone de 360, c'était la
+moitié de la page recouverte. Il devient alors un **tiroir au ras du bas**, replié par défaut,
+qui s'ouvre par-dessus le contenu sans lui prendre de largeur. Les deux formats gardent leur
+propre mémoire d'ouverture : déplié sur grand écran, replié sur petit.
 
 | Panneau | Ce qu'il fait |
 |---|---|
