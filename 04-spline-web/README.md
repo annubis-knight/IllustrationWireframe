@@ -72,16 +72,16 @@ n'importe quelle page, il suit donc le thème de celle-ci, sans configuration.
 | Page de démo (HTML + CSS + pilotage) | 28,7 Ko | 10,1 Ko |
 | **Total page en production** | **66 Ko** | **≈ 21 Ko** |
 
-Un site qui n'a besoin que du visuel n'embarque donc que **11 Ko compressés** — tout compris, illustrations comprises. (Le banc affiche 103 Ko transférés : non compressé, outillage du lab inclus.)
+Un site qui n'a besoin que du visuel n'embarque donc que **11 Ko compressés** — tout compris, illustrations comprises. (Le banc affiche 105 Ko transférés : non compressé, outillage du lab inclus.)
 
 | Scénario | FPS médian | 1 % low | Frame p95 |
 |---|---:|---:|---:|
 | Repos (6 composants sur la page, 3 en pause hors écran) | 59,9 | 59,2 | 16,8 ms |
 | Boost | 59,9 | 59,5 | 16,8 ms |
-| CPU ralenti ×4 (≈ mobile) | 27,7 | 19,9 | 50,2 ms |
+| CPU ralenti ×4 (≈ mobile) | 31,5 | 20,0 | 50,0 ms |
 | Sans glow | 59,9 | 59,2 | 16,8 ms |
 
-À retenir : **même moteur que le 03, à quelques fps près sous CPU contraint** (27,7 contre 25,3), avec en prime la mise en pause automatique de chaque composant sorti de l'écran — un comportement offert par l'encapsulation.
+À retenir : **même moteur que le 03, un peu plus à l'aise sous CPU contraint** (31,5 contre 23,1 — il ne fait tourner que les composants visibles), avec en prime la mise en pause automatique de chaque composant sorti de l'écran — un comportement offert par l'encapsulation.
 
 ## Et Spline ?
 

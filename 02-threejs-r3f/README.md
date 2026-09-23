@@ -68,10 +68,10 @@ C'est **le double du prototype 01** (75 Ko) et **7 fois le prototype 03** (19 Ko
 |---|---:|---:|---:|
 | Repos | 59,9 | 59,5 | 16,8 ms |
 | Boost (3 cartes survolées) | 59,9 | 59,2 | 16,8 ms |
-| CPU ralenti ×4 (≈ mobile) | **58,9** | 29,9 | 16,8 ms |
+| CPU ralenti ×4 (≈ mobile) | **54,9** | 29,9 | 33,4 ms |
 | Sans bloom | 59,9 | 59,2 | 16,8 ms |
 
-**C'est la démo la plus stable des quatre**, et de loin la meilleure sous CPU contraint (58,9 fps contre 40,5 pour le SVG et 25,3 pour le Canvas 2D) : le travail est fait par le GPU, le CPU ne fait que mettre à jour des matrices. Le bloom ne coûte presque rien ici.
+**C'est la démo la plus stable des quatre**, et de loin la meilleure sous CPU contraint (54,9 fps contre 37,2 pour le SVG et 23,1 pour le Canvas 2D) : le travail est fait par le GPU, le CPU ne fait que mettre à jour des matrices. Le bloom ne coûte presque rien ici.
 
 À nuancer : le chargement est plus lourd (1,3 s contre 1,0 s) et il faut un GPU. Sur une machine sans accélération (vieux parc, VM, certains environnements d'entreprise), le rendu bascule en logiciel et s'effondre — cas où le SVG reste imbattable.
 

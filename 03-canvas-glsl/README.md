@@ -55,16 +55,16 @@ Mesures `npm run measure` : Chrome 153 headless (Playwright), viewport 1440×100
 | HTML | 10,5 Ko | 2,3 Ko |
 | **Total en production** | **62 Ko** | **≈ 19 Ko** |
 
-**C'est le poids le plus faible des quatre** : 4 fois plus léger que le SVG + GSAP, 7 fois plus léger que Three.js. (Le banc affiche 98 Ko transférés : non compressé, et outillage du lab inclus.) Et les illustrations ne sont pas des assets : elles sont *calculées*, donc ajouter une quatrième offre ne coûte que quelques lignes.
+**C'est le poids le plus faible des quatre** : 4 fois plus léger que le SVG + GSAP, 7 fois plus léger que Three.js. (Le banc affiche 100 Ko transférés : non compressé, et outillage du lab inclus.) Et les illustrations ne sont pas des assets : elles sont *calculées*, donc ajouter une quatrième offre ne coûte que quelques lignes.
 
 | Scénario | FPS médian | 1 % low | Frame p95 |
 |---|---:|---:|---:|
 | Repos | 59,9 | 59,2 | 16,8 ms |
-| Boost (3 cartes survolées) | 59,9 | 59,5 | 16,8 ms |
-| CPU ralenti ×4 (≈ mobile) | **25,3** | 19,9 | 66,8 ms |
+| Boost (3 cartes survolées) | 59,4 | 59,2 | 16,8 ms |
+| CPU ralenti ×4 (≈ mobile) | **23,1** | 12,0 | 50,3 ms |
 | Sans glow | 59,9 | 59,5 | 16,8 ms |
 
-Lecture honnête : **60 fps sur desktop, mais c'est la démo la plus fragile sous CPU contraint** (25,3 fps, à-coups à 20 fps) — la moitié du prototype SVG, le quart de Three.js. Logique : tout est fait par le processeur — projeter 6 900 segments, les trier vus/cachés, puis les peindre, 60 fois par seconde. Sur mobile, il faudrait réduire la densité des maillages (moins de méridiens, moins d'anneaux) ou n'animer que la carte visible.
+Lecture honnête : **60 fps sur desktop, mais c'est la démo la plus fragile sous CPU contraint** (23,1 fps, à-coups à 12 fps) — les deux tiers du prototype SVG, moins de la moitié de Three.js. Logique : tout est fait par le processeur — projeter 6 900 segments, les trier vus/cachés, puis les peindre, 60 fois par seconde. Sur mobile, il faudrait réduire la densité des maillages (moins de méridiens, moins d'anneaux) ou n'animer que la carte visible.
 
 ## Facilité d'animation et de personnalisation
 

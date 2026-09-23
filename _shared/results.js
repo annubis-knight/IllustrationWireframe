@@ -2,33 +2,33 @@
 window.LAB_RESULTS = {
   "01-svg-gsap": {
     "id": "01-svg-gsap",
-    "date": "2026-09-23T01:00:43.372Z",
+    "date": "2026-09-23T19:47:39.502Z",
     "gpu": "ANGLE (AMD, AMD Radeon(TM) 660M (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)",
-    "loadMs": 866,
-    "totalKB": 258.9,
+    "loadMs": 968,
+    "totalKB": 264,
     "byTypeKB": {
-      "document": 93.5,
-      "css": 24.2,
-      "script": 141.2
+      "document": 96.8,
+      "css": 24.7,
+      "script": 142.5
     },
     "fps": {
       "repos": {
         "avg": 59.9,
-        "low1": 59.2,
+        "low1": 59.5,
         "p95ms": 16.8,
-        "spread": "59.9–59.9"
+        "spread": "59.7–59.9"
       },
       "boost": {
-        "avg": 59.9,
-        "low1": 59.2,
+        "avg": 58.7,
+        "low1": 29.9,
         "p95ms": 16.8,
-        "spread": "59.9–59.9"
+        "spread": "50.6–59.7"
       },
       "cpu4x": {
-        "avg": 40.5,
-        "low1": 29.9,
+        "avg": 37.2,
+        "low1": 20,
         "p95ms": 33.5,
-        "spread": "39.1–41.2"
+        "spread": "32.3–40.6"
       },
       "sansGlow": {
         "avg": 59.9,
@@ -38,16 +38,16 @@ window.LAB_RESULTS = {
       }
     },
     "extras": {
-      "nœuds SVG": 578,
+      "nœuds SVG": 616,
       "glow": "on"
     },
     "errors": []
   },
   "02-threejs-r3f": {
     "id": "02-threejs-r3f",
-    "date": "2026-09-23T01:01:40.952Z",
+    "date": "2026-09-23T19:48:37.105Z",
     "gpu": "ANGLE (AMD, AMD Radeon(TM) 660M (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)",
-    "loadMs": 1186,
+    "loadMs": 1139,
     "totalKB": 614.5,
     "byTypeKB": {
       "document": 10.6,
@@ -57,9 +57,9 @@ window.LAB_RESULTS = {
     "fps": {
       "repos": {
         "avg": 59.9,
-        "low1": 59.5,
+        "low1": 59.2,
         "p95ms": 16.8,
-        "spread": "58.2–59.9"
+        "spread": "59.9–59.9"
       },
       "boost": {
         "avg": 59.9,
@@ -68,16 +68,16 @@ window.LAB_RESULTS = {
         "spread": "59.9–59.9"
       },
       "cpu4x": {
-        "avg": 58.9,
+        "avg": 54.9,
         "low1": 29.9,
-        "p95ms": 16.8,
-        "spread": "57.7–59.4"
+        "p95ms": 33.4,
+        "spread": "48.7–57.4"
       },
       "sansGlow": {
         "avg": 59.9,
         "low1": 59.2,
         "p95ms": 16.8,
-        "spread": "58.2–59.9"
+        "spread": "59.9–59.9"
       }
     },
     "extras": {
@@ -89,14 +89,14 @@ window.LAB_RESULTS = {
   },
   "03-canvas-glsl": {
     "id": "03-canvas-glsl",
-    "date": "2026-09-23T01:02:38.470Z",
+    "date": "2026-09-23T19:49:34.662Z",
     "gpu": "ANGLE (AMD, AMD Radeon(TM) 660M (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)",
-    "loadMs": 912,
-    "totalKB": 98.4,
+    "loadMs": 929,
+    "totalKB": 99.7,
     "byTypeKB": {
       "document": 11.2,
-      "css": 20,
-      "script": 67.2
+      "css": 20.5,
+      "script": 68.1
     },
     "fps": {
       "repos": {
@@ -106,59 +106,59 @@ window.LAB_RESULTS = {
         "spread": "59.9–59.9"
       },
       "boost": {
-        "avg": 59.9,
+        "avg": 59.4,
         "low1": 59.2,
         "p95ms": 16.8,
-        "spread": "59.9–59.9"
+        "spread": "58.7–59.4"
       },
       "cpu4x": {
-        "avg": 25.3,
-        "low1": 19.9,
-        "p95ms": 50.2,
-        "spread": "24.6–25.4"
+        "avg": 23.1,
+        "low1": 12,
+        "p95ms": 50.3,
+        "spread": "22.9–23.7"
       },
       "sansGlow": {
         "avg": 59.9,
-        "low1": 59.5,
+        "low1": 59.2,
         "p95ms": 16.8,
         "spread": "59.9–59.9"
       }
     },
     "extras": {
-      "segments 3D": 9842,
+      "segments 3D": 10082,
       "glow": "on"
     },
     "errors": []
   },
   "04-spline-web": {
     "id": "04-spline-web",
-    "date": "2026-09-23T01:03:36.210Z",
+    "date": "2026-09-23T19:50:32.236Z",
     "gpu": "ANGLE (AMD, AMD Radeon(TM) 660M (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)",
-    "loadMs": 944,
-    "totalKB": 103.3,
+    "loadMs": 981,
+    "totalKB": 104.7,
     "byTypeKB": {
       "document": 10,
-      "css": 20.8,
-      "script": 72.5
+      "css": 21.3,
+      "script": 73.3
     },
     "fps": {
       "repos": {
-        "avg": 59.9,
-        "low1": 59.2,
-        "p95ms": 16.8,
-        "spread": "59.9–59.9"
-      },
-      "boost": {
         "avg": 59.9,
         "low1": 59.5,
         "p95ms": 16.8,
         "spread": "59.9–59.9"
       },
+      "boost": {
+        "avg": 59.9,
+        "low1": 59.2,
+        "p95ms": 16.8,
+        "spread": "58.2–59.9"
+      },
       "cpu4x": {
-        "avg": 27.7,
-        "low1": 19.9,
-        "p95ms": 50.1,
-        "spread": "27.5–30.1"
+        "avg": 31.5,
+        "low1": 20,
+        "p95ms": 50,
+        "spread": "31.3–32"
       },
       "sansGlow": {
         "avg": 59.9,

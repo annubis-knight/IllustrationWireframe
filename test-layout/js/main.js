@@ -106,13 +106,15 @@
         return `
         <div class="l-imm" data-tier="${o.tier}" tabindex="0" aria-label="Carrousel des offres, flèches gauche et droite pour naviguer">
           <div class="l-imm__visual" data-visual></div>
-          <button class="l-imm__arrow l-imm__arrow--prev" type="button" data-pick="${OFFERS[(i + 2) % 3].tier}" aria-label="Offre précédente">‹</button>
-          <button class="l-imm__arrow l-imm__arrow--next" type="button" data-pick="${OFFERS[(i + 1) % 3].tier}" aria-label="Offre suivante">›</button>
           <div class="l-imm__overlay">
             <p class="eyebrow">${esc(o.code)} · ${esc(o.status)}</p>
             <h3 class="name name--xl">${esc(o.name)}</h3>
             <p class="pitch">${esc(o.pitch)}</p>
             <div class="l-imm__foot">${priceBlock(o, 'price--ghost')}${cta(o)}</div>
+            <div class="l-imm__nav">
+              <button class="l-imm__arrow" type="button" data-pick="${OFFERS[(i + 2) % 3].tier}" aria-label="Offre précédente">‹</button>
+              <button class="l-imm__arrow" type="button" data-pick="${OFFERS[(i + 1) % 3].tier}" aria-label="Offre suivante">›</button>
+            </div>
           </div>
           <div class="dots" role="tablist" aria-label="Choisir une offre">
             ${OFFERS.map((x) => `<button role="tab" type="button" data-pick="${x.tier}" aria-selected="${x.tier === o.tier}"><span class="sr">${esc(x.name)}</span></button>`).join('')}

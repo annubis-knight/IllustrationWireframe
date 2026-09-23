@@ -62,6 +62,11 @@ d'étages, carrousel, explorateur, pile de cartes, levier de poussée). Chaque s
 Une colonne de panneaux repliables à droite de chaque démo (touche **D** pour tout replier,
 **P** pour le compteur). Réglages mémorisés d'une visite à l'autre.
 
+Le dock **flotte au-dessus de la page** : aucune gouttière ne lui est réservée, les sections
+gardent toute la largeur de l'écran. Il s'estompe tant qu'on ne le survole pas, et les mises en
+page décalent leur contenu vers la gauche uniquement quand l'écran est trop étroit pour passer
+à côté — de sorte qu'aucun bouton ne finit jamais sous lui (vérifié de 1280 à 1920 px).
+
 | Panneau | Ce qu'il fait |
 |---|---|
 | **Perf** | FPS instantané, moyenne, 1 % low, p95, poids transféré |
@@ -136,8 +141,8 @@ Là encore, chaque technologie s'adapte à sa manière :
 |---|---|---|---|---|
 | Poids prod (gzip) | 75 Ko (dont GSAP 37) | **~145 Ko** | **19 Ko** | 21 Ko (composant seul : 11) |
 | FPS repos | 59,9 | 59,9 | 59,9 | 59,9 |
-| FPS survol des 3 cartes | 59,9 | 59,9 | 59,9 | 59,9 |
-| FPS CPU ×4 (≈ mobile) | 40,5 (1 % low 30) | **58,9** (low 30) | 25,3 (low 20) | 27,7 (low 20) |
+| FPS survol des 3 cartes | 58,7 | 59,9 | 59,4 | 59,9 |
+| FPS CPU ×4 (≈ mobile) | 37,2 (1 % low 20) | **54,9** (low 30) | 23,1 (low 12) | 31,5 (low 20) |
 | Vraie 3D temps réel | ✗ (angle figé au build) | ✓ | ✓ | ✓ |
 | Lignes cachées | pointillés (calculés) | masquées (profondeur) | pointillés (calculés) | pointillés (calculés) |
 | Visible sans JS / indexable | **✓** | ✗ | ✗ | ✗ |
@@ -152,8 +157,8 @@ Là encore, chaque technologie s'adapte à sa manière :
 1. **Sur un ordinateur de bureau, les quatre tiennent 60 fps**, même avec les 3 cartes survolées
    en même temps. Le choix ne se joue donc pas là.
 2. **Tout se décide sous contrainte CPU.** Ralenti ×4 (proxy d'un mobile milieu de gamme) :
-   Three.js reste à 58,9 fps parce que le GPU fait le travail ; le SVG tient 40,5 ; le Canvas 2D
-   et le Web Component tombent à 25-28, puisque la projection de ~7 000 segments y est refaite
+   Three.js reste à 54,9 fps parce que le GPU fait le travail ; le SVG tient 37,2 ; le Canvas 2D
+   et le Web Component tombent à 23-32, puisque la projection de ~7 000 segments y est refaite
    par le processeur à chaque image.
 3. **Le halo ne coûte pas grand-chose.** Mesuré en A/B alterné sur le prototype 01, CPU ralenti ×4 :
    29,3 fps avec les filtres contre 31,8 sans, soit ~8 % — avec surtout des à-coups plus fréquents

@@ -21,6 +21,16 @@ markup qu'on injecte. Comme on peut afficher jusqu'à six sections en même temp
 la moins risquée pour la fluidité. Les trois visuels viennent de `js/svg-data.js`, généré par le
 prototype 01 : une seule source, aucun doublon.
 
+## Une section prend toute la largeur
+
+Aucune section n'est bridée par une largeur de page : la bordure, le fond et le visuel vont
+d'un bord à l'autre de l'écran. Ce sont les **blocs à l'intérieur** (colonne de texte à 62 ch,
+carte, panneau, grille de specs) qui se limitent, là où la lecture l'exige.
+
+Le dock d'outils passe **par-dessus** la page plutôt que de lui manger une colonne. Il s'estompe
+au repos, et les layouts ne décalent leur contenu vers la gauche que si l'écran ne laisse pas
+la place de passer à côté (`--dock-clear` dans `css/style.css`, nul au-delà de ~1780 px).
+
 ## Rien ne démarre tout seul
 
 C'est la règle de la page. Chaque section est **en veille** au chargement : ni visuel injecté,
@@ -38,7 +48,7 @@ Chacun apporte **sa propre logique de sélection** — c'est justement ce qu'on 
 |---|---|---|---|
 | 01 | Deux colonnes | Onglets segmentés | La valeur sûre : lecture immédiate, comparaison facile, zéro surprise |
 | 02 | Hero centré | Ascenseur d'étages (1·2·3) | Le visuel domine ; la montée en gamme se lit comme une trajectoire |
-| 03 | Immersif | Carrousel : flèches, points, clavier ←/→ | Spectaculaire, mais le texte se bat contre l'image |
+| 03 | Immersif | Carrousel : paire de flèches sous le texte, points, clavier ←/→ | Spectaculaire, mais le texte se bat contre l'image |
 | 04 | Fiche technique | Explorateur de modules avec prix | Pour l'acheteur qui compare : rationnel, dense, peu émotionnel |
 | 05 | Pile de cartes | Clic sur une carte du fond | Garde le choix sous les yeux sans afficher trois blocs complets |
 | 06 | Levier de poussée | Curseur 1 → 3 + jauge | La sélection devient un geste ; ludique, très thématique, à valider avec de vrais visiteurs |

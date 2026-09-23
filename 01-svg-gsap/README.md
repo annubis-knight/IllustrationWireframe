@@ -57,13 +57,13 @@ Mesures `npm run measure` : Chrome 153 headless piloté par Playwright, iGPU AMD
 | `main.js` | 16,6 Ko | 5,5 Ko |
 | **Total en production** | **~215 Ko** | **≈ 75 Ko** |
 
-Hors webfonts (Chakra Petch + JetBrains Mono, mutualisées avec le reste du site) et hors outillage du lab (dock, thème, calques, couleurs, compteur : ~12 Ko gzip). Le banc mesure 259 Ko transférés parce que le serveur de dev ne compresse pas et qu'il sert aussi ces outils.
+Hors webfonts (Chakra Petch + JetBrains Mono, mutualisées avec le reste du site) et hors outillage du lab (dock, thème, calques, couleurs, compteur : ~12 Ko gzip). Le banc mesure 264 Ko transférés parce que le serveur de dev ne compresse pas et qu'il sert aussi ces outils.
 
 | Scénario | FPS médian | 1 % low | Frame p95 |
 |---|---:|---:|---:|
-| Repos | 59,9 | 59,2 | 16,8 ms |
-| Boost (3 cartes survolées en même temps) | 59,9 | 59,2 | 16,8 ms |
-| CPU ralenti ×4 (≈ mobile milieu de gamme) | **40,5** | 29,9 | 33,4 ms |
+| Repos | 59,9 | 59,5 | 16,8 ms |
+| Boost (3 cartes survolées en même temps) | 58,7 | 29,9 | 16,8 ms |
+| CPU ralenti ×4 (≈ mobile milieu de gamme) | **37,2** | 20,0 | 33,5 ms |
 | Sans glow (filtres SVG coupés) | 59,9 | 59,2 | 16,8 ms |
 
 Lecture — et c'est le vrai enseignement de ce prototype :
@@ -71,7 +71,7 @@ Lecture — et c'est le vrai enseignement de ce prototype :
 - **60 fps sur ordinateur**, y compris avec les 3 cartes survolées. Rien à optimiser là.
 - **Le glow coûte peu, contrairement à ce qu'on pourrait croire.** Mesuré en A/B alterné, CPU ralenti ×4 : 29,3 fps filtres activés contre 31,8 sans, soit ~8 %, avec surtout des à-coups plus fréquents (1 % low 10 contre 20). Deux flous gaussiens par illustration, recalculés à chaque image sur le processeur — c'est mesurable, pas rédhibitoire. Le bouton **Glow** du dock permet de le vérifier soi-même.
 - **Leviers si besoin** : n'appliquer le filtre qu'au survol, remplacer le flou par un doublage de tracé (trait large et transparent sous le trait net, comme le fait le prototype 03), ou réduire `stdDeviation`. Le bouton **Glow** du panneau LAB permet de comparer en direct.
-- **Sous CPU contraint** (×4, proxy d'un mobile milieu de gamme) : 40,5 fps — le meilleur des trois démos qui reposent sur le processeur. Les boucles se mettent déjà en pause hors écran ; il faudrait alléger le glow pour viser le 60 fps mobile.
+- **Sous CPU contraint** (×4, proxy d'un mobile milieu de gamme) : 37,2 fps — le meilleur des trois démos qui reposent sur le processeur. Les boucles se mettent déjà en pause hors écran ; il faudrait alléger le glow pour viser le 60 fps mobile.
 - Chargement quasi instantané malgré tout : aucune texture, aucun modèle, aucun WASM.
 
 ## Facilité d'animation et de personnalisation

@@ -34,11 +34,16 @@
     .lab-dock {
       position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); right: 12px; z-index: 9999;
       width: 194px; display: flex; flex-direction: column; gap: 8px;
+      filter: drop-shadow(0 18px 30px rgba(0, 0, 0, .45));
+      /* Le dock passe par-dessus la page : au repos il s'efface pour laisser lire ce qu'il couvre */
+      opacity: .55; transition: opacity .25s var(--ease, ease);
       max-height: calc(100vh - 24px); overflow-y: auto; overscroll-behavior: contain;
       font: 500 11px/1.35 var(--font-mono, ui-monospace, monospace); letter-spacing: .04em;
       color: var(--ink, #d6f6ff); scrollbar-width: thin;
       scrollbar-color: color-mix(in srgb, var(--c-starter, #3ff0ff) 45%, transparent) transparent;
     }
+    .lab-dock:hover, .lab-dock:focus-within, .lab-dock[data-collapsed] { opacity: 1; }
+    @media (hover: none) { .lab-dock { opacity: 1; } }
     .lab-dock::-webkit-scrollbar { width: 6px; }
     .lab-dock::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--c-starter, #3ff0ff) 45%, transparent); }
     .lab-dock[data-collapsed] .dock-panel:not(.dock-panel--handle) { display: none; }
