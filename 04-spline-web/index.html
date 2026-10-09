@@ -6,11 +6,12 @@
 <title>04 · Web Component — Offres Wireframe HUD</title>
 <meta name="description" content="Prototype 04 du lab IllustrationWireframe : la même section d'offres via un Web Component autonome <wire-rocket>, plus le chemin d'intégration Spline.">
 <link rel="icon" href="data:,">
-<script>var h=document.documentElement;h.classList.add('js');try{var t=localStorage.getItem('lab-theme');if(t)h.dataset.theme=t;var a=localStorage.getItem('lab-art');if(a)h.dataset.art=a}catch(e){}</script>
+<script>var h=document.documentElement;h.classList.add('js');try{var t=localStorage.getItem('lab-theme');if(t)h.dataset.theme=t;var a=localStorage.getItem('lab-art');if(a){h.dataset.art=a;h.dataset.theme='light';var f=document.createElement('link');f.rel='stylesheet';f.dataset.artFonts='';f.href='https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap';document.head.appendChild(f)}}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <link rel="stylesheet" href="../_shared/offers.css">
+<link rel="stylesheet" href="../_shared/art-direction.css">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>

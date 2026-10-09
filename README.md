@@ -41,7 +41,8 @@ IllustrationWireframe/
 │   ├── theme.js          thème clair / auto / sombre
 │   ├── layers.js         les 7 calques du visuel
 │   ├── accents.js        couleur principale de chaque offre
-│   ├── art-direction.js  l'interrupteur « DA PropulSite » (couleurs + typo de la marque)
+│   ├── art-direction.css l'habillage de la DA PropulSite (couleurs + typo de la marque)
+│   ├── art-direction.js  l'interrupteur, le verrouillage des réglages qu'elle impose
 │   └── results.js        résultats générés par npm run measure (lus par le dashboard)
 └── tools/
     ├── serve.mjs         serveur statique sans dépendance
@@ -149,35 +150,51 @@ Là encore, chaque technologie s'adapte à sa manière :
 
 Un interrupteur dans le dock rhabille **tout le lab** — les quatre démos, le banc de layouts et
 ce tableau de bord — avec l'identité de [propulsitetoulouse.website](https://www.propulsitetoulouse.website).
-Rien n'est inventé : les valeurs sont relevées sur le site.
 
 ![Le prototype 01 sous la DA PropulSite](docs/art-propulsite.png)
 
-| | Relevé |
+C'est une **couche mince**, et c'est volontaire : la DA ne fait que réécrire des jetons CSS.
+Tout le lab est déjà piloté par eux — cartes, CTA, jauges, et jusqu'aux traits du SVG qui sont
+en `currentColor`. Le rendu tient donc dans une feuille, `_shared/art-direction.css` ; le module
+JS ne pose que l'attribut, verrouille deux panneaux et prévient les démos une fois.
+
+| | Relevé sur le site |
 |---|---|
-| Couleurs | `#fbbb21` (jaune marque) · `#fccd5f` `#fde09b` `#fef2d7` `#fef9eb` (rampe) · `#1e2122` (encre) · `#011a22` (encre froide) · `#f8f8f8` `#f3f4f6` (fonds) · blanc |
-| Typographie | **Playfair Display** 700 pour les titres · **Outfit** 300-600 pour tout le reste |
-| Formes | boutons jaunes pleins, rayon 8 px · cartes blanches à filet, rayon 12 px |
+| Couleurs | `#fbbb21` (jaune marque) · `#fccd5f` `#fde09b` `#fef2d7` `#fef9eb` (rampe) · `#1e2122` (encre) · `#f8f8f8` `#f3f4f6` (fonds) · blanc |
+| Typographie | **Playfair Display** 700 pour les titres · **Outfit** 300-600 pour le reste |
+| Formes | boutons jaunes pleins, rayon 8 px · cartes blanches, rayon 12 px |
 | Fond | papier blanc et constellation grise |
 
-Deux choses ne se traduisent pas telles quelles, parce que la marque et le lab ne comptent pas
-pareil. Les deux arbitrages sont dans `_shared/art-direction.js`, en commentaire :
+Les trois offres suivent la **rampe jaune** (`#fccd5f` · `#fbbb21` · `#c07d00`) : la marque n'a
+qu'un accent, et la gamme se lit par l'intensité. Elles restent dans les tons moyens exprès —
+une offre à l'encre noircissait les aplats translucides du visuel (cône d'hologramme, fumée) que
+le thème clair gère très bien en teintes moyennes.
 
-1. **Le lab code chaque offre par une couleur, la marque n'a qu'un accent.** La gamme se déroule
-   donc sur un axe **encre → jaune → ambre** (`#1e2122` · `#fbbb21` · `#c07d00`) : l'offre
-   recommandée porte le jaune de la marque, exactement comme le CTA du site.
-2. **Le vocabulaire du HUD ne se traduit pas sur du papier.** Le halo néon disparaît, le cône
-   d'hologramme tombe à 16 % d'opacité (à l'encre, c'était une boîte grise), la fumée à 26 %
-   (c'était un pâté), et le trait s'épaissit un peu — le jaune de la marque est clair, il ne tient
-   pas en cheveu sur du blanc.
+La DA pose aussi `data-theme="light"` : tout ce que le thème clair sait déjà faire — couper le
+halo néon, épaissir le trait, remonter les lignes cachées — s'applique sans être réécrit. Et
+puisque le site est clair, elle **verrouille** les deux réglages qui la contrediraient, Thème et
+Couleurs, grisés avec un mot d'explication. Les calques, le compteur et le panneau Lab restent
+libres : ils ne touchent pas à l'identité.
 
-Le site est clair : **la DA force donc le thème clair et verrouille** les deux réglages qui la
-contrediraient — Thème et Couleurs, grisés avec un mot d'explication tant qu'elle est active.
-C'est tout l'intérêt d'une direction artistique : pendant qu'elle est là, c'est elle qui décide.
-Les calques, le compteur et le panneau Lab restent libres, ils ne touchent pas à l'identité.
+### Ce que le premier jet a coûté
 
-Les polices ne sont chargées qu'à la première activation, et le choix est mémorisé : l'attribut
-est reposé par le script de tête avant le premier rendu, donc pas de clignotement au chargement.
+La version initiale injectait sa feuille en JavaScript et provoquait trois défauts visibles.
+Le relevé au chargement les a tous datés :
+
+| Symptôme | Cause | Correction |
+|---|---|---|
+| La page vire de couleur ~250 ms après l'affichage | La feuille était **injectée par le JS**, donc le premier rendu utilisait encore la palette du lab | Une vraie feuille chargée dans le `<head>` avec les autres |
+| Les titres changent de police ~550 ms | Les polices n'étaient demandées **qu'au montage**, après `DOMContentLoaded` | Le script de tête les demande dès qu'il voit la DA active |
+| Les visuels sautent | **Quatre `themechange` en 7 ms** (accent, thème, accent, art) : Canvas et WebGL se reteintaient quatre fois | Un seul événement, et `LabAccents.suspend()` se tait quand il n'a rien à retirer |
+
+S'y ajoutait un piège de spécificité, invisible à l'œil et net au calcul : `:root[data-theme="light"]`
+pèse **(0,2,0)** — `:root` est une pseudo-classe — alors que `html[data-art="propulsite"]` ne pèse
+que (0,1,1). La typo passait, les couleurs non. D'où le `html:root[data-art="propulsite"]` de la
+feuille, qui pèse (0,2,1).
+
+Dernier écueil : `theme.js` réappliquait le thème mémorisé après le script de tête et rallumait
+le néon sur fond papier. Il ne réécrit plus un attribut déjà posé — l'éteindre rend à
+l'utilisateur son thème et ses couleurs exactement comme il les avait laissés.
 
 ## Comparatif mesuré
 

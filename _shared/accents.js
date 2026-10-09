@@ -150,6 +150,9 @@
       const next = !!value;
       if (next === suspended) return;
       suspended = next;
+      // Sans surcharge à retirer ni à remettre, rien ne change : inutile de
+      // réveiller les démos qui peignent pour un événement sans effet.
+      if (!Object.keys(custom).length) return;
       apply({ persist: false });
     },
   };

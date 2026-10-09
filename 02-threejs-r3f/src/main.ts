@@ -12,6 +12,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { Pass } from 'three/addons/postprocessing/Pass.js';
 import { BUILDERS, type SceneState, type Tier, type View } from './scenes';
 import '../../_shared/offers.css';
+import '../../_shared/art-direction.css';
 import './style.css';
 import '../../_shared/dock.js';
 import '../../_shared/perf-hud.js';

@@ -106,7 +106,10 @@
     }
   });
 
-  if (stored()) root.dataset.theme = stored();
+  // Filet de sécurité si le script de tête n'a pas tourné. On ne réécrit jamais
+  // un attribut déjà posé : il peut venir d'une direction artistique qui impose
+  // son thème, et l'écraser ici rallumerait le néon sur un fond papier.
+  if (stored() && !root.dataset.theme) root.dataset.theme = stored();
   if (document.body) mount();
   else addEventListener('DOMContentLoaded', mount, { once: true });
 
