@@ -41,6 +41,7 @@ IllustrationWireframe/
 │   ├── theme.js          thème clair / auto / sombre
 │   ├── layers.js         les 7 calques du visuel
 │   ├── accents.js        couleur principale de chaque offre
+│   ├── art-direction.js  l'interrupteur « DA PropulSite » (couleurs + typo de la marque)
 │   └── results.js        résultats générés par npm run measure (lus par le dashboard)
 └── tools/
     ├── serve.mjs         serveur statique sans dépendance
@@ -78,6 +79,7 @@ propre mémoire d'ouverture : déplié sur grand écran, replié sur petit.
 | Panneau | Ce qu'il fait |
 |---|---|
 | **Perf** | FPS instantané, moyenne, 1 % low, p95, poids transféré |
+| **Direction artistique** | Bascule tout le lab dans la DA de PropulSite (voir plus bas) |
 | **Thème** | Clair · Auto (suit le système) · Sombre |
 | **Couleurs** | Une couleur principale par offre, modifiable en direct |
 | **Calques** | Allume / éteint les 9 éléments de la carte |
@@ -143,6 +145,40 @@ Là encore, chaque technologie s'adapte à sa manière :
 - **04 Web Component** : il hérite de la couleur de sa carte et écoute `themechange` — déposé dans
   une page tierce, il suit le thème de son hôte.
 
+## La direction artistique PropulSite
+
+Un interrupteur dans le dock rhabille **tout le lab** — les quatre démos, le banc de layouts et
+ce tableau de bord — avec l'identité de [propulsitetoulouse.website](https://www.propulsitetoulouse.website).
+Rien n'est inventé : les valeurs sont relevées sur le site.
+
+![Le prototype 01 sous la DA PropulSite](docs/art-propulsite.png)
+
+| | Relevé |
+|---|---|
+| Couleurs | `#fbbb21` (jaune marque) · `#fccd5f` `#fde09b` `#fef2d7` `#fef9eb` (rampe) · `#1e2122` (encre) · `#011a22` (encre froide) · `#f8f8f8` `#f3f4f6` (fonds) · blanc |
+| Typographie | **Playfair Display** 700 pour les titres · **Outfit** 300-600 pour tout le reste |
+| Formes | boutons jaunes pleins, rayon 8 px · cartes blanches à filet, rayon 12 px |
+| Fond | papier blanc et constellation grise |
+
+Deux choses ne se traduisent pas telles quelles, parce que la marque et le lab ne comptent pas
+pareil. Les deux arbitrages sont dans `_shared/art-direction.js`, en commentaire :
+
+1. **Le lab code chaque offre par une couleur, la marque n'a qu'un accent.** La gamme se déroule
+   donc sur un axe **encre → jaune → ambre** (`#1e2122` · `#fbbb21` · `#c07d00`) : l'offre
+   recommandée porte le jaune de la marque, exactement comme le CTA du site.
+2. **Le vocabulaire du HUD ne se traduit pas sur du papier.** Le halo néon disparaît, le cône
+   d'hologramme tombe à 16 % d'opacité (à l'encre, c'était une boîte grise), la fumée à 26 %
+   (c'était un pâté), et le trait s'épaissit un peu — le jaune de la marque est clair, il ne tient
+   pas en cheveu sur du blanc.
+
+Le site est clair : **la DA force donc le thème clair et verrouille** les deux réglages qui la
+contrediraient — Thème et Couleurs, grisés avec un mot d'explication tant qu'elle est active.
+C'est tout l'intérêt d'une direction artistique : pendant qu'elle est là, c'est elle qui décide.
+Les calques, le compteur et le panneau Lab restent libres, ils ne touchent pas à l'identité.
+
+Les polices ne sont chargées qu'à la première activation, et le choix est mémorisé : l'attribut
+est reposé par le script de tête avant le premier rendu, donc pas de clignotement au chargement.
+
 ## Comparatif mesuré
 
 | | 01 SVG + GSAP | 02 Three.js | 03 Canvas 2D | 04 Web Component |
@@ -158,7 +194,7 @@ Là encore, chaque technologie s'adapte à sa manière :
 | Distribution | markup dans la page | bundle + build | 3 fichiers JS | **1 fichier, 1 tag** |
 
 > Les poids mesurés par le banc incluent l'outillage du lab (dock, thème, calques, couleurs,
-> compteur : 12 Ko gzip) ; la colonne « poids prod » l'exclut, puisqu'il ne part pas en production.
+> compteur, direction artistique : 13,5 Ko gzip) ; la colonne « poids prod » l'exclut, puisqu'il ne part pas en production.
 
 ### Ce que les mesures disent
 

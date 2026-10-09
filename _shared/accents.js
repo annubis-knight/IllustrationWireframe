@@ -47,9 +47,13 @@
     return '#' + m.slice(0, 3).map((n) => Math.round(+n).toString(16).padStart(2, '0')).join('');
   }
 
+  /* Mis en sommeil par une direction artistique : elle impose ses couleurs, les
+     surcharges utilisateur sont retirées du DOM mais conservées pour le retour. */
+  let suspended = false;
+
   function apply({ persist = true } = {}) {
     for (const { key } of TIERS) {
-      if (custom[key]) root.style.setProperty(`--c-${key}`, custom[key]);
+      if (custom[key] && !suspended) root.style.setProperty(`--c-${key}`, custom[key]);
       else root.style.removeProperty(`--c-${key}`);
     }
     if (persist) {
@@ -140,6 +144,13 @@
     reset() {
       custom = {};
       apply();
+    },
+    /** Rend la main à une direction artistique (true), ou la reprend (false). */
+    suspend(value) {
+      const next = !!value;
+      if (next === suspended) return;
+      suspended = next;
+      apply({ persist: false });
     },
   };
 })();
