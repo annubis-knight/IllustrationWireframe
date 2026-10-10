@@ -7,11 +7,11 @@ Elle se lit en trois familles, et elles ne pèsent pas pareil :
 
 1. **01 → 06** — le visuel et le texte **partagent un conteneur** : ils sont voisins.
 2. **07 → 11** — le visuel passe **en fond de section**, l'offre flotte au-dessus. La profondeur.
-3. **12 → 16** — **la carte d'offre prend la vedette**, le visuel redescend au rang d'image
-   d'appoint. C'est la famille la plus proche du besoin réel : une section d'offres est là pour
-   vendre une offre, pas pour exposer une illustration.
+3. **12 → 16** — les offres deviennent des **cartes** et le visuel sort des cartes : il habille
+   la section (bandeau, colonne, fond, débord). C'est la famille la plus proche du besoin réel —
+   une section d'offres est là pour vendre une offre, pas pour exposer une illustration.
 
-![Lignes tarifaires](../docs/layout-pricing.png)
+![Bandeau](../docs/layout-banner.png)
 
 ## Lancer
 
@@ -96,27 +96,27 @@ Trois règles communes à cette famille, dans `css/style.css` :
   concurrentes à deux échelles, c'en est une de trop, et un flou gaussien agrandi 2× coûte cher
   pour un plan qu'on regarde à peine. Le calque « Légendes » du dock n'a donc pas d'effet ici.
 
-## Famille 3 — la carte en vedette, le visuel en appoint
+## Famille 3 — des cartes d'offres, le visuel hors des cartes
 
-Inversion de priorité. Ici le dessin ne porte plus rien : il illustre. C'est la carte qui tient
-le nom, le prix, ce qu'on obtient et le bouton — et c'est elle qu'on vient lire.
+Ici on ne met plus en scène un dessin : on compose une **section d'offres**. Ce qu'on vend tient
+dans des cartes — nom, prix, ce qu'on obtient, un bouton — et le visuel vit **à côté**.
 
-| # | Layout | Le visuel devient | Sélection | Ce qu'on teste |
+| # | Layout | Où vit le visuel | Sélection | Ce qu'on teste |
 |---|---|---|---|---|
-| 12 | Fiche produit | une vignette carrée de 148 px | Onglets dans l'en-tête de la carte | Le réflexe « fiche article » : le plus lisible de la famille, le moins spectaculaire |
-| 13 | Trio dépliant | une image de 17 vh dans la carte ouverte | Clic sur une carte repliée | Les trois offres restent à l'écran ; on compare sans quitter la section |
-| 14 | Carte + sélecteur | un **filigrane** à 12 % derrière le texte | Menu déroulant | Le plus sobre, et le plus facile à tenir dans le temps |
-| 15 | Billet d'embarquement | un **tampon** sur la souche | Trois chips « vol » au-dessus | La perforation sépare ce qu'on lit de ce qu'on achète ; très thématique |
-| 16 | Lignes tarifaires | une **icône** de 76 px en tête de ligne | Les lignes elles-mêmes | Le mètre étalon : le plus efficace pour comparer, le plus froid |
+| 12 | Bandeau | en bandeau sous le titre, pleine largeur | Clic sur une carte | La composition la plus courante d'une page de prix, et la plus facile à faire accepter |
+| 13 | Colonne | une moitié d'écran à gauche, libre | Clic sur une carte | L'image donne le contexte, la colonne de cartes donne le choix |
+| 14 | Cartes sur fond | en fond de section, sous un voile | Clic sur une carte | Le seul où le dessin passe derrière le texte : à surveiller côté contraste |
+| 15 | Débord | derrière la carte, qui le chevauche | Onglets au-dessus de la carte | La profondeur sans jamais mettre le dessin dans la carte |
+| 16 | Lignes tarifaires | à droite du titre, dans l'en-tête | Les lignes elles-mêmes | Le mètre étalon : le plus efficace pour comparer, le plus froid |
 
-Trois règles communes, dans `css/style.css` :
-
-- le visuel ne dépasse jamais **un cinquième** de la hauteur de la carte ;
-- sous 160 px il **perd ses légendes** (`.illu--mini`) : à cette taille, elles ne se lisent plus ;
-- la carte, elle, garde la pleine mesure typographique du lab — c'est elle qu'on vient lire.
+Deux briques communes, dans `js/main.js` : l'**en-tête de section** (`sectionHead`) et la **carte**
+(`offerCard`). Elles sont identiques d'un layout à l'autre, volontairement — sinon on comparerait
+des dessins de cartes au lieu de comparer des mises en page. Une carte ouverte détaille (pitch,
+specs, CTA) ; les deux autres gardent de quoi choisir (argument, prix, « Choisir »).
 
 > Les deux premières familles répondent à « comment mettre en scène un visuel ». Celle-ci répond
-> à « comment vendre une offre ». Si le choix final doit se faire sur un critère, c'est celui-là.
+> à « comment vendre une offre ». Si le choix final doit se faire sur un seul critère, c'est
+> celui-là — et c'est dans cette famille qu'il faut chercher.
 
 ## Changer d'offre
 
@@ -158,9 +158,9 @@ Les seize tiennent en une colonne, mais pas de la même façon — et c'est un b
 | 09 Volets | Les lames restent verticales mais fines : c'est le layout qui perd le plus à la traduction. |
 | 10 Hublot | Le disque monte en haut, le texte s'installe dessous — **celui qui se traduit le mieux**. |
 | 11 Diorama | Les étiquettes passent en rangée, la toile remonte pour ne pas finir derrière la fiche. |
-| 12 · 14 | Rien à négocier : une carte, une colonne. |
-| 13 Trio | Les trois cartes s'empilent, les repliées deviennent des lignes. |
-| 15 Billet | La perforation bascule à l'horizontale, la souche passe dessous. |
+| 12 Bandeau · 14 Fond | Les trois cartes passent en colonne, le visuel garde sa place. |
+| 13 Colonne | Le visuel repasse au-dessus, les cartes dessous. |
+| 15 Débord | Le chevauchement disparaît : visuel puis carte, l'un sous l'autre. |
 | 16 Lignes | Chaque ligne se réorganise en trois rangs : identité, specs, prix + bouton. |
 
 La parallaxe et le pivot n'existent pas au doigt : les deux layouts qui en dépendent (07, 11)

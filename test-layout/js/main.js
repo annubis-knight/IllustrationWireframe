@@ -35,6 +35,33 @@
   const priceBlock = (o, cls = '') => `<p class="price ${cls}"><span>dès</span> <b>${price(o.price)}</b> <span>€ HT</span></p>`;
   const cta = (o) => `<a class="cta" href="#devis">${esc(o.cta)} <span aria-hidden="true">→</span></a>`;
 
+  /* ── Deux briques pour la famille « cartes » ─────────────────────────────
+   * Une section d'offres réelle s'ouvre par un en-tête, pas par une carte ;
+   * et les trois cartes doivent se ressembler d'un layout à l'autre, sinon on
+   * compare des dessins de cartes au lieu de comparer des compositions.
+   * ─────────────────────────────────────────────────────────────────────── */
+  const sectionHead = (o) => `
+    <header class="osec__head">
+      <p class="kicker"><span class="kicker__dot"></span>SYS.OFFRES // Sélection du module</p>
+      <h3 class="osec__title">Choisissez votre <em>trajectoire</em></h3>
+      <p class="osec__lede">Trois configurations pour faire décoller votre présence en ligne.
+        Vous regardez <b>${esc(o.name)}</b>.</p>
+    </header>`;
+
+  /** La carte d'offre. Ouverte, elle détaille ; repliée, elle garde de quoi choisir. */
+  const offerCard = (x, open = false) => `
+    <article class="ocard${open ? ' ocard--open' : ''}" data-tier="${x.tier}"${open ? '' : ` data-pick="${x.tier}"`}>
+      ${open && x.badge ? `<p class="ocard__badge">${esc(x.badge)}</p>` : ''}
+      <p class="eyebrow">${esc(x.code)} · ${esc(open ? x.status : x.stage)}</p>
+      <h3 class="name">${esc(x.name)}</h3>
+      <p class="pitch">${esc(open ? x.pitch : x.argument)}</p>
+      ${open ? `<dl class="specs specs--dense">${specsRows(x)}</dl>` : ''}
+      <div class="ocard__foot">
+        ${priceBlock(x)}
+        ${open ? cta(x) : `<button class="ocard__pick" type="button" data-pick="${x.tier}">Choisir</button>`}
+      </div>
+    </article>`;
+
   /* ── Visuel : injection du SVG + intro « tracé » + boucles légères ──────── */
   function mountVisual(host, tier) {
     host.innerHTML = SVG[tier] || '';
@@ -433,150 +460,99 @@
       },
     },
 
-    /* ═══ Troisième famille : la carte d'offre en vedette ═══════════════════
-     * Les deux premières familles font la part belle au dessin. Ici on inverse :
-     * ce qu'on vend, c'est l'offre. Le visuel redescend au rang d'illustration —
-     * vignette, filigrane, tampon, icône — et c'est la **carte** qui porte la
-     * hiérarchie : nom, prix, ce qu'on obtient, et un bouton.
+    /* ═══ Troisième famille : des cartes d'offres, le visuel hors des cartes ══
+     * Les deux premières familles mettent en scène un dessin. Ici on compose une
+     * vraie **section d'offres** : ce qu'on vend tient dans des cartes — nom, prix,
+     * ce qu'on obtient, un bouton — et le visuel vit **à côté**, en bandeau, en
+     * fond, en colonne ou en débord. Il habille la section, il n'habite pas la carte.
+     *
+     * Deux briques communes, pour que les cinq compositions parlent la même langue :
+     * `sectionHead` (l'en-tête d'une section réelle) et `offerCard` (la carte).
      * ═══════════════════════════════════════════════════════════════════════ */
 
-    /* 12 — Fiche produit : une seule carte, large, au centre. Le visuel tient dans
-     *      une vignette carrée à côté du nom, comme la photo d'une fiche article. */
-    sheet: {
+    /* 12 — Bandeau : l'illustration ouvre la section, les trois cartes dessous. */
+    banner: {
       markup: (o) => `
-        <div class="l-sheet" data-tier="${o.tier}">
-        <article class="l-sheet__card">
-          <header class="l-sheet__head">
-            <div class="l-sheet__thumb" data-visual="mini" aria-hidden="true"></div>
-            <div class="l-sheet__id">
-              <p class="eyebrow">${esc(o.code)} · ${esc(o.stageLong)}</p>
-              <h3 class="name">${esc(o.name)}</h3>
-              <p class="pitch">${esc(o.pitch)}</p>
+        <div class="l-ban osec" data-tier="${o.tier}">
+          ${sectionHead(o)}
+          <div class="l-ban__visual" data-visual="mini" aria-hidden="true"></div>
+          <div class="l-ban__cards">${OFFERS.map((x) => offerCard(x, x.tier === o.tier)).join('')}</div>
+        </div>`,
+    },
+
+    /* 13 — Colonne : le visuel tient la moitié gauche, les cartes s'empilent à droite. */
+    aside: {
+      markup: (o) => `
+        <div class="l-aside osec" data-tier="${o.tier}">
+          <div class="l-aside__visual" data-visual aria-hidden="true"></div>
+          <div class="l-aside__col">
+            ${sectionHead(o)}
+            <div class="l-aside__cards">${OFFERS.map((x) => offerCard(x, x.tier === o.tier)).join('')}</div>
+          </div>
+        </div>`,
+    },
+
+    /* 14 — Cartes posées sur le visuel : il passe en fond de section, atténué, et
+     *      les trois cartes flottent dessus. La carte reste une carte. */
+    onbg: {
+      markup: (o) => `
+        <div class="l-onbg osec" data-tier="${o.tier}">
+          <div class="l-onbg__bg" data-visual="cover" aria-hidden="true"></div>
+          <div class="l-onbg__veil" aria-hidden="true"></div>
+          <div class="l-onbg__inner">
+            ${sectionHead(o)}
+            <div class="l-onbg__cards">${OFFERS.map((x) => offerCard(x, x.tier === o.tier)).join('')}</div>
+          </div>
+        </div>`,
+    },
+
+    /* 15 — Débord : une seule carte, et le visuel qui dépasse derrière elle.
+     *      Le chevauchement donne la profondeur sans mettre le dessin dans la carte. */
+    overlap: {
+      markup: (o) => `
+        <div class="l-over osec" data-tier="${o.tier}">
+          ${sectionHead(o)}
+          <div class="l-over__stage">
+            <div class="l-over__visual" data-visual aria-hidden="true"></div>
+            <div class="l-over__panel">
+              <div class="seg" role="tablist" aria-label="Choisir une offre">
+                ${OFFERS.map((x) => `<button role="tab" type="button" data-pick="${x.tier}" aria-selected="${x.tier === o.tier}">${esc(x.name)}</button>`).join('')}
+              </div>
+              ${offerCard(o, true)}
             </div>
-            <div class="seg seg--v" role="tablist" aria-label="Choisir une offre">
-              ${OFFERS.map((x) => `<button role="tab" type="button" data-pick="${x.tier}" aria-selected="${x.tier === o.tier}">${esc(x.name)}</button>`).join('')}
-            </div>
+          </div>
+        </div>`,
+    },
+
+    /* 16 — Lignes tarifaires : l'en-tête porte le visuel à droite, et les trois
+     *      offres s'alignent en bandeaux dessous. Le réflexe « page de prix ». */
+    rows: {
+      markup: (o) => `
+        <div class="l-rows osec" data-tier="${o.tier}">
+          <header class="l-rows__head">
+            ${sectionHead(o)}
+            <div class="l-rows__visual" data-visual="mini" aria-hidden="true"></div>
           </header>
-          <div class="l-sheet__grid">
-            <dl class="specs">${specsRows(o)}</dl>
-            <aside class="l-sheet__buy">
-              <span class="status"><i></i>${esc(o.status)}</span>
-              ${priceBlock(o)}
-              ${cta(o)}
-              <p class="l-sheet__note">${esc(o.argument)}</p>
-            </aside>
-          </div>
-        </article>
-        </div>`,
-    },
-
-    /* 13 — Trio dépliant : les trois cartes restent à l'écran, celle qu'on choisit
-     *      s'élargit et se remplit. On compare sans quitter la section. */
-    trio: {
-      markup: (o) => `
-        <div class="l-trio" data-tier="${o.tier}">
-          ${OFFERS.map((x) => (x.tier === o.tier ? `
-            <article class="l-trio__card l-trio__card--open" data-tier="${x.tier}">
-              <p class="eyebrow">${esc(x.code)} · ${esc(x.status)}</p>
-              <h3 class="name">${esc(x.name)}</h3>
-              <div class="l-trio__visual" data-visual="mini" aria-hidden="true"></div>
-              <p class="pitch">${esc(x.pitch)}</p>
-              <dl class="specs specs--dense">${specsRows(x)}</dl>
-              <div class="l-trio__foot">${priceBlock(x)}${cta(x)}</div>
-            </article>` : `
-            <button class="l-trio__card l-trio__card--shut" type="button" data-pick="${x.tier}" data-tier="${x.tier}"
-                    aria-expanded="false" aria-label="Voir le détail de l'offre ${esc(x.name)}">
-              <span class="eyebrow">${esc(x.code)}</span>
-              <span class="name">${esc(x.name)}</span>
-              <span class="l-trio__price">${price(x.price)} € HT</span>
-              <span class="l-trio__more">Voir le détail</span>
-            </button>`)).join('')}
-        </div>`,
-    },
-
-    /* 14 — Carte + sélecteur de formule : le menu déroulant des pages tarifaires.
-     *      Le visuel passe en filigrane derrière le texte, il illustre sans parler. */
-    picker: {
-      markup: (o) => `
-        <div class="l-pick" data-tier="${o.tier}">
-          <div class="l-pick__bar">
-            <label for="pick-plan">Formule</label>
-            <select id="pick-plan" data-plan>
-              ${OFFERS.map((x) => `<option value="${x.tier}"${x.tier === o.tier ? ' selected' : ''}>${esc(x.name)} — ${price(x.price)} € HT</option>`).join('')}
-            </select>
-            <p class="l-pick__hint">3 formules · sans engagement</p>
-          </div>
-          <article class="l-pick__card">
-            <div class="l-pick__mark" data-visual="mini" aria-hidden="true"></div>
-            <div class="l-pick__body">
-              <p class="eyebrow">${esc(o.stageLong)}</p>
-              <h3 class="name name--xl">${esc(o.name)}</h3>
-              <p class="pitch">${esc(o.pitch)}</p>
-              <dl class="specs">${specsRows(o)}</dl>
-              <div class="l-pick__foot">${priceBlock(o)}${cta(o)}</div>
-            </div>
-          </article>
-        </div>`,
-      wire(root, setOffer) {
-        root.querySelector('[data-plan]').addEventListener('change', (e) => setOffer(e.target.value));
-      },
-    },
-
-    /* 15 — Billet d'embarquement : la carte se coupe en deux, détail à gauche,
-     *      souche détachable à droite avec le prix. Le visuel sert de tampon. */
-    ticket: {
-      markup: (o) => `
-        <div class="l-tick" data-tier="${o.tier}">
-          <nav class="l-tick__flights" role="tablist" aria-label="Choisir une offre">
-            ${OFFERS.map((x) => `
-              <button role="tab" type="button" data-pick="${x.tier}" data-tier="${x.tier}" aria-selected="${x.tier === o.tier}">
-                <b>${esc(x.name)}</b><span>${price(x.price)} €</span>
-              </button>`).join('')}
-          </nav>
-          <article class="l-tick__card">
-            <div class="l-tick__main">
-              <header class="l-tick__head">
-                <p class="eyebrow">${esc(o.code)} · ${esc(o.stageLong)}</p>
-                <span class="status"><i></i>${esc(o.status)}</span>
-              </header>
-              <h3 class="name name--xl">${esc(o.name)}</h3>
-              <p class="pitch">${esc(o.argument)}</p>
-              <dl class="specs specs--dense l-tick__specs">${specsRows(o)}</dl>
-            </div>
-            <div class="l-tick__stub">
-              <div class="l-tick__stamp" data-visual="mini" aria-hidden="true"></div>
-              <p class="l-tick__code">${esc(o.code)}</p>
-              ${priceBlock(o)}
-              ${cta(o)}
-            </div>
-          </article>
-        </div>`,
-    },
-
-    /* 16 — Lignes tarifaires : les trois offres en bandeaux empilés, comme une
-     *      vraie page de prix. Le visuel se réduit à une icône en tête de ligne. */
-    pricing: {
-      markup: (o) => `
-        <div class="l-row" data-tier="${o.tier}">
-          ${OFFERS.map((x) => {
+          <div class="l-rows__list">
+            ${OFFERS.map((x) => {
     const on = x.tier === o.tier;
     return `
-            <article class="l-row__item${on ? ' is-on' : ''}" data-tier="${x.tier}">
-              <div class="l-row__icon"${on ? ' data-visual="mini"' : ''} aria-hidden="true">${on ? '' : `<span>${esc(String(x.level))}</span>`}</div>
-              <div class="l-row__id">
-                <p class="eyebrow">${esc(x.code)} · ${esc(x.stage)}</p>
-                <h3 class="name">${esc(x.name)}</h3>
-                <p class="pitch">${esc(on ? x.pitch : x.argument)}</p>
-              </div>
-              <ul class="chips chips--left l-row__specs">
-                ${x.specs.slice(0, on ? 5 : 3).map(([k, v]) => `<li><span>${esc(k)}</span> ${esc(v)}</li>`).join('')}
-              </ul>
-              <div class="l-row__buy">
-                ${priceBlock(x)}
-                ${on ? cta(x) : `<button class="l-row__choose" type="button" data-pick="${x.tier}">Choisir</button>`}
-              </div>
-            </article>`;
+              <article class="l-rows__item${on ? ' is-on' : ''}" data-tier="${x.tier}"${on ? '' : ` data-pick="${x.tier}"`}>
+                <div class="l-rows__id">
+                  <p class="eyebrow">${esc(x.code)} · ${esc(x.stage)}</p>
+                  <h3 class="name">${esc(x.name)}</h3>
+                  <p class="pitch">${esc(on ? x.pitch : x.argument)}</p>
+                </div>
+                <ul class="chips chips--left">
+                  ${x.specs.slice(0, on ? 5 : 3).map(([k, v]) => `<li><span>${esc(k)}</span> ${esc(v)}</li>`).join('')}
+                </ul>
+                <div class="l-rows__buy">
+                  ${priceBlock(x)}
+                  ${on ? cta(x) : `<button class="ocard__pick" type="button" data-pick="${x.tier}">Choisir</button>`}
+                </div>
+              </article>`;
   }).join('')}
+          </div>
         </div>`,
     },
   };

@@ -57,8 +57,8 @@ Chaque démo a son `README.md` : rendu obtenu, poids / FPS, facilité d'animatio
 En complément, le [banc de layouts](test-layout/) ne compare plus des technologies mais des
 **mises en page** : une seule offre à l'écran et seize façons de la présenter, en trois familles —
 six où le visuel est **à côté** du texte, cinq où il passe **en fond de section** et où l'offre
-flotte au-dessus, et cinq où **la carte d'offre prend la vedette** et le visuel redescend au rang
-d'image d'appoint (vignette, filigrane, tampon, icône). Cette dernière famille est la plus proche
+flotte au-dessus, et cinq où les offres deviennent des **cartes** et où le visuel sort des cartes pour
+habiller la section (bandeau, colonne, fond, débord). Cette dernière famille est la plus proche
 du besoin réel. Chaque section y démarre éteinte et ne charge son visuel qu'à la demande.
 
 ## Le dock du lab

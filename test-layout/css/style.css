@@ -592,195 +592,159 @@
 /* ════════════════════════════════════════════════════════════════════════════
  * FAMILLE « CARTES » (12 → 16)
  *
- * Inversion de priorité : ce qu'on vend, c'est l'offre. Le dessin redescend au
- * rang d'illustration — vignette, filigrane, tampon, icône — et c'est la carte
- * qui porte la hiérarchie : nom, prix, ce qu'on obtient, un bouton.
+ * Ici on ne met plus en scène un dessin : on compose une **section d'offres**.
+ * Ce qu'on vend tient dans des cartes — nom, prix, ce qu'on obtient, un bouton —
+ * et le visuel vit **hors des cartes** : en bandeau, en colonne, en fond, en
+ * débord. Il habille la section, il n'habite pas la carte.
  *
- * Trois règles communes :
- *   · le visuel ne dépasse jamais ~20 % de la hauteur de la carte ;
- *   · sous 160 px il perd ses légendes — elles ne se lisent plus ;
- *   · la carte, elle, garde la pleine mesure typographique du lab.
+ * Deux briques communes pour que les cinq compositions parlent la même langue :
+ * l'en-tête de section (`.osec__*`) et la carte (`.ocard`). Ce qui change d'un
+ * layout à l'autre, c'est la **composition**, pas le dessin des cartes — sinon
+ * on comparerait des cartes au lieu de comparer des mises en page.
  * ════════════════════════════════════════════════════════════════════════════ */
-.l-sheet, .l-trio, .l-pick, .l-tick, .l-row {
+.l-ban, .l-aside, .l-onbg, .l-over, .l-rows {
   min-height: 100vh;
   min-height: 100svh;
   display: grid;
   align-content: center;
+  gap: clamp(16px, 3vh, 36px);
 }
-[data-visual="mini"] { display: grid; place-items: center; color: var(--accent); }
-/* Comme `.illu--bg` : on repasse devant `[data-visual] .illu { height: auto }` */
-[data-visual] .illu--mini { width: 100%; height: 100%; }
+
+/* ── L'en-tête d'une vraie section ───────────────────────────────────────── */
+.osec__head { max-width: 64ch; }
+.osec__title {
+  margin: 0; font: 700 clamp(1.7rem, 3.2vw, 2.8rem)/1.05 var(--font-display);
+  letter-spacing: .03em; text-transform: uppercase; color: var(--title);
+}
+.osec__title em {
+  font-style: normal;
+  background: linear-gradient(90deg, var(--c-starter), var(--c-booster) 55%, var(--c-nitro));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.osec__lede { margin: 12px 0 0; color: var(--ink-dim); font-size: 13.5px; }
+.osec__lede b { color: var(--ink); font-weight: 600; }
+
+/* ── La carte d'offre ────────────────────────────────────────────────────── */
+.ocard {
+  position: relative; display: flex; flex-direction: column; gap: 10px;
+  padding: clamp(16px, 1.8vw, 24px);
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+  background: var(--panel);
+  transition: border-color .3s var(--ease), transform .3s var(--ease), box-shadow .3s var(--ease);
+}
+.ocard:not(.ocard--open) { cursor: pointer; }
+.ocard:not(.ocard--open):hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  transform: translateY(-3px);
+}
+.ocard--open {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 8%, transparent), var(--panel) 45%), var(--panel);
+  box-shadow: 0 26px 50px -34px #000, inset 0 0 80px -56px var(--accent);
+}
+.ocard .eyebrow, .ocard .name, .ocard .pitch { margin: 0; }
+.ocard .name { font-size: clamp(1.35rem, 2.1vw, 1.9rem); }
+.ocard .pitch { font-size: 12.5px; max-width: 44ch; }
+.ocard .specs { margin: 6px 0 0; max-width: none; }
+.ocard__foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+  margin-top: auto; padding-top: 12px;
+}
+.ocard__badge {
+  position: absolute; top: 0; right: clamp(12px, 2vw, 20px); transform: translateY(-50%); margin: 0;
+  padding: 4px 12px; font-size: 9.5px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase;
+  white-space: nowrap; color: var(--on-accent); background: var(--accent);
+}
+.ocard__pick {
+  font: 600 10.5px/1 var(--font-mono); letter-spacing: .16em; text-transform: uppercase;
+  color: var(--ink-dim); background: transparent; border: 1px solid var(--line);
+  padding: 11px 15px; cursor: pointer; transition: border-color .3s, color .3s;
+}
+.ocard:hover .ocard__pick, .l-rows__item:hover .ocard__pick { border-color: var(--accent); color: var(--ink); }
+
+/* Les visuels libres : ils remplissent leur boîte en hauteur, sans cadre */
+.l-ban__visual, .l-aside__visual, .l-over__visual, .l-rows__visual { display: grid; place-items: center; }
+.l-ban__visual .illu, .l-aside__visual .illu, .l-over__visual .illu, .l-rows__visual .illu {
+  width: auto; height: 100%; max-width: 100%;
+}
 [data-visual] .illu--mini [data-layer="labels"] { display: none; }
 
-/* ── 12 · Fiche produit ──────────────────────────────────────────────────── */
-.l-sheet__card {
-  width: min(100%, 1120px); margin-inline: auto;
-  padding: clamp(20px, 2.6vw, 38px);
-  display: grid; gap: clamp(18px, 2.4vw, 30px);
-  border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent); background: var(--panel);
-}
-.l-sheet__head { display: grid; grid-template-columns: 148px minmax(0, 1fr) auto; gap: clamp(16px, 2.4vw, 32px); align-items: start; }
-.l-sheet__thumb {
-  width: 148px; aspect-ratio: 1;
-  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
-  background: color-mix(in srgb, var(--accent) 6%, transparent);
-}
-.l-sheet__id .pitch { margin-bottom: 0; max-width: 52ch; }
-.seg--v { flex-direction: column; align-items: stretch; }
-.l-sheet__grid {
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, 320px); gap: clamp(20px, 3vw, 44px);
-  align-items: start; padding-top: clamp(16px, 2.2vw, 26px); border-top: 1px solid var(--line);
-}
-.l-sheet__grid .specs { margin: 0; max-width: none; }
-.l-sheet__buy {
-  display: grid; gap: 14px; justify-items: start; padding: clamp(16px, 2vw, 22px);
-  background: color-mix(in srgb, var(--accent) 6%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
-}
-.l-sheet__note { margin: 0; font-size: 11.5px; line-height: 1.5; color: var(--ink-faint); }
+/* ── 12 · Bandeau : le visuel ouvre la section, les cartes suivent ───────── */
+.l-ban { width: min(100%, 1340px); margin-inline: auto; }
+.l-ban__visual { height: clamp(140px, 23vh, 270px); }
+.l-ban__cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 1.6vw, 22px); align-items: stretch; }
 
-/* ── 13 · Trio dépliant ──────────────────────────────────────────────────── */
-/* Les cartes prennent la hauteur de la plus haute, pas celle de la section :
-   étirées sur 100 vh, l'ouverte se creusait d'un grand vide au milieu. */
-.l-trio { grid-auto-flow: column; gap: clamp(10px, 1.4vw, 18px); align-items: stretch; align-content: center;
+/* ── 13 · Colonne : visuel à gauche, cartes empilées à droite ────────────── */
+.l-aside { grid-template-columns: minmax(0, 44%) minmax(0, 1fr); gap: clamp(24px, 4vw, 72px); align-items: center;
   width: min(100%, 1400px); margin-inline: auto; }
-.l-trio__card { padding: clamp(16px, 2vw, 26px); border: 1px solid var(--line); background: var(--panel); text-align: left; }
-.l-trio__card--open {
-  display: flex; flex-direction: column;
-  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, transparent), var(--panel) 40%), var(--panel);
-}
-.l-trio__card--shut {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 8px; cursor: pointer;
-  color: var(--ink-dim); transition: border-color .3s var(--ease), color .3s;
-}
-.l-trio__card--shut:hover { border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: var(--ink); }
-.l-trio__card--shut .name { margin: 0; font-size: clamp(1.2rem, 1.8vw, 1.7rem); }
-.l-trio__card--shut .eyebrow { margin: 0; }
-.l-trio__price { font: 600 1.15rem/1 var(--font-display); color: var(--title); font-variant-numeric: tabular-nums; }
-.l-trio__more { margin-top: auto; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
-.l-trio__visual { height: clamp(110px, 17vh, 190px); margin: 2px 0 16px; }
-.l-trio__card--open .specs { max-width: none; }
-.l-trio__foot { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: auto; }
-/* Les colonnes : la carte ouverte prend la place, les fermées restent des tranches */
-.l-trio { grid-template-columns: repeat(3, auto); }
-.l-trio__card--open { min-width: 0; }
-.l-trio { grid-auto-columns: minmax(0, 1fr); }
-.l-trio__card--shut { width: clamp(140px, 15vw, 220px); }
+.l-aside__visual { height: min(66vh, 600px); }
+.l-aside__col { display: grid; gap: clamp(16px, 2.4vw, 26px); }
+.l-aside__cards { display: grid; gap: clamp(10px, 1.2vw, 14px); }
+.l-aside .ocard .pitch { max-width: 52ch; }
 
-/* ── 14 · Carte + sélecteur de formule ───────────────────────────────────── */
-.l-pick { justify-items: center; gap: clamp(14px, 2vw, 24px); }
-.l-pick__bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; width: min(100%, 900px); }
-.l-pick__bar label { font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
-.l-pick__bar select {
-  font: 600 13px var(--font-mono); color: var(--ink); background: var(--panel-solid);
-  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); padding: 11px 14px; cursor: pointer;
+/* ── 14 · Cartes posées sur le visuel ────────────────────────────────────── */
+.l-onbg { position: relative; overflow: hidden; border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent); }
+.l-onbg__bg { position: absolute; inset: 4% 0; }
+.l-onbg__veil {
+  position: absolute; inset: 0;
+  background: radial-gradient(120% 90% at 50% 45%, color-mix(in srgb, var(--bg) 64%, transparent), color-mix(in srgb, var(--bg) 90%, transparent) 72%);
 }
-.l-pick__bar select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.l-pick__hint { margin: 0 0 0 auto; font-size: 11px; color: var(--ink-faint); }
-.l-pick__card {
-  position: relative; overflow: hidden; width: min(100%, 900px); padding: clamp(20px, 3vw, 40px);
-  border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent); background: var(--panel);
+.l-onbg__inner {
+  position: relative; display: grid; gap: clamp(18px, 3vh, 34px); justify-items: center; text-align: center;
+  padding: clamp(22px, 4vw, 54px);
 }
-/* Le filigrane : présent, mais il ne doit jamais disputer la lecture */
-.l-pick__mark {
-  position: absolute; right: -8%; top: 50%; transform: translateY(-50%);
-  width: min(56%, 440px); aspect-ratio: 400 / 420; opacity: .12; pointer-events: none;
+.l-onbg__cards {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 1.6vw, 22px);
+  width: min(100%, 1240px); text-align: left;
 }
-.l-pick__body { position: relative; max-width: 56ch; }
-.l-pick__foot { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+/* Posée sur un dessin, la carte a besoin d'un fond franc pour rester lisible */
+.l-onbg .ocard { background: color-mix(in srgb, var(--panel-solid) 88%, transparent); backdrop-filter: blur(8px); }
+.l-onbg .ocard--open { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 10%, transparent), color-mix(in srgb, var(--panel-solid) 92%, transparent) 45%); }
 
-/* ── 15 · Billet d'embarquement ──────────────────────────────────────────── */
-.l-tick { justify-items: center; gap: clamp(12px, 1.8vw, 20px); }
-.l-tick__flights { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-.l-tick__flights button {
-  display: grid; gap: 3px; padding: 9px 18px; cursor: pointer; text-align: center;
-  background: var(--panel); border: 1px solid var(--line); color: var(--ink-dim);
-  transition: border-color .3s, color .3s, background .3s;
-}
-.l-tick__flights button b { font: 600 12px/1 var(--font-display); letter-spacing: .1em; text-transform: uppercase; }
-.l-tick__flights button span { font-size: 10.5px; font-variant-numeric: tabular-nums; }
-.l-tick__flights button[aria-selected="true"] {
-  border-color: var(--accent); color: var(--ink);
-  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
-}
-.l-tick__card {
-  position: relative; display: grid; grid-template-columns: minmax(0, 1fr) clamp(230px, 26%, 310px);
-  width: min(100%, 1060px);
-  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); background: var(--panel);
-}
-.l-tick__main { padding: clamp(20px, 2.6vw, 34px); }
-.l-tick__head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.l-tick__specs { columns: 2; column-gap: clamp(20px, 3vw, 40px); max-width: none; margin-bottom: 0; }
-.l-tick__specs div { break-inside: avoid; }
-.l-tick__stub {
-  position: relative; display: grid; gap: 12px; align-content: center; justify-items: center; text-align: center;
-  padding: clamp(20px, 2.6vw, 30px);
-  border-left: 2px dashed color-mix(in srgb, var(--accent) 38%, transparent);
-  background: color-mix(in srgb, var(--accent) 6%, transparent);
-}
-/* Les encoches de la perforation : deux trous à la couleur du fond de page */
-.l-tick__stub::before, .l-tick__stub::after {
-  content: ""; position: absolute; left: -11px; width: 20px; height: 20px; border-radius: 50%;
-  background: var(--bg); border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
-}
-.l-tick__stub::before { top: -11px; }
-.l-tick__stub::after { bottom: -11px; }
-.l-tick__stamp { width: clamp(84px, 9vw, 124px); aspect-ratio: 1; opacity: .55; }
-.l-tick__code { margin: 0; font: 600 10px var(--font-mono); letter-spacing: .3em; color: var(--ink-faint); }
+/* ── 15 · Débord : la carte chevauche le visuel ──────────────────────────── */
+.l-over { width: min(100%, 1340px); margin-inline: auto; }
+.l-over__stage { position: relative; display: grid; align-items: center; min-height: clamp(340px, 50vh, 540px); }
+/* Le visuel passe sous la carte : sans ce recouvrement, les deux seraient
+   simplement côte à côte — et ce layout n'aurait plus rien à montrer. */
+.l-over__visual { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: min(74%, 820px); height: min(58vh, 500px); }
+.l-over__panel { position: relative; justify-self: end; width: min(100%, 560px); display: grid; gap: 14px; }
+.l-over__panel .ocard { box-shadow: 0 40px 70px -40px #000; }
 
 /* ── 16 · Lignes tarifaires ──────────────────────────────────────────────── */
-.l-row { gap: clamp(10px, 1.2vw, 16px); width: min(100%, 1300px); margin-inline: auto; }
-.l-row__item {
-  display: grid; grid-template-columns: 76px minmax(0, 1fr) minmax(0, 1.1fr) auto;
-  gap: clamp(14px, 2vw, 28px); align-items: center;
-  padding: clamp(14px, 1.8vw, 22px); border: 1px solid var(--line); background: var(--panel);
+.l-rows { width: min(100%, 1340px); margin-inline: auto; }
+.l-rows__head { display: grid; grid-template-columns: minmax(0, 1fr) clamp(150px, 22%, 270px); gap: clamp(20px, 3vw, 48px); align-items: center; }
+.l-rows__visual { height: clamp(110px, 17vh, 200px); }
+.l-rows__list { display: grid; gap: clamp(8px, 1vw, 14px); }
+.l-rows__item {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr) auto; gap: clamp(14px, 2vw, 30px);
+  align-items: center; padding: clamp(14px, 1.6vw, 22px);
+  border: 1px solid var(--line); background: var(--panel);
   transition: border-color .3s var(--ease), background .3s var(--ease);
 }
-.l-row__item.is-on {
+.l-rows__item:not(.is-on) { cursor: pointer; }
+.l-rows__item:not(.is-on):hover { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.l-rows__item.is-on {
   border-color: color-mix(in srgb, var(--accent) 55%, transparent);
   background: color-mix(in srgb, var(--accent) 7%, var(--panel));
 }
-.l-row__icon {
-  width: 76px; aspect-ratio: 1; display: grid; place-items: center;
-  border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
-}
-.l-row__icon span { font: 700 1.5rem/1 var(--font-display); color: var(--ink-faint); }
-.l-row__id .name { margin: 0 0 5px; font-size: clamp(1.25rem, 1.9vw, 1.75rem); }
-.l-row__id .eyebrow { margin: 0 0 6px; }
-.l-row__id .pitch { margin: 0; font-size: 12.5px; max-width: 42ch; }
-.l-row__specs { margin: 0; }
-.l-row__buy { display: grid; gap: 10px; justify-items: end; }
-.l-row__choose {
-  font: 600 11px/1 var(--font-mono); letter-spacing: .16em; text-transform: uppercase;
-  color: var(--ink-dim); background: transparent; border: 1px solid var(--line);
-  padding: 11px 16px; cursor: pointer; transition: border-color .3s, color .3s;
-}
-.l-row__choose:hover { border-color: var(--accent); color: var(--ink); }
+.l-rows__id .eyebrow { margin: 0 0 6px; }
+.l-rows__id .name { margin: 0 0 5px; font-size: clamp(1.2rem, 1.8vw, 1.6rem); }
+.l-rows__id .pitch { margin: 0; font-size: 12.5px; max-width: 42ch; }
+.l-rows__buy { display: grid; gap: 10px; justify-items: end; }
 
 /* ── La famille en colonne ───────────────────────────────────────────────── */
-@media (max-width: 1100px) {
-  .l-tick__specs { columns: 1; }
-  .l-row__item { grid-template-columns: 64px minmax(0, 1fr); grid-template-areas: "icon id" "specs specs" "buy buy"; }
-  .l-row__icon { width: 64px; grid-area: icon; }
-  .l-row__id { grid-area: id; }
-  .l-row__specs { grid-area: specs; }
-  .l-row__buy { grid-area: buy; justify-items: stretch; grid-auto-flow: column; align-items: center; justify-content: space-between; }
+@media (max-width: 1000px) {
+  .l-ban__cards, .l-onbg__cards { grid-template-columns: minmax(0, 1fr); }
+  .l-aside { grid-template-columns: minmax(0, 1fr); }
+  .l-aside__visual { height: clamp(190px, 28vh, 300px); }
+  .l-over__stage { min-height: 0; }
+  .l-over__visual { position: static; transform: none; width: 100%; height: clamp(170px, 25vh, 290px); }
+  .l-over__panel { justify-self: stretch; width: auto; }
+  .l-rows__head { grid-template-columns: minmax(0, 1fr); }
+  .l-rows__item { grid-template-columns: minmax(0, 1fr); }
+  .l-rows__buy { justify-items: stretch; grid-auto-flow: column; justify-content: space-between; align-items: center; }
 }
-@media (max-width: 900px) {
-  .l-sheet__head { grid-template-columns: 110px minmax(0, 1fr); }
-  .l-sheet__thumb { width: 110px; }
-  .seg--v { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; }
-  .l-sheet__grid { grid-template-columns: minmax(0, 1fr); }
-  .l-trio { grid-auto-flow: row; grid-template-columns: minmax(0, 1fr); }
-  .l-trio__card--shut { width: auto; flex-direction: row; align-items: center; gap: 12px; }
-  .l-trio__card--shut .l-trio__more { margin: 0 0 0 auto; }
-  .l-tick__card { grid-template-columns: minmax(0, 1fr); }
-  .l-tick__stub { border-left: 0; border-top: 2px dashed color-mix(in srgb, var(--accent) 38%, transparent); }
-  .l-tick__stub::before { top: -11px; left: -11px; }
-  .l-tick__stub::after { bottom: auto; top: -11px; left: auto; right: -11px; }
-  .l-pick__mark { right: -18%; width: 70%; opacity: .1; }
-}
+
 
 /* ── Place pour la barre d'outils ────────────────────────────────────────────
  * Sous 1024 px le dock devient une barre au ras du bas. Tout ce qui vit au bas
@@ -788,7 +752,8 @@
  * ─────────────────────────────────────────────────────────────────────────── */
 @media (max-width: 1023px) {
   .l-cock, .l-sten, .l-dio { padding-bottom: 58px; }
-  .l-data__panel, .l-sheet__card, .l-pick__card, .l-tick__card, .l-row { padding-bottom: 62px; }
+  /* Sur le conteneur centré, pas sur son contenu : c'est lui qui remonte le bloc */
+  .l-data__panel, .l-ban, .l-aside, .l-onbg, .l-over, .l-rows { padding-bottom: 68px; }
   .l-shut__inner { padding-bottom: 68px; }
   .dots { bottom: 62px; }
   .l-port__dial { margin-bottom: 62px; }
@@ -832,7 +797,7 @@
   .l-split, .l-hero, .l-throttle { padding-right: max(clamp(20px, 3vw, 40px), var(--dock-clear, 0px)); }
   /* Famille « cartes » : ces blocs centrent leur contenu, un retrait à droite suffit
      à le ramener devant le dock — sans quoi le prix et le bouton finissent dessous. */
-  .l-sheet, .l-trio, .l-pick, .l-tick, .l-row { padding-right: var(--dock-clear, 0px); }
+  .l-ban, .l-aside, .l-onbg, .l-over, .l-rows { padding-right: var(--dock-clear, 0px); }
   .l-data__panel, .l-stack__front { padding-right: max(clamp(18px, 2.5vw, 32px), var(--dock-w, 214px)); }
   /* Famille « visuel en fond » : ce qui est collé au bord droit passerait sous le dock */
   .l-sten__card, .l-dio__tabs { right: max(clamp(16px, 3vw, 44px), var(--dock-w, 214px)); }
