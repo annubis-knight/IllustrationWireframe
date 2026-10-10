@@ -20,6 +20,7 @@ import '../../_shared/theme.js';
 import '../../_shared/layers.js';
 import '../../_shared/accents.js';
 import '../../_shared/art-direction.js';
+import '../../_shared/visual-tune.js';
 
 const COLORS: Record<Tier, number> = { starter: 0x3ff0ff, booster: 0x9d8cff, nitro: 0xff4fd8 };
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;

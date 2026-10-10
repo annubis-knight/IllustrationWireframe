@@ -43,6 +43,7 @@ IllustrationWireframe/
 │   ├── accents.js        couleur principale de chaque offre
 │   ├── art-direction.css l'habillage de la DA PropulSite (couleurs + typo de la marque)
 │   ├── art-direction.js  l'interrupteur, le verrouillage des réglages qu'elle impose
+│   ├── visual-tune.js    opacité et saturation des visuels (eux seuls)
 │   └── results.js        résultats générés par npm run measure (lus par le dashboard)
 └── tools/
     ├── serve.mjs         serveur statique sans dépendance
@@ -84,8 +85,19 @@ propre mémoire d'ouverture : déplié sur grand écran, replié sur petit.
 | **Direction artistique** | Bascule tout le lab dans la DA de PropulSite (voir plus bas) |
 | **Thème** | Clair · Auto (suit le système) · Sombre |
 | **Couleurs** | Une couleur principale par offre, modifiable en direct |
+| **Visuels** | Opacité et saturation du dessin — et de lui seul |
 | **Calques** | Allume / éteint les 9 éléments de la carte |
 | **Lab** | Glow (ou bloom), animations, rejouer l'intro |
+
+Le panneau **Visuels** pose deux jetons (`--illu-opacity`, `--illu-saturate`) sur les seules
+zones de dessin : la vignette des cartes, les plans du banc de layouts et le canvas plein cadre
+du prototype Three.js. Le texte, les prix, les boutons et le dock n'en voient rien — c'est tout
+l'intérêt : on règle le rendu du visuel sans toucher à la lisibilité de l'offre.
+
+Les deux réglages sont **séparés dans la feuille** : tant qu'ils valent 100 %, aucune règle ne
+s'applique. L'opacité est quasi gratuite ; la saturation, elle, fait repasser la carte dans une
+passe de filtre à chaque image (quelques fps sur le prototype SVG). Elle n'apparaît donc que si
+on y touche vraiment.
 
 ### Les 9 calques
 
@@ -212,7 +224,7 @@ l'utilisateur son thème et ses couleurs exactement comme il les avait laissés.
 | Distribution | markup dans la page | bundle + build | 3 fichiers JS | **1 fichier, 1 tag** |
 
 > Les poids mesurés par le banc incluent l'outillage du lab (dock, thème, calques, couleurs,
-> compteur, direction artistique : 13,5 Ko gzip) ; la colonne « poids prod » l'exclut, puisqu'il ne part pas en production.
+> compteur, direction artistique, réglage des visuels : 15,5 Ko gzip) ; la colonne « poids prod » l'exclut, puisqu'il ne part pas en production.
 
 ### Ce que les mesures disent
 
