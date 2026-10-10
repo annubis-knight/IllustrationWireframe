@@ -555,6 +555,211 @@
           </div>
         </div>`,
     },
+
+    /* ═══ Quatrième famille : les mécaniques du web ═══════════════════════════
+     * Les trois premières familles sont des *compositions*. Celle-ci teste des
+     * **dispositifs** : ce qu'un site marchand met réellement en place pour faire
+     * choisir — un tableau qui compare, des onglets, un visuel collant piloté par
+     * le défilement, une barre d'achat qui ne quitte jamais l'écran, un petit
+     * configurateur qui recommande. Ce ne sont plus des mises en page, ce sont
+     * des outils de décision.
+     * ═══════════════════════════════════════════════════════════════════════ */
+
+    /* 17 — Tableau comparatif : la colonne choisie s'allume. Le réflexe de
+     *      l'acheteur qui hésite — et le seul format où l'on voit les écarts. */
+    compare: {
+      markup: (o) => {
+        const keys = OFFERS[0].specs.map(([k]) => k);
+        return `
+        <div class="l-cmp osec" data-tier="${o.tier}">
+          <div class="l-cmp__intro">
+            ${sectionHead(o)}
+            <div class="l-cmp__visual" data-visual="mini" aria-hidden="true"></div>
+          </div>
+          <div class="l-cmp__wrap">
+            <table class="l-cmp__table">
+              <caption class="sr">Comparatif des trois formules</caption>
+              <thead>
+                <tr>
+                  <th scope="col"><span class="sr">Critère</span></th>
+                  ${OFFERS.map((x) => `
+                    <th scope="col" class="${x.tier === o.tier ? 'is-on' : ''}" data-tier="${x.tier}">
+                      ${x.badge ? `<span class="l-cmp__flag">${esc(x.badge)}</span>` : ''}
+                      <span class="l-cmp__name">${esc(x.name)}</span>
+                      <span class="l-cmp__price">${price(x.price)} € HT</span>
+                    </th>`).join('')}
+                </tr>
+              </thead>
+              <tbody>
+                ${keys.map((k, i) => `
+                  <tr>
+                    <th scope="row">${esc(k)}</th>
+                    ${OFFERS.map((x) => `<td class="${x.tier === o.tier ? 'is-on' : ''}">${esc(x.specs[i][1])}</td>`).join('')}
+                  </tr>`).join('')}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td></td>
+                  ${OFFERS.map((x) => `
+                    <td class="${x.tier === o.tier ? 'is-on' : ''}">
+                      ${x.tier === o.tier ? cta(x) : `<button class="ocard__pick" type="button" data-pick="${x.tier}">Choisir</button>`}
+                    </td>`).join('')}
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>`;
+      },
+    },
+
+    /* 18 — Onglets et panneau : la page produit. Barre d'onglets soulignée,
+     *      panneau dessous, liste de ce qui est inclus — cochée, pas listée. */
+    tabs: {
+      markup: (o) => `
+        <div class="l-tab osec" data-tier="${o.tier}">
+          ${sectionHead(o)}
+          <div class="l-tab__bar" role="tablist" aria-label="Choisir une offre">
+            ${OFFERS.map((x) => `
+              <button role="tab" type="button" data-pick="${x.tier}" data-tier="${x.tier}" aria-selected="${x.tier === o.tier}">
+                <b>${esc(x.name)}</b><span>${price(x.price)} € HT</span>
+              </button>`).join('')}
+          </div>
+          <div class="l-tab__panel">
+            <div class="l-tab__visual" data-visual aria-hidden="true"></div>
+            <div class="l-tab__body">
+              <p class="eyebrow">${esc(o.stageLong)}</p>
+              <h3 class="name name--xl">${esc(o.name)}</h3>
+              <p class="pitch">${esc(o.pitch)}</p>
+              <ul class="l-tab__feats">
+                ${o.specs.map(([k, v]) => `<li><i aria-hidden="true">✓</i><span>${esc(k)}</span><b>${esc(v)}</b></li>`).join('')}
+              </ul>
+              <div class="l-tab__foot">${priceBlock(o)}${cta(o)}</div>
+            </div>
+          </div>
+        </div>`,
+    },
+
+    /* 19 — Visuel collant, contenu qui défile : le scrollytelling des pages
+     *      produit. Ici c'est le **défilement** qui choisit l'offre ; le visuel
+     *      change sans reconstruire la section, sinon on perdrait le fil. */
+    scrolly: {
+      markup: (o) => `
+        <div class="l-stp" data-tier="${o.tier}">
+          <aside class="l-stp__rail">
+            <p class="kicker"><span class="kicker__dot"></span>SYS.OFFRES // Montée en gamme</p>
+            <h3 class="osec__title">Trois <em>étages</em></h3>
+            <div class="l-stp__visual" data-visual aria-hidden="true"></div>
+            <p class="l-stp__now" data-now>${esc(o.stage)} · <b>${esc(o.name)}</b></p>
+          </aside>
+          <div class="l-stp__flow">
+            ${OFFERS.map((x) => `
+              <article class="l-stp__step${x.tier === o.tier ? ' is-on' : ''}" data-step="${x.tier}" data-tier="${x.tier}">
+                <p class="l-stp__num">${x.level}</p>
+                <h4 class="name">${esc(x.name)}</h4>
+                <p class="pitch">${esc(x.pitch)}</p>
+                <ul class="chips chips--left">${x.specs.slice(0, 3).map(([k, v]) => `<li><span>${esc(k)}</span> ${esc(v)}</li>`).join('')}</ul>
+                <div class="l-stp__foot">${priceBlock(x)}${cta(x)}</div>
+                <button class="sr" type="button" data-goto="${x.tier}">Aller à l'étage ${esc(x.name)}</button>
+              </article>`).join('')}
+          </div>
+        </div>`,
+      wire(root, setOffer, offer, api) {
+        const rail = root.querySelector('[data-now]');
+        const steps = [...root.querySelectorAll('[data-step]')];
+        let current = offer.tier;
+        /* Le défilement change l'offre **sur place** : un rendu complet ferait
+           sauter la page sous le doigt à chaque étage franchi. */
+        const io = new IntersectionObserver((entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            const tier = e.target.dataset.step;
+            if (tier === current) continue;
+            current = tier;
+            steps.forEach((s) => s.classList.toggle('is-on', s.dataset.step === tier));
+            root.querySelector('.l-stp').dataset.tier = tier;
+            const x = BY_TIER[tier];
+            rail.innerHTML = `${esc(x.stage)} · <b>${esc(x.name)}</b>`;
+            api?.swapVisual(tier);
+            api?.silentTier(tier);
+          }
+        }, { rootMargin: '-45% 0px -45% 0px' });
+        steps.forEach((s) => io.observe(s));
+        /* Au clavier, on ne « choisit » pas un étage : on y va. L'observateur
+           fait le reste — sinon il reprendrait la main aussitôt après le clic. */
+        const goto = (e) => {
+          const btn = e.target.closest('[data-goto]');
+          if (!btn) return;
+          steps.find((s) => s.dataset.step === btn.dataset.goto)
+            ?.scrollIntoView({ block: 'center', behavior: reduced ? 'auto' : 'smooth' });
+        };
+        root.addEventListener('click', goto);
+        return () => { io.disconnect(); root.removeEventListener('click', goto); };
+      },
+    },
+
+    /* 20 — Barre d'achat collante : le prix et le bouton ne quittent jamais
+     *      l'écran pendant qu'on lit le détail. Le réflexe e-commerce. */
+    sticky: {
+      markup: (o) => `
+        <div class="l-stk osec" data-tier="${o.tier}">
+          ${sectionHead(o)}
+          <div class="l-stk__visual" data-visual="mini" aria-hidden="true"></div>
+          <div class="l-stk__detail">
+            <div>
+              <h4 class="l-stk__h">Ce que comprend ${esc(o.name)}</h4>
+              <dl class="specs">${specsRows(o)}</dl>
+            </div>
+            <div>
+              <h4 class="l-stk__h">Pourquoi cette formule</h4>
+              <p class="pitch">${esc(o.argument)}</p>
+              <p class="pitch">${esc(o.pitch)}</p>
+              <p class="status"><i></i>${esc(o.status)}</p>
+            </div>
+          </div>
+          <div class="l-stk__bar">
+            <div class="seg" role="tablist" aria-label="Choisir une offre">
+              ${OFFERS.map((x) => `<button role="tab" type="button" data-pick="${x.tier}" aria-selected="${x.tier === o.tier}">${esc(x.name)}</button>`).join('')}
+            </div>
+            ${priceBlock(o)}
+            ${cta(o)}
+          </div>
+        </div>`,
+    },
+
+    /* 21 — Configurateur : trois questions, une recommandation. On ne demande
+     *      plus au visiteur de comparer, on choisit pour lui. */
+    config: {
+      markup: (o) => {
+        const QUESTIONS = [
+          ['Combien de pages ?', ['1 à 5', '5 à 12', 'Illimité']],
+          ['Qui met à jour le contenu ?', ['Nous, à la demande', 'Vous, en autonomie', 'Vous + tunnels de vente']],
+          ['Pour quand ?', ['3 semaines', '5 semaines', '8 semaines']],
+        ];
+        return `
+        <div class="l-cfg osec" data-tier="${o.tier}">
+          ${sectionHead(o)}
+          <div class="l-cfg__grid">
+            <form class="l-cfg__form" onsubmit="return false">
+              ${QUESTIONS.map(([q, opts], qi) => `
+                <fieldset class="l-cfg__q">
+                  <legend>${esc(String(qi + 1).padStart(2, '0'))} · ${esc(q)}</legend>
+                  <div class="l-cfg__opts">
+                    ${opts.map((label, i) => `
+                      <button type="button" data-pick="${OFFERS[i].tier}" data-tier="${OFFERS[i].tier}"
+                              aria-pressed="${OFFERS[i].tier === o.tier}">${esc(label)}</button>`).join('')}
+                  </div>
+                </fieldset>`).join('')}
+              <p class="l-cfg__note">Trois réponses, une recommandation. Rien n'est envoyé.</p>
+            </form>
+            <div class="l-cfg__out">
+              <div class="l-cfg__visual" data-visual="mini" aria-hidden="true"></div>
+              <p class="l-cfg__verdict">Formule recommandée</p>
+              ${offerCard(o, true)}
+            </div>
+          </div>
+        </div>`;
+      },
+    },
   };
 
   /* ── Une section = un layout en veille, qu'on allume ────────────────────── */
@@ -620,7 +825,19 @@
       this.stage.innerHTML = layout.markup(offer);
       const host = this.stage.querySelector('[data-visual]');
       this.visual = host ? mountVisual(host, this.tier) : null;
-      this.cleanup = layout.wire?.(this.stage, (t) => this.setOffer(t), offer) || null;
+      /* Certains layouts changent d'offre sans tout reconstruire (le défilement
+         pilote la 19). Ils remplacent alors le visuel par ce canal, pour que la
+         section garde la main sur les timelines à tuer. */
+      const api = {
+        swapVisual: (tier) => {
+          const slot = this.stage.querySelector('[data-visual]');
+          if (!slot) return;
+          this.visual?.kill();
+          this.visual = mountVisual(slot, tier);
+        },
+        silentTier: (tier) => { this.tier = tier; },
+      };
+      this.cleanup = layout.wire?.(this.stage, (t) => this.setOffer(t), offer, api) || null;
       gsap.fromTo(this.stage, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, ease: 'power1.out' });
     }
   }

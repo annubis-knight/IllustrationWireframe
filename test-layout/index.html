@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Banc de layouts — une offre à la fois</title>
-<meta name="description" content="Seize mises en page pour présenter une seule offre à la fois, en trois familles : visuel à côté, visuel en fond, carte en vedette. Chaque section se lance à la demande.">
+<meta name="description" content="Vingt-et-une mises en page pour une section d'offres, en quatre familles : visuel à côté, visuel en fond, cartes d'offres, mécaniques du web. Chaque section se lance à la demande.">
 <link rel="icon" href="data:,">
 <script>var h=document.documentElement;h.classList.add('js');try{var t=localStorage.getItem('lab-theme');if(t)h.dataset.theme=t;var a=localStorage.getItem('lab-art');if(a){h.dataset.art=a;h.dataset.theme='light';var f=document.createElement('link');f.rel='stylesheet';f.dataset.artFonts='';f.href='https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap';document.head.appendChild(f)}}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,14 +26,15 @@
 
 <main class="page">
   <header class="page__head">
-    <p class="kicker"><span class="kicker__dot"></span>SYS.LAYOUT // Seize mises en scène d'une même offre</p>
-    <h1 class="page__title">Une offre, <em>seize façons</em> de la montrer</h1>
+    <p class="kicker"><span class="kicker__dot"></span>SYS.LAYOUT // Vingt-et-une mises en scène d'une même offre</p>
+    <h1 class="page__title">Une offre, <em>vingt-et-une façons</em> de la montrer</h1>
     <p class="page__lede">
       Ici on ne compare plus des technologies mais des <strong>partis pris de mise en page</strong> :
-      une seule offre à l'écran, et seize manières différentes de la présenter, en trois familles :
+      une seule offre à l'écran, et vingt-et-une manières de la présenter, en quatre familles :
       les six premières posent le visuel <em>à côté</em> du texte ; les cinq suivantes le passent
-      <em>derrière</em> ; les cinq dernières le remettent à sa place — <em>une image d'appoint</em> —
-      pour laisser la carte d'offre prendre la vedette.
+      <em>derrière</em> ; les cinq d'après en font une image d'appoint pour laisser la place aux
+      <em>cartes d'offres</em> ; les cinq dernières ne sont plus des mises en page mais des
+      <em>mécaniques de site</em> — comparer, parcourir, configurer.
     </p>
     <p class="page__note">
       Chaque section démarre <strong>éteinte</strong> : ni visuel injecté, ni animation. Appuie sur
@@ -255,6 +256,79 @@
         <p class="lab-section__n">Layout 16</p>
         <h2>Lignes tarifaires · visuel dans l'en-tête</h2>
         <p class="lab-section__intent">L'en-tête porte le titre à gauche et le visuel à droite ; les trois offres s'alignent dessous en bandeaux. Le réflexe « page de prix » : le plus efficace pour comparer, le plus froid aussi. C'est le mètre étalon auquel comparer les quinze autres.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <header class="page__part">
+    <p class="kicker"><span class="kicker__dot"></span>SYS.LAYOUT // Quatrième famille</p>
+    <h2 class="page__parttitle">Les <em>mécaniques</em> du web</h2>
+    <p class="page__lede">
+      Les trois premières familles sont des <strong>compositions</strong>. Celle-ci teste des
+      <strong>dispositifs</strong> : ce qu'un site met réellement en place pour faire choisir —
+      un tableau qui compare, des onglets, un visuel collant piloté par le défilement, une barre
+      d'achat qui ne quitte pas l'écran, un configurateur qui recommande. Ce ne sont plus des
+      mises en page, ce sont des outils de décision. Deux d'entre eux sortent exprès de la règle
+      « une section = un écran » : la 19 défile, et la 20 doit défiler pour que sa barre serve.
+    </p>
+  </header>
+
+  <section class="lab-section" data-layout="compare" data-tier="booster" id="compare">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 17</p>
+        <h2>Tableau comparatif</h2>
+        <p class="lab-section__intent">Le seul format où l'on voit les <em>écarts</em> et pas seulement les offres : critères en lignes, formules en colonnes, la colonne retenue allumée sur toute sa hauteur. Le réflexe de l'acheteur qui hésite — rationnel, dense, et redoutable en fin de page.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <section class="lab-section" data-layout="tabs" data-tier="starter" id="tabs">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 18</p>
+        <h2>Onglets et panneau</h2>
+        <p class="lab-section__intent">La page produit : barre d'onglets soulignée, panneau dessous, et ce qui est inclus présenté <em>coché</em> plutôt que listé. Familier au point d'être invisible — c'est sa force : personne n'a besoin d'apprendre à s'en servir.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <section class="lab-section" data-layout="scrolly" data-tier="starter" id="scrolly">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 19</p>
+        <h2>Visuel collant · le défilement choisit</h2>
+        <p class="lab-section__intent">Ici personne ne clique : le visuel reste collé à gauche et change d'étage à mesure qu'on descend. La montée en gamme <em>se vit</em> au lieu d'être lue. La section fait trois hauteurs d'écran, et l'offre change sur place — un rendu complet ferait sauter la page sous le doigt.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <section class="lab-section" data-layout="sticky" data-tier="booster" id="sticky">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 20</p>
+        <h2>Barre d'achat collante</h2>
+        <p class="lab-section__intent">Le réflexe e-commerce : on lit le détail de la formule, et le sélecteur, le prix et le bouton restent collés en bas de l'écran. Rien ne se perd pendant la lecture — le seul dispositif de la famille qui garde l'action à portée de pouce en permanence.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <section class="lab-section" data-layout="config" data-tier="starter" id="config">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 21</p>
+        <h2>Configurateur · trois questions</h2>
+        <p class="lab-section__intent">On arrête de demander au visiteur de comparer : on choisit pour lui. Trois questions sur ce qu'il veut, une formule recommandée qui se met à jour à chaque réponse. C'est le dispositif le plus engageant de tout le banc — et celui qui demande le plus de rigueur dans la logique de recommandation.</p>
       </div>
       <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
     </header>

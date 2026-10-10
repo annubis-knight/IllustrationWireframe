@@ -1,15 +1,17 @@
 # Banc de layouts — une offre à la fois
 
 Les quatre prototypes comparent des **technologies**. Cette page compare des **partis pris de
-mise en page** : une seule offre à l'écran, et seize façons différentes de la présenter.
+mise en page** : une seule offre à l'écran, et vingt-et-une façons de la présenter.
 
-Elle se lit en trois familles, et elles ne pèsent pas pareil :
+Elle se lit en quatre familles, et elles ne pèsent pas pareil :
 
 1. **01 → 06** — le visuel et le texte **partagent un conteneur** : ils sont voisins.
 2. **07 → 11** — le visuel passe **en fond de section**, l'offre flotte au-dessus. La profondeur.
 3. **12 → 16** — les offres deviennent des **cartes** et le visuel sort des cartes : il habille
-   la section (bandeau, colonne, fond, débord). C'est la famille la plus proche du besoin réel —
-   une section d'offres est là pour vendre une offre, pas pour exposer une illustration.
+   la section (bandeau, colonne, fond, débord). Une section d'offres est là pour vendre une
+   offre, pas pour exposer une illustration.
+4. **17 → 21** — ce ne sont plus des mises en page mais des **mécaniques de site** : comparer,
+   parcourir, configurer. Des outils de décision.
 
 ![Bandeau](../docs/layout-banner.png)
 
@@ -118,6 +120,27 @@ specs, CTA) ; les deux autres gardent de quoi choisir (argument, prix, « Choisi
 > à « comment vendre une offre ». Si le choix final doit se faire sur un seul critère, c'est
 > celui-là — et c'est dans cette famille qu'il faut chercher.
 
+## Famille 4 — les mécaniques du web
+
+Les trois premières familles sont des **compositions**. Celle-ci teste des **dispositifs** : ce
+qu'un site met réellement en place pour faire choisir.
+
+| # | Layout | Le dispositif | Sélection | Ce qu'on teste |
+|---|---|---|---|---|
+| 17 | Tableau comparatif | lignes = critères, colonnes = formules, la colonne retenue allumée sur toute sa hauteur | Clic sur un en-tête de colonne | Le seul format où l'on voit les **écarts**, pas seulement les offres |
+| 18 | Onglets et panneau | barre d'onglets soulignée, panneau dessous, inclusions **cochées** | Onglets | Familier au point d'être invisible — personne n'a besoin d'apprendre à s'en servir |
+| 19 | Visuel collant | le visuel reste collé et change d'étage à mesure qu'on descend | **Le défilement** | La montée en gamme se *vit* au lieu d'être lue |
+| 20 | Barre d'achat collante | sélecteur + prix + bouton collés en bas tant que la section est à l'écran | Segments dans la barre | Le réflexe e-commerce : l'action reste à portée de pouce |
+| 21 | Configurateur | trois questions, une formule recommandée | Les réponses | On arrête de faire comparer : on choisit pour le visiteur |
+
+Deux d'entre eux **sortent volontairement de la règle « une section = un écran »** : la 19 défile
+sur trois hauteurs (c'est son sujet) et la 20 doit pouvoir défiler pour que sa barre serve.
+
+Le 19 change d'offre **sans reconstruire la section** : un rendu complet à chaque étage franchi
+ferait sauter la page sous le doigt. Il passe par un canal dédié (`api.swapVisual`) pour que la
+section garde la main sur les timelines à tuer. Son bouton clavier ne « choisit » pas un étage :
+il y **amène** — sinon l'observateur reprendrait la main aussitôt après le clic.
+
 ## Changer d'offre
 
 Fondu sortant (~0,2 s) puis **la nouvelle offre se redessine** : l'intro « tracé » du SVG est
@@ -134,7 +157,7 @@ Relevé sur la machine du lab, 1920 × 1000, une seule section allumée et visib
 | 07 Poste de pilotage | 60,1 | 10 Hublot | 60,0 |
 | | | 11 Diorama | 60,0 |
 
-**Les seize allumées en même temps (une seule visible) : 48 fps environ** — les sections hors écran
+**Les vingt-et-une allumées en même temps (une seule visible) : 59,9 fps** — les sections hors écran
 mettent leurs boucles en pause, c'est ce qui sauve la page.
 
 Deux enseignements : le verre dépoli et le masque radial, qui *semblent* coûteux, ne coûtent
@@ -144,7 +167,7 @@ des trois) a rendu 15 fps au layout 08.
 
 ## Sur téléphone
 
-Les seize tiennent en une colonne, mais pas de la même façon — et c'est un bon révélateur :
+Les vingt-et-une tiennent en une colonne, mais pas de la même façon — et c'est un bon révélateur :
 
 | Layout | Ce qui change en petit écran |
 |---|---|
@@ -162,6 +185,11 @@ Les seize tiennent en une colonne, mais pas de la même façon — et c'est un b
 | 13 Colonne | Le visuel repasse au-dessus, les cartes dessous. |
 | 15 Débord | Le chevauchement disparaît : visuel puis carte, l'un sous l'autre. |
 | 16 Lignes | Chaque ligne se réorganise en trois rangs : identité, specs, prix + bouton. |
+| 17 Tableau | Le tableau défile horizontalement — un comparatif ne se stacke pas. |
+| 18 Onglets | La barre d'onglets défile, le panneau passe en colonne. |
+| 19 Visuel collant | Le collant est abandonné : visuel en haut, étages dessous. La mécanique ne survit pas, c'est son principal défaut. |
+| 20 Barre collante | La barre passe en colonne et reste collée : c'est le layout qui gagne le plus au mobile. |
+| 21 Configurateur | Questions puis recommandation, l'un sous l'autre. |
 
 La parallaxe et le pivot n'existent pas au doigt : les deux layouts qui en dépendent (07, 11)
 perdent leur argument principal sur mobile. C'est une information utile pour choisir.
@@ -187,8 +215,8 @@ Elle montre des options, elle ne les départage pas. Pour décider, il faut rega
 
 ```
 test-layout/
-├── index.html        les seize sections, en veille
-├── css/style.css     ossature de la page + les seize mises en page
+├── index.html        les vingt-et-une sections, en veille
+├── css/style.css     ossature de la page + les vingt-et-une mises en page
 ├── js/offers.js      contenu des trois offres (source unique)
 ├── js/svg-data.js    visuels générés par le prototype 01 (npm run svg:build)
 └── js/main.js        montage / démontage par section, transitions, sélecteurs,
