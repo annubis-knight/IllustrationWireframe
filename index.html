@@ -15,6 +15,7 @@
   :root {
     --bg: #02070e;
     --panel: rgba(6, 18, 32, .72);
+    --panel-solid: rgba(2, 10, 18, .85);
     --thumb-bg: #01050b;
     --ink: #d6f6ff;
     --ink-dim: rgba(214, 246, 255, .62);
@@ -29,13 +30,15 @@
     --violet: #9d8cff;
     --magenta: #ff4fd8;
     --amber: #ffb547;
+    --c-starter: var(--cyan);
+    --ease: cubic-bezier(.2, .7, .2, 1);
     --font-display: "Chakra Petch", system-ui, sans-serif;
     --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
     color-scheme: dark;
   }
   @media (prefers-color-scheme: light) {
     :root:not([data-theme="dark"]) {
-      --bg: #eef2f7; --panel: rgba(255, 255, 255, .78); --thumb-bg: #f7fafc;
+      --bg: #eef2f7; --panel: rgba(255, 255, 255, .78); --panel-solid: rgba(255, 255, 255, .92); --thumb-bg: #f7fafc;
       --ink: #0c2333; --ink-dim: rgba(12, 35, 51, .66); --ink-faint: rgba(12, 35, 51, .42);
       --line: rgba(12, 60, 92, .18); --grid: rgba(12, 60, 92, .08); --glow-top: rgba(70, 150, 220, .16);
       --title: #071a29; --on-accent: #fff; --ok: #0f7a4a;
@@ -44,7 +47,7 @@
     }
   }
   :root[data-theme="light"] {
-    --bg: #eef2f7; --panel: rgba(255, 255, 255, .78); --thumb-bg: #f7fafc;
+    --bg: #eef2f7; --panel: rgba(255, 255, 255, .78); --panel-solid: rgba(255, 255, 255, .92); --thumb-bg: #f7fafc;
     --ink: #0c2333; --ink-dim: rgba(12, 35, 51, .66); --ink-faint: rgba(12, 35, 51, .42);
     --line: rgba(12, 60, 92, .18); --grid: rgba(12, 60, 92, .08); --glow-top: rgba(70, 150, 220, .16);
     --title: #071a29; --on-accent: #fff; --ok: #0f7a4a;
@@ -164,7 +167,7 @@
       <a class="banner" href="test-layout/index.html">
         <span class="banner__k">Aussi dans le lab</span>
         <span class="banner__t">Banc de layouts →</span>
-        <span class="banner__d">Onze mises en page pour une seule offre à l'écran, dont cinq où le visuel passe en fond de section. Sections à allumer une par une.</span>
+        <span class="banner__d">Seize mises en page pour une seule offre à l'écran, en trois familles : visuel à côté, visuel en fond, carte en vedette. Sections à allumer une par une.</span>
       </a>
     </div>
   </header>

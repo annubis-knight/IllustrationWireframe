@@ -115,7 +115,7 @@
   row.className = 'dock-art__row';
   row.setAttribute('role', 'switch');
   row.innerHTML = `
-    <span class="dock-art__name"><b>PropulSite</b><span>propulsitetoulouse.website</span></span>
+    <span class="dock-art__name"><b>PropulSite</b><span>Couleurs + typographies</span></span>
     <span class="dock-art__sw" aria-hidden="true"></span>`;
   row.addEventListener('click', () => apply(!isOn()));
 

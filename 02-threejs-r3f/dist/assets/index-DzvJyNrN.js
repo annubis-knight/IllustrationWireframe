@@ -4855,6 +4855,11 @@ void main() {
       color: var(--ink, #d6f6ff); scrollbar-width: thin;
       scrollbar-color: color-mix(in srgb, var(--c-starter, #3ff0ff) 45%, transparent) transparent;
     }
+    /* Une ombre noire à 45 % sur du papier, ça fait sale : en clair elle s'allège */
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme="dark"]) .lab-dock { filter: drop-shadow(0 14px 24px rgba(30, 33, 34, .16)); }
+    }
+    :root[data-theme="light"] .lab-dock { filter: drop-shadow(0 14px 24px rgba(30, 33, 34, .16)); }
     .lab-dock:hover, .lab-dock:focus-within, .lab-dock[data-collapsed] { opacity: 1; }
     @media (hover: none) { .lab-dock { opacity: 1; } }
     .lab-dock::-webkit-scrollbar { width: 6px; }

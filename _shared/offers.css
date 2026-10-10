@@ -329,9 +329,9 @@ body {
   perspective: 900px;
 }
 
-.offer__body { display: flex; flex-direction: column; flex: 1; padding: 0 6px; }
+.offer__body { display: flex; flex-direction: column; flex: 1; padding: 0 8px; }
 .offer__stage {
-  margin: 4px 0 2px;
+  margin: 18px 0 6px;
   font-size: 10.5px;
   letter-spacing: .2em;
   text-transform: uppercase;
@@ -347,7 +347,7 @@ body {
 }
 
 /* Jauge de puissance : 12 segments inclinés */
-.offer__power { display: flex; gap: 3px; margin: 14px 0 16px; }
+.offer__power { display: flex; gap: 3px; margin: 14px 0 24px; }
 .offer__power i {
   flex: 1;
   height: 7px;
@@ -365,7 +365,7 @@ body {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  margin: 0 0 14px;
+  margin: 0 0 22px;
   color: var(--ink-dim);
   font-size: 11px;
   letter-spacing: .12em;
@@ -379,12 +379,12 @@ body {
 }
 
 /* Specs façon télémétrie */
-.offer__specs { margin: 0 0 22px; }
+.offer__specs { margin: 0 0 26px; }
 .offer__specs div {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  padding: 7px 0;
+  padding: 9px 0;
   border-bottom: 1px dashed color-mix(in srgb, var(--accent) 18%, transparent);
   font-size: 12px;
 }

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Banc de layouts — une offre à la fois</title>
-<meta name="description" content="Onze mises en page pour présenter une seule offre à la fois, dont cinq où le visuel passe en fond de section. Chaque section se lance à la demande.">
+<meta name="description" content="Seize mises en page pour présenter une seule offre à la fois, en trois familles : visuel à côté, visuel en fond, carte en vedette. Chaque section se lance à la demande.">
 <link rel="icon" href="data:,">
 <script>var h=document.documentElement;h.classList.add('js');try{var t=localStorage.getItem('lab-theme');if(t)h.dataset.theme=t;var a=localStorage.getItem('lab-art');if(a){h.dataset.art=a;h.dataset.theme='light';var f=document.createElement('link');f.rel='stylesheet';f.dataset.artFonts='';f.href='https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap';document.head.appendChild(f)}}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,13 +26,14 @@
 
 <main class="page">
   <header class="page__head">
-    <p class="kicker"><span class="kicker__dot"></span>SYS.LAYOUT // Onze mises en scène d'une même offre</p>
-    <h1 class="page__title">Une offre, <em>onze façons</em> de la montrer</h1>
+    <p class="kicker"><span class="kicker__dot"></span>SYS.LAYOUT // Seize mises en scène d'une même offre</p>
+    <h1 class="page__title">Une offre, <em>seize façons</em> de la montrer</h1>
     <p class="page__lede">
       Ici on ne compare plus des technologies mais des <strong>partis pris de mise en page</strong> :
-      une seule offre à l'écran, et onze manières différentes de passer de l'une à l'autre.
-      Les six premières posent le visuel <em>à côté</em> du texte ; les cinq suivantes le passent
-      <em>derrière</em>, et font flotter l'offre au-dessus.
+      une seule offre à l'écran, et seize manières différentes de la présenter, en trois familles :
+      les six premières posent le visuel <em>à côté</em> du texte ; les cinq suivantes le passent
+      <em>derrière</em> ; les cinq dernières le remettent à sa place — <em>une image d'appoint</em> —
+      pour laisser la carte d'offre prendre la vedette.
     </p>
     <p class="page__note">
       Chaque section démarre <strong>éteinte</strong> : ni visuel injecté, ni animation. Appuie sur
@@ -182,6 +183,78 @@
         <p class="lab-section__n">Layout 11</p>
         <h2>Diorama · profondeur réelle</h2>
         <p class="lab-section__intent">Ici la profondeur n'est pas simulée : la section est une scène 3D CSS. Le visuel est une toile reculée, une grille flotte entre deux eaux, la fiche est posée devant, et les étiquettes de sélection vivent à des distances différentes. La scène pivote au pointeur.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <header class="page__part">
+    <p class="kicker"><span class="kicker__dot"></span>SYS.LAYOUT // Troisième famille</p>
+    <h2 class="page__parttitle">La carte <em>prend la vedette</em></h2>
+    <p class="page__lede">
+      On n'oublie pas l'objectif : cette section doit <strong>vendre une offre</strong>, pas exposer
+      une illustration. Ici la hiérarchie s'inverse — c'est la carte qui porte le nom, le prix, ce
+      qu'on obtient et le bouton, et le visuel redescend au rang d'image d'appoint : vignette,
+      filigrane, tampon, icône. Il ne dépasse jamais un cinquième de la carte, et sous 160 px il
+      perd ses légendes, qui ne se liraient plus.
+    </p>
+  </header>
+
+  <section class="lab-section" data-layout="sheet" data-tier="booster" id="sheet">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 12</p>
+        <h2>Fiche produit · onglets</h2>
+        <p class="lab-section__intent">Une seule carte, large, au centre : le réflexe « fiche article ». Le visuel tient dans une vignette carrée à côté du nom, et le bloc d'achat (statut, prix, bouton) est isolé dans un encadré à droite. Le plus lisible de la famille, le moins spectaculaire.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <section class="lab-section" data-layout="trio" data-tier="booster" id="trio">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 13</p>
+        <h2>Trio dépliant · trois cartes, une ouverte</h2>
+        <p class="lab-section__intent">Les trois offres restent à l'écran sous forme de cartes ; celle qu'on choisit s'élargit et se remplit, les deux autres se réduisent à nom + prix. On compare sans quitter la section — le compromis classique entre « tout montrer » et « une offre à la fois ».</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <section class="lab-section" data-layout="picker" data-tier="nitro" id="picker">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 14</p>
+        <h2>Carte + sélecteur de formule</h2>
+        <p class="lab-section__intent">Le menu déroulant des pages tarifaires : un sélecteur discret au-dessus, une carte unique en dessous. Le visuel passe en filigrane derrière le texte — il colore la carte sans jamais disputer la lecture. C'est le layout le plus sobre, et le plus facile à tenir dans le temps.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <section class="lab-section" data-layout="ticket" data-tier="starter" id="ticket">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 15</p>
+        <h2>Billet d'embarquement · souche</h2>
+        <p class="lab-section__intent">La carte se coupe en deux : le détail à gauche, une souche détachable à droite qui ne porte que le prix et le bouton. Le visuel sert de tampon. Très thématique pour une gamme « décollage », et la perforation sépare naturellement ce qu'on lit de ce qu'on achète.</p>
+      </div>
+      <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
+    </header>
+    <div class="lab-section__stage" data-stage><p class="lab-section__idle">Section en veille — rien n'est chargé ni animé.</p></div>
+  </section>
+
+  <section class="lab-section" data-layout="pricing" data-tier="booster" id="pricing">
+    <header class="lab-section__head">
+      <div>
+        <p class="lab-section__n">Layout 16</p>
+        <h2>Lignes tarifaires</h2>
+        <p class="lab-section__intent">Les trois offres en bandeaux empilés, comme une vraie page de prix : icône, nom, ce qu'on obtient, prix, bouton. Le visuel se réduit à une icône de 76 px. Le plus efficace pour comparer, le plus froid aussi — c'est le mètre étalon auquel comparer les quinze autres.</p>
       </div>
       <button class="power" type="button" data-power aria-pressed="false"><span aria-hidden="true">▶</span> Lancer</button>
     </header>

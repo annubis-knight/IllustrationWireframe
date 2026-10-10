@@ -114,22 +114,25 @@ html:root[data-art="propulsite"] .backdrop::after {
   width: 100%; padding: 0; background: transparent; border: 0; cursor: pointer;
   color: var(--ink); font: inherit; text-align: left;
 }
-.dock-art__name { display: flex; flex-direction: column; gap: 2px; }
+/* `min-width: 0` et la coupure de l'URL sont indispensables : sans eux, cette
+   chaîne insécable pousse l'interrupteur hors du panneau, large de 194 px. */
+.dock-art__name { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .dock-art__name b { font: 600 11px/1.2 var(--font-mono); letter-spacing: .1em; }
-.dock-art__name span { font-size: 9.5px; letter-spacing: .08em; color: var(--ink-faint); }
+.dock-art__name span { font-size: 9px; line-height: 1.3; letter-spacing: .04em; color: var(--ink-faint); overflow-wrap: anywhere; }
 .dock-art__sw {
-  flex: 0 0 auto; width: 38px; height: 20px; border-radius: 999px; position: relative;
-  background: color-mix(in srgb, var(--ink-faint) 35%, transparent);
-  border: 1px solid var(--line);
+  flex: 0 0 auto; width: 38px; height: 21px; border-radius: 999px; position: relative;
+  background: color-mix(in srgb, var(--ink) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
   transition: background .25s var(--ease), border-color .25s;
 }
 .dock-art__sw::after {
-  content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px;
-  border-radius: 50%; background: var(--ink);
-  transition: transform .25s var(--ease), background .25s;
+  content: ""; position: absolute; top: 2px; left: 2px; width: 15px; height: 15px;
+  border-radius: 50%; background: var(--ink); opacity: .75;
+  transition: transform .25s var(--ease), background .25s, opacity .25s;
 }
+.dock-art__row:hover .dock-art__sw { border-color: color-mix(in srgb, var(--ink) 50%, transparent); }
 .dock-art__row[aria-checked="true"] .dock-art__sw { background: #fbbb21; border-color: #fbbb21; }
-.dock-art__row[aria-checked="true"] .dock-art__sw::after { transform: translateX(18px); background: #1e2122; }
+.dock-art__row[aria-checked="true"] .dock-art__sw::after { transform: translateX(17px); background: #1e2122; opacity: 1; }
 .dock-art__row:focus-visible { outline: 2px solid var(--c-starter); outline-offset: 3px; }
 .dock-art__hint { font-size: 9.5px; line-height: 1.45; letter-spacing: .04em; color: var(--ink-faint); }
 .dock-art__swatches { display: flex; gap: 3px; }
