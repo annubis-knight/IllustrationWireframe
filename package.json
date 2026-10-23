@@ -10,7 +10,8 @@
     "measure": "node tools/measure.mjs",
     "svg:build": "node 01-svg-gsap/tools/generate-svg.mjs",
     "build:02": "npm --prefix 02-threejs-r3f install && npm --prefix 02-threejs-r3f run build",
-    "bundle:04": "node 04-spline-web/tools/bundle.mjs"
+    "bundle:04": "node 04-spline-web/tools/bundle.mjs",
+    "check:layouts": "node tools/layouts.mjs"
   },
   "devDependencies": {
     "playwright-core": "^1.63.0"

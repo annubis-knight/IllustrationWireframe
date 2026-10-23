@@ -16,6 +16,7 @@ Thème commun, 3 états d'une fusée :
 npm install          # outillage du lab (playwright-core)
 npm run dev          # dashboard + démos → http://localhost:4600/
 npm run verify       # régénère ce qui est généré, puis vérifie que les 4 démos s'affichent sans erreur
+npm run check:layouts # banc du test-layout : 21 sélecteurs, veille, extinction, contrôles atteignables
 npm run measure      # poids, FPS et captures des 4 démos
 npm run build:02     # build Vite du prototype Three.js (nécessaire une fois)
 npm run svg:build    # régénère les SVG du prototype 01
@@ -85,19 +86,26 @@ propre mémoire d'ouverture : déplié sur grand écran, replié sur petit.
 | **Direction artistique** | Bascule tout le lab dans la DA de PropulSite (voir plus bas) |
 | **Thème** | Clair · Auto (suit le système) · Sombre |
 | **Couleurs** | Une couleur principale par offre, modifiable en direct |
-| **Visuels** | Opacité et saturation du dessin — et de lui seul |
+| **Visuels** | Opacité, saturation et épaisseur du trait ; arrondi des angles |
 | **Calques** | Allume / éteint les 9 éléments de la carte |
 | **Lab** | Glow (ou bloom), animations, rejouer l'intro |
 
-Le panneau **Visuels** pose deux jetons (`--illu-opacity`, `--illu-saturate`) sur les seules
-zones de dessin : la vignette des cartes, les plans du banc de layouts et le canvas plein cadre
-du prototype Three.js. Le texte, les prix, les boutons et le dock n'en voient rien — c'est tout
-l'intérêt : on règle le rendu du visuel sans toucher à la lisibilité de l'offre.
+Le panneau **Visuels** permet de figer des valeurs de rendu et de comparer :
 
-Les deux réglages sont **séparés dans la feuille** : tant qu'ils valent 100 %, aucune règle ne
-s'applique. L'opacité est quasi gratuite ; la saturation, elle, fait repasser la carte dans une
-passe de filtre à chaque image (quelques fps sur le prototype SVG). Elle n'apparaît donc que si
-on y touche vraiment.
+| Curseur | Portée | Comment |
+|---|---|---|
+| Opacité · Saturation | le dessin seul | deux jetons appliqués aux seules zones de dessin — vignette des cartes, plans du banc de layouts, canvas plein cadre de Three.js |
+| Épaisseur | le trait, dans les **quatre** technologies | un **facteur**, pas une valeur : chaque trait garde son poids relatif (`stroke-width: calc(.8 * var(--illu-stroke))` côté SVG, multiplication du `lineWidth` côté Canvas, du `linewidth` côté WebGL) |
+| Arrondi | les angles des **surfaces** | un trait n'a pas d'angle, une carte oui : dès qu'on quitte 0, l'angle coupé du lab laisse la place à un rayon — les deux ne peuvent pas cohabiter |
+
+Le texte, les prix, les boutons et le dock ne voient rien des trois premiers : on règle le rendu
+du dessin sans toucher à la lisibilité de l'offre. Canvas et WebGL ne lisant pas la CSS, ils
+relisent les jetons sur `themechange`, l'événement qui sert déjà au thème et aux couleurs.
+
+Chaque réglage est **indépendant dans la feuille** : tant qu'il vaut sa valeur nominale, aucune
+règle ne s'applique. L'opacité est quasi gratuite ; la saturation fait repasser la carte dans une
+passe de filtre à chaque image, et un trait épais coûte à rastériser. Les deux ne sont donc
+appliqués que si on y touche. À 100 % partout, le lab est exactement celui d'avant.
 
 ### Les 9 calques
 
@@ -224,7 +232,7 @@ l'utilisateur son thème et ses couleurs exactement comme il les avait laissés.
 | Distribution | markup dans la page | bundle + build | 3 fichiers JS | **1 fichier, 1 tag** |
 
 > Les poids mesurés par le banc incluent l'outillage du lab (dock, thème, calques, couleurs,
-> compteur, direction artistique, réglage des visuels : 15,5 Ko gzip) ; la colonne « poids prod » l'exclut, puisqu'il ne part pas en production.
+> compteur, direction artistique, réglage des visuels : 16 Ko gzip) ; la colonne « poids prod » l'exclut, puisqu'il ne part pas en production.
 
 ### Ce que les mesures disent
 
@@ -268,5 +276,5 @@ l'utilisateur son thème et ses couleurs exactement comme il les avait laissés.
 ## Notes
 
 - **Spline n'a pas pu être testé en conditions réelles** : le format `.splinecode` est propriétaire et sans API d'écriture publique, une scène ne peut être créée que dans l'éditeur Spline (compte requis). Le prototype 04 contient l'emplacement d'intégration prêt à recevoir une URL d'export — voir son README.
-- Les contenus et prix des offres sont **fictifs** (placeholders de démo).
+- Les textes et prix des offres sont **réels**, repris de [OFFRES.md](OFFRES.md) (source unique).
 - Le banc utilise **Playwright et non Puppeteer** : sur ce poste, l'extension Cold Turkey ferme les instances Chrome qui ne l'ont pas installée, et puppeteer perdait ses pages au bout de quelques secondes.

@@ -117,6 +117,7 @@ function applyTheme() {
   light = t ? t === 'light' : matchMedia('(prefers-color-scheme: light)').matches;
   const token = (n: string, fb: string) => window.LabTheme?.token(n, fb) || fb;
   const hot = new THREE.Color(token('--hot', '#ffffff'));
+  const stroke = Number(token('--illu-stroke', '1')) || 1;
   const bg = new THREE.Color(light ? 0xffffff : 0x000000);
 
   canvas.style.mixBlendMode = light ? 'multiply' : 'screen';
@@ -129,6 +130,8 @@ function applyTheme() {
       const mats: THREE.Material[] = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : [];
       for (const m of mats) {
         const role = (m as any).userData?.role;
+        const base = (m as any).userData?.baseWidth;
+        if (base !== undefined) (m as any).linewidth = base * stroke;
         if (role === 'accent' || role === 'hot') {
           (m as any).color.copy(role === 'hot' ? hot : accent);
           (m as any).blending = light || !(m as any).userData.additive ? THREE.NormalBlending : THREE.AdditiveBlending;

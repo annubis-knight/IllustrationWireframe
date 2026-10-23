@@ -37,6 +37,7 @@ tools/              serveur statique, banc de mesure, verify
 ```bash
 npm run dev       # dashboard + démos → http://localhost:4600/
 npm run verify    # régénère les artefacts puis vérifie les 4 démos (0 erreur, image animée)
+npm run check:layouts # banc du test-layout : 21 sélecteurs, veille, extinction, contrôles atteignables
 npm run measure   # poids, FPS et captures → tools/results.json + _shared/results.js
 npm run build:02  # build Vite du prototype Three.js
 npm run svg:build # régénère les SVG du prototype 01

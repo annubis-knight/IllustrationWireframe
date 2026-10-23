@@ -142,6 +142,8 @@
     for (const c of cards) {
       c.renderer.color = window.LabTheme?.token(`--c-${c.tier}`) || COLORS[c.tier];
       c.renderer.light = light;
+      // Le curseur « Épaisseur » du dock passe par le même jeton que les couleurs
+      c.renderer.stroke = Number(window.LabTheme?.token('--illu-stroke', '1')) || 1;
     }
   }
   addEventListener('themechange', applyTheme);

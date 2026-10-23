@@ -191,6 +191,7 @@
       this.glow = true;
       this.layers = {}; // calques éteints : { fx: false, … }
       this.light = false; // thème clair : encre sur papier, pas de néon additif
+      this.stroke = 1;    // facteur d'épaisseur, piloté par le dock (1 = nominal)
       this.alpha = 1; // pilotée par l'intro
       this.dpr = 1;
       this._m = new Float32Array(12);
@@ -338,7 +339,7 @@
         ctx.globalCompositeOperation = blend;
         for (const g of groups.values()) {
           ctx.globalAlpha = (this.light ? 0.05 : 0.09) * alpha * g.a;
-          ctx.lineWidth = g.w * 5;
+          ctx.lineWidth = g.w * 5 * this.stroke;
           ctx.beginPath();
           for (const run of g.runs) trace(ctx, run);
           ctx.stroke();
@@ -349,7 +350,7 @@
       for (const g of groups.values()) {
         ctx.globalAlpha = alpha * g.a;
         // Sur papier, sans halo pour épaissir le trait, on compense un peu
-        ctx.lineWidth = g.w * (this.light ? 1.25 : 1);
+        ctx.lineWidth = g.w * (this.light ? 1.25 : 1) * this.stroke;
         ctx.beginPath();
         for (const run of g.runs) trace(ctx, run);
         ctx.stroke();

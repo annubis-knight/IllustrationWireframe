@@ -29,14 +29,14 @@
 }
 .hud text { fill: currentColor; stroke: none; }
 .hud-back { opacity: .4; }
-.hud-ring { stroke-width: .5; opacity: .6; }
-.hud-dash { stroke-width: .6; stroke-dasharray: 1 5; }
-.hud-cross { stroke-width: .6; }
-.hud-corners { stroke-width: 1.2; opacity: .8; }
+.hud-ring { stroke-width: calc(.5 * var(--illu-stroke, 1)); opacity: .6; }
+.hud-dash { stroke-width: calc(.6 * var(--illu-stroke, 1)); stroke-dasharray: 1 5; }
+.hud-cross { stroke-width: calc(.6 * var(--illu-stroke, 1)); }
+.hud-corners { stroke-width: calc(1.2 * var(--illu-stroke, 1)); opacity: .8; }
 .hud-k { font-size: 7.5px; letter-spacing: .18em; opacity: .6; }
 .hud-v { font-size: 11px; font-weight: 600; letter-spacing: .08em; }
 .c-dot { fill: currentColor; stroke: none; }
-.c-lead { stroke-width: .7; opacity: .9; }
+.c-lead { stroke-width: calc(.7 * var(--illu-stroke, 1)); opacity: .9; }
 .c-txt { font-size: 9.5px; font-weight: 600; letter-spacing: .08em; }
 .c-sub { font-size: 7.5px; letter-spacing: .1em; opacity: .65; }
 

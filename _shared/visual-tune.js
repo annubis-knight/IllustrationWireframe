@@ -1,26 +1,34 @@
 /**
- * LabVisualTune — deux curseurs pour régler le **rendu des visuels** : opacité
- * et saturation. Rien d'autre sur la page ne bouge.
+ * LabVisualTune — quatre curseurs pour régler le rendu et figer des valeurs.
  *
- * Deux jetons sont posés sur <html> (`--illu-opacity`, `--illu-saturate`) et
- * appliqués aux seules zones de dessin : la vignette des cartes (`.offer__visual`),
- * les plans du banc de layouts (`[data-visual]`) et le canvas plein cadre du
- * prototype Three.js (`#stage`).
+ *   Opacité · Saturation   le dessin, et lui seul
+ *   Épaisseur              l'échelle des traits, dans les quatre technologies
+ *   Arrondi                les angles des surfaces (pas du dessin : un trait
+ *                          n'a pas d'angle, une carte oui)
  *
- * Tant que les deux valeurs sont à 100 %, **aucune règle ne s'applique** :
- * l'attribut `data-illu-tune` n'est posé qu'au premier écart. Un `filter` ou un
- * `opacity` crée un contexte d'empilement, et certains layouts en dépendent
- * (le masque du hublot, les plans en perspective du diorama) — autant ne rien
- * introduire quand il n'y a rien à régler.
+ * Tout passe par des jetons posés sur <html>. Les trois premiers n'agissent que
+ * sur les zones de dessin : la vignette des cartes (`.offer__visual`), les plans
+ * du banc de layouts (`[data-visual]`) et le canvas plein cadre de Three.js.
  *
- * Réglages mémorisés (localStorage), bouton RAZ pour revenir à 100 / 100.
+ * L'épaisseur est un **facteur**, pas une valeur absolue : chaque trait garde son
+ * poids relatif (`stroke-width: calc(.8 * var(--illu-stroke))` dans les feuilles
+ * SVG, multiplication du `lineWidth` côté Canvas, du `linewidth` côté WebGL).
+ * Canvas et WebGL ne lisant pas la CSS, ils relisent les jetons sur l'événement
+ * `themechange` — celui qui sert déjà au thème et aux couleurs.
+ *
+ * Tant qu'un réglage vaut sa valeur nominale, **aucune règle ne s'applique** :
+ * son attribut n'est posé qu'au premier écart. Un filtre ou une opacité crée un
+ * contexte d'empilement, et plusieurs layouts en dépendent (le masque du hublot,
+ * les plans en perspective du diorama) — autant ne rien introduire pour rien.
+ *
+ * Réglages mémorisés (localStorage), bouton RAZ pour tout remettre à zéro.
  */
 (() => {
   'use strict';
 
   const KEY = 'lab-illu-tune';
   const root = document.documentElement;
-  const DEFAULTS = { opacity: 100, saturate: 100 };
+  const DEFAULTS = { opacity: 100, saturate: 100, stroke: 100, round: 0 };
 
   let state = { ...DEFAULTS };
   try {
@@ -28,6 +36,8 @@
     state = {
       opacity: clamp(saved.opacity, 10, 100, DEFAULTS.opacity),
       saturate: clamp(saved.saturate, 0, 200, DEFAULTS.saturate),
+      stroke: clamp(saved.stroke, 25, 300, DEFAULTS.stroke),
+      round: clamp(saved.round, 0, 28, DEFAULTS.round),
     };
   } catch { /* navigation privée */ }
 
@@ -49,6 +59,31 @@
     }
     html[data-illu-saturate] :is(.offer__visual, [data-visual], #stage) {
       filter: saturate(var(--illu-saturate, 1));
+    }
+
+    /* L'arrondi, lui, ne concerne pas le dessin : les traits n'ont pas d'angles,
+       les surfaces si. Dès qu'on quitte 0, l'angle coupé du lab (clip-path)
+       laisse la place à un rayon — les deux ne peuvent pas cohabiter. */
+    html[data-illu-round] :is(.offer__frame, .offer__badge, .offer__cta, .cta, .power, .seg,
+      .seg button, .tog, .dock-panel, .banner, .tile, .howto, .table-wrap, .ocard, .ocard__badge,
+      .ocard__pick, .l-split, .l-hero, .l-imm, .l-data, .l-throttle, .l-cock, .l-sten, .l-shut,
+      .l-port, .l-dio, .l-stack__front, .l-stack__ghost, .l-dio__card, .l-sten__card,
+      .l-cock__panel, .l-imm__arrow, .l-dio__tab, .l-onbg, .l-rows__item, .l-tick__card,
+      .explorer button, .page__actions button, .toolbar button, .tile__links a, .topbar__back,
+      .lab-panel button, .dock-accents__reset, .dock-layers__reset, .dock-tune__reset,
+      .l-cfg__opts button, .l-tab__bar button, .l-stk__bar, .l-cmp__flag) {
+      clip-path: none;
+      border-radius: var(--illu-round, 0px);
+    }
+    /* Le trait en diagonale qui dessine la coupe n'a plus d'objet une fois arrondi */
+    html[data-illu-round] .offer__frame::before,
+    html[data-illu-round] .offer__frame::after { display: none; }
+    /* Les petits éléments ne suivent pas le même rayon que les grandes surfaces */
+    html[data-illu-round] :is(.cta, .power, .seg button, .ocard__pick, .page__actions button,
+      .toolbar button, .tile__links a, .topbar__back, .lab-panel button, .l-cfg__opts button,
+      .dock-accents__reset, .dock-layers__reset, .dock-tune__reset, .offer__badge, .ocard__badge,
+      .l-cmp__flag) {
+      border-radius: min(var(--illu-round, 0px), 10px);
     }
 
     .dock-tune { display: flex; flex-direction: column; gap: 10px; }
@@ -73,20 +108,31 @@
   document.head.append(style);
 
   const FIELDS = [
-    { key: 'opacity', label: 'Opacité', min: 10, max: 100, step: 5, unit: '%' },
-    { key: 'saturate', label: 'Saturation', min: 0, max: 200, step: 5, unit: '%' },
+    { key: 'opacity', label: 'Opacité', min: 10, max: 100, step: 5, unit: '%', hint: 'du dessin' },
+    { key: 'saturate', label: 'Saturation', min: 0, max: 200, step: 5, unit: '%', hint: 'du dessin' },
+    { key: 'stroke', label: 'Épaisseur', min: 25, max: 300, step: 5, unit: '%', hint: 'des traits' },
+    { key: 'round', label: 'Arrondi', min: 0, max: 28, step: 1, unit: 'px', hint: 'des angles (0 = coupé)' },
   ];
+  const readout = (f) => (f.key === 'round' && state.round === 0 ? 'coupé' : `${state[f.key]}${f.unit}`);
 
   function apply({ persist = true } = {}) {
     root.style.setProperty('--illu-opacity', String(state.opacity / 100));
     root.style.setProperty('--illu-saturate', String(state.saturate / 100));
+    root.style.setProperty('--illu-stroke', String(state.stroke / 100));
+    root.style.setProperty('--illu-round', `${state.round}px`);
     root.toggleAttribute('data-illu-opacity', state.opacity !== DEFAULTS.opacity);
     root.toggleAttribute('data-illu-saturate', state.saturate !== DEFAULTS.saturate);
+    root.toggleAttribute('data-illu-round', state.round !== DEFAULTS.round);
     if (persist) {
       try {
         localStorage.setItem(KEY, JSON.stringify(state));
       } catch { /* navigation privée */ }
     }
+    /* Canvas et WebGL ne lisent pas la CSS : ils relisent les jetons sur cet
+       événement, celui-là même qui sert déjà au thème et aux couleurs. */
+    dispatchEvent(new CustomEvent('themechange', {
+      detail: { theme: window.LabTheme?.current?.() ?? 'dark', reason: 'tune' },
+    }));
   }
 
   function mount() {
@@ -97,24 +143,25 @@
     const wrap = document.createElement('div');
     wrap.className = 'dock-tune';
     wrap.innerHTML = FIELDS.map((f) => `
-      <label title="${f.label} des visuels uniquement">
-        <span class="dock-tune__row"><span>${f.label}</span><b data-out="${f.key}">${state[f.key]}${f.unit}</b></span>
+      <label title="${f.label} ${f.hint}">
+        <span class="dock-tune__row"><span>${f.label}</span><b data-out="${f.key}">${readout(f)}</b></span>
         <input type="range" data-tune="${f.key}" min="${f.min}" max="${f.max}" step="${f.step}" value="${state[f.key]}"
-               aria-label="${f.label} des visuels, en pourcent">
+               aria-label="${f.label} ${f.hint}">
       </label>`).join('');
 
     const sync = () => {
       for (const f of FIELDS) {
         wrap.querySelector(`[data-tune="${f.key}"]`).value = String(state[f.key]);
-        wrap.querySelector(`[data-out="${f.key}"]`).textContent = `${state[f.key]}${f.unit}`;
+        wrap.querySelector(`[data-out="${f.key}"]`).textContent = readout(f);
       }
     };
 
     wrap.addEventListener('input', (e) => {
       const input = e.target.closest('input[data-tune]');
       if (!input) return;
-      state[input.dataset.tune] = Number(input.value);
-      wrap.querySelector(`[data-out="${input.dataset.tune}"]`).textContent = `${input.value}%`;
+      const field = FIELDS.find((f) => f.key === input.dataset.tune);
+      state[field.key] = Number(input.value);
+      wrap.querySelector(`[data-out="${field.key}"]`).textContent = readout(field);
       apply();
     });
 
@@ -122,7 +169,7 @@
     reset.type = 'button';
     reset.className = 'dock-tune__reset';
     reset.textContent = 'RAZ';
-    reset.title = 'Revenir à 100 / 100';
+    reset.title = 'Revenir aux valeurs nominales';
     reset.addEventListener('click', () => {
       state = { ...DEFAULTS };
       apply();
@@ -141,6 +188,8 @@
       state = {
         opacity: clamp(next.opacity, 10, 100, state.opacity),
         saturate: clamp(next.saturate, 0, 200, state.saturate),
+        stroke: clamp(next.stroke, 25, 300, state.stroke),
+        round: clamp(next.round, 0, 28, state.round),
       };
       apply();
     },

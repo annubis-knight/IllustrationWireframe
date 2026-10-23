@@ -203,6 +203,7 @@
         this.glow = true;
         this.layers = {}; // calques éteints : { fx: false, … }
         this.light = false; // thème clair : encre sur papier, pas de néon additif
+        this.stroke = 1;    // facteur d'épaisseur, piloté par le dock (1 = nominal)
         this.alpha = 1; // pilotée par l'intro
         this.dpr = 1;
         this._m = new Float32Array(12);
@@ -350,7 +351,7 @@
           ctx.globalCompositeOperation = blend;
           for (const g of groups.values()) {
             ctx.globalAlpha = (this.light ? 0.05 : 0.09) * alpha * g.a;
-            ctx.lineWidth = g.w * 5;
+            ctx.lineWidth = g.w * 5 * this.stroke;
             ctx.beginPath();
             for (const run of g.runs) trace(ctx, run);
             ctx.stroke();
@@ -361,7 +362,7 @@
         for (const g of groups.values()) {
           ctx.globalAlpha = alpha * g.a;
           // Sur papier, sans halo pour épaissir le trait, on compense un peu
-          ctx.lineWidth = g.w * (this.light ? 1.25 : 1);
+          ctx.lineWidth = g.w * (this.light ? 1.25 : 1) * this.stroke;
           ctx.beginPath();
           for (const run of g.runs) trace(ctx, run);
           ctx.stroke();
@@ -734,10 +735,10 @@
               font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; pointer-events: none; }
         text { fill: currentColor; stroke: none; }
         .back { opacity: .4; }
-        .ring { stroke-width: .5; opacity: .6; }
-        .dash { stroke-width: .6; stroke-dasharray: 1 5; }
-        .cross { stroke-width: .6; }
-        .corners { stroke-width: 1.2; opacity: .8; }
+        .ring { stroke-width: calc(.5 * var(--illu-stroke, 1)); opacity: .6; }
+        .dash { stroke-width: calc(.6 * var(--illu-stroke, 1)); stroke-dasharray: 1 5; }
+        .cross { stroke-width: calc(.6 * var(--illu-stroke, 1)); }
+        .corners { stroke-width: calc(1.2 * var(--illu-stroke, 1)); opacity: .8; }
         .k { font-size: 7.5px; letter-spacing: .18em; opacity: .6; }
         .v { font-size: 11px; font-weight: 600; letter-spacing: .08em; }
         [data-layer][hidden] { display: none; }
@@ -848,6 +849,10 @@
         const t = document.documentElement.dataset.theme;
         this.renderer.light = t ? t === 'light' : matchMedia('(prefers-color-scheme: light)').matches;
         this.renderer.color = this.#resolveColor();
+        // Le composant lit le jeton d'épaisseur comme il lit celui de couleur :
+        // posé sur <html>, il traverse le Shadow DOM sans rien exposer de plus.
+        const stroke = getComputedStyle(document.documentElement).getPropertyValue('--illu-stroke').trim();
+        this.renderer.stroke = Number(stroke) || 1;
       };
   
       get boost() {

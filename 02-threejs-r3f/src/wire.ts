@@ -128,6 +128,8 @@ export function lines(segs: Seg, { color, width = 1.4, opacity = 1, additive = f
   // Rôle : permet de reteinter le bon matériau quand le thème change (cf. applyTheme dans main.ts)
   material.userData.role = new THREE.Color(color).getHex() === 0xffffff ? 'hot' : 'accent';
   material.userData.additive = additive;
+  // Épaisseur nominale : le curseur du dock la multiplie, il ne la remplace pas
+  material.userData.baseWidth = width;
   const mesh = new LineSegments2(geometry, material);
   mesh.computeLineDistances();
   return mesh;
