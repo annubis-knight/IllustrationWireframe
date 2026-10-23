@@ -25,6 +25,7 @@
   const { gsap } = window;
   const OFFERS = window.LAB_OFFERS;
   const SVG = window.LAB_SVG || {};
+  const SECTION = window.LAB_SECTION;
   const BY_TIER = Object.fromEntries(OFFERS.map((o) => [o.tier, o]));
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -32,8 +33,88 @@
   const price = (n) => nf.format(n).replace(/ /g, ' ');
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const specsRows = (o) => o.specs.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('');
-  const priceBlock = (o, cls = '') => `<p class="price ${cls}"><span>dès</span> <b>${price(o.price)}</b> <span>€ HT</span></p>`;
+  const priceBlock = (o, cls = '') => `<p class="price ${cls}">${o.priceFrom ? `<span>${esc(o.priceFrom)}</span> ` : ''}<b>${price(o.price)}</b> <span>€</span></p>`;
+  const priceTag = (o) => `${o.priceFrom ? `${esc(o.priceFrom)} ` : ''}${price(o.price)} €`;
   const cta = (o) => `<a class="cta" href="#devis">${esc(o.cta)} <span aria-hidden="true">→</span></a>`;
+
+  /* ── Le contenu d'une offre ─────────────────────────────────────────────
+   * Ces briques-là portent ce que l'offre contient vraiment (OFFRES.md) :
+   * la promesse, le **compteur** de valeur, les meilleurs éléments visibles,
+   * le reste dans un dérouleur, et le bloc prix avec sa garantie.
+   *
+   * Principe de la source : *montrer la quantité, cacher le détail*. Le
+   * dérouleur est un <details> natif — aucun câblage, il survit au re-rendu
+   * de la section et reste utilisable au clavier.
+   *
+   * Trois densités, pour que chaque layout prenne ce que son conteneur peut
+   * tenir sans qu'on touche à sa composition :
+   *   full     compteur + offre incluse + éléments + dérouleur
+   *   compact  compteur + les meilleurs éléments
+   *   digest   les 5 lignes de résumé (conteneurs étroits)
+   * ─────────────────────────────────────────────────────────────────────── */
+
+  /** La promesse, avec sa chute en gras quand il y en a une. */
+  const promise = (o, cls = 'pitch') => `<p class="${cls}">${esc(o.pitch)}${o.pitchTail ? ` <b>${esc(o.pitchTail)}</b>` : ''}</p>`;
+
+  /** Le compteur : la quantité de valeur, avant le détail. */
+  const counter = (o) => (o.count
+    ? `<p class="ocount"><b>${o.count.n}</b> ${esc(o.count.label)}${o.count.note ? `<span>${esc(o.count.note)}</span>` : ''}</p>`
+    : (o.alacarte ? `<p class="ocount ocount--alt">${esc(o.alacarte)}</p>` : ''));
+
+  /** « L'offre dans l'offre » — volontairement distincte des puces. */
+  const included = (o) => (o.included ? `
+    <div class="oincl">
+      <p class="oincl__head">${esc(o.included.title)} <span>${esc(o.included.value)}</span></p>
+      <p class="oincl__list">${o.included.items.map(esc).join(' · ')}</p>
+    </div>` : '');
+
+  /** Un élément : nom connu du livrable, puis ce que ça change. */
+  const item = (it) => `
+    <li class="oitem oitem--${it.kind}">
+      <i aria-hidden="true"></i>
+      <span><b>${esc(it.name)}</b>${it.benefit ? ` : ${esc(it.benefit)}` : ''}</span>
+    </li>`;
+
+  /** Les éléments visibles, puis le reste replié derrière son compteur. */
+  const itemList = (o, { max = o.visible } = {}) => {
+    const shown = o.items.slice(0, max);
+    const rest = o.items.slice(max);
+    return `
+      <ul class="oitems">${shown.map(item).join('')}</ul>
+      ${rest.length ? `
+        <details class="omore">
+          <summary>${esc(o.more || `Voir les ${rest.length} autres éléments`)}</summary>
+          <ul class="oitems">${rest.map(item).join('')}</ul>
+        </details>` : ''}`;
+  };
+
+  /** Les étiquettes de Nitro : des missions, pas une liste de livrables. */
+  const chipsOf = (o) => (o.chips ? `<ul class="chips chips--left">${o.chips.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : '');
+
+  /** Le bloc prix : prix ancré, mention, garantie en une ligne, un CTA. */
+  const priceBox = (o, { note = true, guarantee = true, sub = true, link = false } = {}) => `
+    <div class="obuy">
+      ${priceBlock(o)}
+      ${note && o.priceNote ? `<p class="obuy__note">${esc(o.priceNote)}</p>` : ''}
+      ${guarantee && o.guarantee ? `<p class="obuy__warranty">${esc(o.guarantee)}</p>` : ''}
+      ${cta(o)}
+      ${sub && o.ctaNote ? `<p class="obuy__sub">${esc(o.ctaNote)}</p>` : ''}
+      ${link && o.link ? `<a class="obuy__link" href="#offre">${esc(o.link)}</a>` : ''}
+    </div>`;
+
+  /** Le contenu d'une offre, à la densité que le conteneur peut tenir. */
+  const offerBody = (o, density = 'full') => {
+    if (density === 'digest') return `<dl class="specs specs--dense">${specsRows(o)}</dl>`;
+    if (density === 'compact') return `${counter(o)}${chipsOf(o)}<ul class="oitems">${o.items.slice(0, 3).map(item).join('')}</ul>`;
+    return `${counter(o)}${included(o)}${chipsOf(o)}${itemList(o)}`;
+  };
+
+  /* Pied de section : rareté et mention de TVA — ils appartiennent à la section. */
+  const sectionFoot = () => (SECTION ? `
+    <footer class="osec__foot">
+      <p><b>${esc(SECTION.scarcity)}</b> ${esc(SECTION.nextSlot)}</p>
+      <p class="osec__vat">${esc(SECTION.vat)}</p>
+    </footer>` : '');
 
   /* ── Deux briques pour la famille « cartes » ─────────────────────────────
    * Une section d'offres réelle s'ouvre par un en-tête, pas par une carte ;
@@ -42,10 +123,9 @@
    * ─────────────────────────────────────────────────────────────────────── */
   const sectionHead = (o) => `
     <header class="osec__head">
-      <p class="kicker"><span class="kicker__dot"></span>SYS.OFFRES // Sélection du module</p>
-      <h3 class="osec__title">Choisissez votre <em>trajectoire</em></h3>
-      <p class="osec__lede">Trois configurations pour faire décoller votre présence en ligne.
-        Vous regardez <b>${esc(o.name)}</b>.</p>
+      <p class="kicker"><span class="kicker__dot"></span>${esc(SECTION.kicker)}</p>
+      <h3 class="osec__title">${SECTION.title}</h3>
+      <p class="osec__lede">${esc(SECTION.lede)} Vous regardez <b>${esc(o.name)}</b>.</p>
     </header>`;
 
   /** La carte d'offre. Ouverte, elle détaille ; repliée, elle garde de quoi choisir. */
@@ -54,8 +134,8 @@
       ${open && x.badge ? `<p class="ocard__badge">${esc(x.badge)}</p>` : ''}
       <p class="eyebrow">${esc(x.code)} · ${esc(open ? x.status : x.stage)}</p>
       <h3 class="name">${esc(x.name)}</h3>
-      <p class="pitch">${esc(open ? x.pitch : x.argument)}</p>
-      ${open ? `<dl class="specs specs--dense">${specsRows(x)}</dl>` : ''}
+      ${open ? promise(x) : `<p class="pitch">${esc(x.promiseShort || x.pitch)}</p>`}
+      ${open ? offerBody(x, 'full') : counter(x)}
       <div class="ocard__foot">
         ${priceBlock(x)}
         ${open ? cta(x) : `<button class="ocard__pick" type="button" data-pick="${x.tier}">Choisir</button>`}
@@ -161,10 +241,9 @@
             </div>
             <p class="eyebrow">${esc(o.code)} · ${esc(o.stageLong)}</p>
             <h3 class="name">${esc(o.name)}</h3>
-            <p class="pitch">${esc(o.pitch)}</p>
-            <dl class="specs">${specsRows(o)}</dl>
-            ${priceBlock(o)}
-            ${cta(o)}
+            ${promise(o)}
+            ${offerBody(o, 'full')}
+            ${priceBox(o, { link: true })}
           </div>
         </div>`,
     },
@@ -183,8 +262,9 @@
             <div class="l-hero__visual" data-visual></div>
             <p class="eyebrow">${esc(o.stageLong)}</p>
             <h3 class="name name--xl">${esc(o.name)}</h3>
-            <p class="pitch">${esc(o.pitch)}</p>
-            <ul class="chips">${o.specs.map(([k, v]) => `<li><span>${esc(k)}</span> ${esc(v)}</li>`).join('')}</ul>
+            ${promise(o)}
+            ${counter(o)}
+            <ul class="chips">${o.items.slice(0, 3).map((it) => `<li><span>${esc(it.kind)}</span> ${esc(it.name)}</li>`).join('')}</ul>
             <div class="l-hero__foot">${priceBlock(o)}${cta(o)}</div>
           </div>
         </div>`,
@@ -200,7 +280,8 @@
           <div class="l-imm__overlay">
             <p class="eyebrow">${esc(o.code)} · ${esc(o.status)}</p>
             <h3 class="name name--xl">${esc(o.name)}</h3>
-            <p class="pitch">${esc(o.pitch)}</p>
+            ${promise(o)}
+            ${counter(o)}
             <div class="l-imm__foot">${priceBlock(o, 'price--ghost')}${cta(o)}</div>
             <div class="l-imm__nav">
               <button class="l-imm__arrow" type="button" data-pick="${OFFERS[(i + 2) % 3].tier}" aria-label="Offre précédente">‹</button>
@@ -231,7 +312,7 @@
               <button type="button" data-pick="${x.tier}" aria-current="${x.tier === o.tier}">
                 <span class="explorer__code">${esc(x.code)}</span>
                 <span class="explorer__name">${esc(x.name)}</span>
-                <span class="explorer__price">${price(x.price)} €</span>
+                <span class="explorer__price">${priceTag(x)}</span>
               </button>`).join('')}
           </nav>
           <div class="l-data__panel">
@@ -242,8 +323,8 @@
             <div class="l-data__grid">
               <div class="l-data__visual" data-visual></div>
               <div>
-                <p class="pitch">${esc(o.pitch)}</p>
-                <dl class="specs specs--dense">${specsRows(o)}</dl>
+                ${promise(o)}
+                ${offerBody(o, 'full')}
               </div>
             </div>
             <footer class="l-data__foot">${priceBlock(o)}${cta(o)}</footer>
@@ -261,7 +342,7 @@
             <button class="l-stack__ghost l-stack__ghost--${k}" type="button" data-pick="${x.tier}" data-tier="${x.tier}">
               <span class="l-stack__code">${esc(x.code)}</span>
               <span class="l-stack__name">${esc(x.name)}</span>
-              <span class="l-stack__price">${price(x.price)} € HT</span>
+              <span class="l-stack__price">${priceTag(x)}</span>
               <span class="l-stack__hint">Mettre devant</span>
             </button>`).join('')}
           <article class="l-stack__front">
@@ -269,8 +350,8 @@
             <div class="l-stack__body">
               <p class="eyebrow">${esc(o.code)} · ${esc(o.stage)}</p>
               <h3 class="name">${esc(o.name)}</h3>
-              <p class="pitch">${esc(o.argument)}</p>
-              <dl class="specs">${specsRows(o)}</dl>
+              ${promise(o)}
+              ${offerBody(o, 'full')}
               <div class="l-stack__foot">${priceBlock(o)}${cta(o)}</div>
             </div>
           </article>
@@ -293,8 +374,8 @@
             </div>
             <div class="l-throttle__gauge" aria-hidden="true">${Array.from({ length: 12 }, (_, i) => `<i${i < o.level * 4 ? ' class="on"' : ''}></i>`).join('')}</div>
             <h3 class="name">${esc(o.name)}</h3>
-            <p class="pitch">${esc(o.pitch)}</p>
-            <dl class="specs specs--dense">${specsRows(o)}</dl>
+            ${promise(o)}
+            ${offerBody(o, 'compact')}
             <div class="l-throttle__foot">${priceBlock(o)}${cta(o)}</div>
           </div>
         </div>`,
@@ -321,8 +402,8 @@
           <div class="l-cock__panel">
             <p class="eyebrow">${esc(o.code)} · ${esc(o.status)}</p>
             <h3 class="name">${esc(o.name)}</h3>
-            <p class="pitch">${esc(o.pitch)}</p>
-            <dl class="specs specs--dense l-cock__read">${specsRows(o)}</dl>
+            ${promise(o)}
+            ${offerBody(o, 'compact')}
             <div class="l-cock__foot">${priceBlock(o)}${cta(o)}</div>
           </div>
           <div class="l-cock__switches" role="radiogroup" aria-label="Choisir un module">
@@ -355,8 +436,9 @@
           </div>
           <aside class="l-sten__card">
             <p class="eyebrow">${esc(o.code)} · ${esc(o.stageLong)}</p>
-            <p class="pitch">${esc(o.pitch)}</p>
-            <ul class="chips chips--left">${o.specs.map(([k, v]) => `<li><span>${esc(k)}</span> ${esc(v)}</li>`).join('')}</ul>
+            ${promise(o)}
+            ${counter(o)}
+            <ul class="chips chips--left">${o.items.slice(0, 3).map((it) => `<li>${esc(it.name)}</li>`).join('')}</ul>
             <div class="l-sten__foot">${priceBlock(o)}${cta(o)}</div>
           </aside>
         </div>`,
@@ -379,15 +461,15 @@
                 <div class="l-shut__inner">
                   <p class="eyebrow">${esc(x.code)} · ${esc(x.status)}</p>
                   <h3 class="name name--xl">${esc(x.name)}</h3>
-                  <p class="pitch">${esc(x.pitch)}</p>
-                  <dl class="specs specs--dense">${specsRows(x)}</dl>
+                  ${promise(x)}
+                  ${offerBody(x, 'full')}
                   <div class="l-shut__foot">${priceBlock(x)}${cta(x)}</div>
                 </div>
               </section>` : `
               <button class="l-shut__pane l-shut__pane--closed" type="button" data-pick="${x.tier}" data-tier="${x.tier}"
                       aria-expanded="false" aria-label="Ouvrir l'offre ${esc(x.name)}">
                 <span class="l-shut__vert">${esc(x.name)}</span>
-                <span class="l-shut__meta">${price(x.price)} €</span>
+                <span class="l-shut__meta">${priceTag(x)}</span>
               </button>`)).join('')}
           </div>
         </div>`,
@@ -405,8 +487,8 @@
           <div class="l-port__text">
             <p class="eyebrow">${esc(o.stageLong)}</p>
             <h3 class="name name--xl">${esc(o.name)}</h3>
-            <p class="pitch">${esc(o.argument)}</p>
-            <dl class="specs specs--lead">${specsRows(o)}</dl>
+            ${promise(o)}
+            ${offerBody(o, 'compact')}
             <div class="l-port__foot">${priceBlock(o)}${cta(o)}</div>
           </div>
           <div class="l-port__dial" role="radiogroup" aria-label="Choisir un module" style="--needle: ${(o.level - 2) * 46}deg">
@@ -447,8 +529,9 @@
             <article class="l-dio__card">
               <p class="eyebrow">${esc(o.status)}</p>
               <h3 class="name">${esc(o.name)}</h3>
-              <p class="pitch">${esc(o.pitch)}</p>
-              <ul class="chips chips--left">${o.specs.slice(0, 3).map(([k, v]) => `<li><span>${esc(k)}</span> ${esc(v)}</li>`).join('')}</ul>
+              ${promise(o)}
+              ${counter(o)}
+              <ul class="chips chips--left">${o.items.slice(0, 2).map((it) => `<li>${esc(it.name)}</li>`).join('')}</ul>
               <div class="l-dio__foot">${priceBlock(o)}${cta(o)}</div>
             </article>
           </div>
@@ -541,10 +624,11 @@
                 <div class="l-rows__id">
                   <p class="eyebrow">${esc(x.code)} · ${esc(x.stage)}</p>
                   <h3 class="name">${esc(x.name)}</h3>
-                  <p class="pitch">${esc(on ? x.pitch : x.argument)}</p>
+                  ${promise(x)}
+                  ${on ? counter(x) : ''}
                 </div>
                 <ul class="chips chips--left">
-                  ${x.specs.slice(0, on ? 5 : 3).map(([k, v]) => `<li><span>${esc(k)}</span> ${esc(v)}</li>`).join('')}
+                  ${x.items.slice(0, on ? 4 : 2).map((it) => `<li>${esc(it.name)}</li>`).join('')}
                 </ul>
                 <div class="l-rows__buy">
                   ${priceBlock(x)}
@@ -569,7 +653,7 @@
      *      l'acheteur qui hésite — et le seul format où l'on voit les écarts. */
     compare: {
       markup: (o) => {
-        const keys = OFFERS[0].specs.map(([k]) => k);
+        const keys = OFFERS[0].compare.map(([k]) => k);
         return `
         <div class="l-cmp osec" data-tier="${o.tier}">
           <div class="l-cmp__intro">
@@ -586,7 +670,7 @@
                     <th scope="col" class="${x.tier === o.tier ? 'is-on' : ''}" data-tier="${x.tier}">
                       ${x.badge ? `<span class="l-cmp__flag">${esc(x.badge)}</span>` : ''}
                       <span class="l-cmp__name">${esc(x.name)}</span>
-                      <span class="l-cmp__price">${price(x.price)} € HT</span>
+                      <span class="l-cmp__price">${priceTag(x)}</span>
                     </th>`).join('')}
                 </tr>
               </thead>
@@ -594,7 +678,7 @@
                 ${keys.map((k, i) => `
                   <tr>
                     <th scope="row">${esc(k)}</th>
-                    ${OFFERS.map((x) => `<td class="${x.tier === o.tier ? 'is-on' : ''}">${esc(x.specs[i][1])}</td>`).join('')}
+                    ${OFFERS.map((x) => `<td class="${x.tier === o.tier ? 'is-on' : ''}">${esc(x.compare[i][1])}</td>`).join('')}
                   </tr>`).join('')}
               </tbody>
               <tfoot>
@@ -621,7 +705,7 @@
           <div class="l-tab__bar" role="tablist" aria-label="Choisir une offre">
             ${OFFERS.map((x) => `
               <button role="tab" type="button" data-pick="${x.tier}" data-tier="${x.tier}" aria-selected="${x.tier === o.tier}">
-                <b>${esc(x.name)}</b><span>${price(x.price)} € HT</span>
+                <b>${esc(x.name)}</b><span>${priceTag(x)}</span>
               </button>`).join('')}
           </div>
           <div class="l-tab__panel">
@@ -630,8 +714,9 @@
               <p class="eyebrow">${esc(o.stageLong)}</p>
               <h3 class="name name--xl">${esc(o.name)}</h3>
               <p class="pitch">${esc(o.pitch)}</p>
+              ${counter(o)}
               <ul class="l-tab__feats">
-                ${o.specs.map(([k, v]) => `<li><i aria-hidden="true">✓</i><span>${esc(k)}</span><b>${esc(v)}</b></li>`).join('')}
+                ${o.items.map((it) => `<li><i aria-hidden="true">✓</i><span>${esc(it.name)}</span><b>${esc(it.benefit)}</b></li>`).join('')}
               </ul>
               <div class="l-tab__foot">${priceBlock(o)}${cta(o)}</div>
             </div>
@@ -656,8 +741,9 @@
               <article class="l-stp__step${x.tier === o.tier ? ' is-on' : ''}" data-step="${x.tier}" data-tier="${x.tier}">
                 <p class="l-stp__num">${x.level}</p>
                 <h4 class="name">${esc(x.name)}</h4>
-                <p class="pitch">${esc(x.pitch)}</p>
-                <ul class="chips chips--left">${x.specs.slice(0, 3).map(([k, v]) => `<li><span>${esc(k)}</span> ${esc(v)}</li>`).join('')}</ul>
+                ${promise(x)}
+                ${counter(x)}
+                <ul class="chips chips--left">${x.items.slice(0, 3).map((it) => `<li>${esc(it.name)}</li>`).join('')}</ul>
                 <div class="l-stp__foot">${priceBlock(x)}${cta(x)}</div>
                 <button class="sr" type="button" data-goto="${x.tier}">Aller à l'étage ${esc(x.name)}</button>
               </article>`).join('')}
@@ -707,12 +793,13 @@
           <div class="l-stk__detail">
             <div>
               <h4 class="l-stk__h">Ce que comprend ${esc(o.name)}</h4>
-              <dl class="specs">${specsRows(o)}</dl>
+              ${offerBody(o, 'full')}
             </div>
             <div>
               <h4 class="l-stk__h">Pourquoi cette formule</h4>
-              <p class="pitch">${esc(o.argument)}</p>
-              <p class="pitch">${esc(o.pitch)}</p>
+              ${promise(o)}
+              ${o.guarantee ? `<p class="obuy__warranty">${esc(o.guarantee)}</p>` : ''}
+              <p class="pitch">${esc(o.ctaNote || o.argument)}</p>
               <p class="status"><i></i>${esc(o.status)}</p>
             </div>
           </div>
@@ -731,9 +818,9 @@
     config: {
       markup: (o) => {
         const QUESTIONS = [
-          ['Combien de pages ?', ['1 à 5', '5 à 12', 'Illimité']],
-          ['Qui met à jour le contenu ?', ['Nous, à la demande', 'Vous, en autonomie', 'Vous + tunnels de vente']],
-          ['Pour quand ?', ['3 semaines', '5 semaines', '8 semaines']],
+          ['Où en êtes-vous ?', ['Je ne sais pas quoi dire, ni à qui', 'Il me faut un site qui vend', 'Mon site existe, je veux aller plus loin']],
+          ['Ce qu’il vous faut d’abord ?', ['Une stratégie claire', 'La stratégie et le site', 'Une mission ciblée']],
+          ['Votre budget ?', ['1 490 €', 'À partir de 3 490 €', 'Missions dès 790 €']],
         ];
         return `
         <div class="l-cfg osec" data-tier="${o.tier}">
