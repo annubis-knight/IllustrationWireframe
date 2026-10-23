@@ -110,4 +110,4 @@ C'est **le double du prototype 01** (75 Ko) et **7 fois le prototype 03** (19 Ko
 └── dist/               build servi par le lab et mesuré par npm run measure
 ```
 
-Les prix et contenus des offres sont **fictifs** (placeholders de démo).
+Les textes et prix des offres sont **réels**, repris de [OFFRES.md](../OFFRES.md) (source unique).

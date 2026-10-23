@@ -223,4 +223,4 @@ test-layout/
                       helpers de profondeur (parallaxe, perspective)
 ```
 
-Les contenus et prix sont **fictifs** (placeholders de démo).
+Les textes et prix des offres sont **réels**, repris de [OFFRES.md](../OFFRES.md) (source unique).

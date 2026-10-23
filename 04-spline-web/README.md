@@ -114,4 +114,4 @@ Ordre de grandeur à anticiper : le runtime Spline pèse ~1 à 3 Mo selon la sc�
 └── dist/wire-rocket.js     le composant distribuable
 ```
 
-Les prix et contenus des offres sont **fictifs** (placeholders de démo).
+Les textes et prix des offres sont **réels**, repris de [OFFRES.md](../OFFRES.md) (source unique).

@@ -96,6 +96,12 @@ try {
   healthy = fail(`01 — générateur SVG : ${e.message.split('\n')[0]}`);
 }
 try {
+  execFileSync(process.execPath, [resolve(ROOT, 'tools/offers-build.mjs')], { stdio: 'pipe' });
+  ok('offres — cartes des 4 démos régénérées');
+} catch (e) {
+  healthy = fail(`offres — générateur : ${String(e.message).split('\n')[0]}`);
+}
+try {
   execFileSync(process.execPath, [resolve(ROOT, '04-spline-web/tools/bundle.mjs')], { stdio: 'pipe' });
   ok('04 — Web Component assemblé');
 } catch (e) {

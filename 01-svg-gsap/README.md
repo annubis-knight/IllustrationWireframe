@@ -132,4 +132,4 @@ js/main.js  (navigateur)
 └── preview.png             capture générée par npm run measure
 ```
 
-Les prix et contenus des offres sont **fictifs** (placeholders de démo).
+Les textes et prix des offres sont **réels**, repris de [OFFRES.md](../OFFRES.md) (source unique).

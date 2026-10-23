@@ -105,4 +105,4 @@ Le brief laissait le choix « Canvas 2D **ou** shader GLSL ». Le Canvas 2D a é
 
 Le moteur de ce prototype est réutilisé tel quel par le prototype 04 (`<wire-rocket>`).
 
-Les prix et contenus des offres sont **fictifs** (placeholders de démo).
+Les textes et prix des offres sont **réels**, repris de [OFFRES.md](../OFFRES.md) (source unique).
