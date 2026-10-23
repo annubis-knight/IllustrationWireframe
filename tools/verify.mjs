@@ -101,6 +101,16 @@ try {
 } catch (e) {
   healthy = fail(`04 — bundle : ${e.message.split('\n')[0]}`);
 }
+/* 02 se rebâtit comme les deux autres. Il ne l'était pas, et on a vérifié
+   pendant un moment un bundle périmé : ni le contenu ni les styles partagés
+   modifiés depuis le dernier build n'y étaient. Un artefact qu'on ne régénère
+   pas est un artefact en qui on ne peut pas avoir confiance. */
+try {
+  execFileSync('npm', ['run', 'build:02'], { cwd: ROOT, stdio: 'pipe', shell: process.platform === 'win32' });
+  ok('02 — bundle Vite reconstruit');
+} catch (e) {
+  healthy = fail(`02 — build : ${String(e.message).split('\n')[0]}`);
+}
 if (!existsSync(resolve(ROOT, '02-threejs-r3f/dist/index.html'))) {
   healthy = fail('02 — dist/ absent (lancer npm run build:02)');
 }
